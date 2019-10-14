@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import each from 'lodash/each';
+import isEqual from 'lodash/isEqual';
 import classNames from 'classnames';
 import CircularArray from './array';
-import { defaultProps, propTypes, autoplayProps } from './types';
+import { defaultProps, propTypes } from './types';
 import { PrevArrow, NextArrow } from './arrows';
 import Dots from './dots';
 import './style.css';
@@ -62,12 +63,22 @@ class Slider extends Component {
     this.slickSet = this.slickSet.bind(this);
     this.cycleTo = this.cycleTo.bind(this);
     this.autoPlay = this.autoPlay.bind(this);
-    this.play = this.autoPlay.bind(this, autoplayProps);
-    this.pause = this.handleAutoplayPause.bind(this, autoplayProps);
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.handleResize);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { children } = this.props;
+    const { SliderRef } = this.state;
+    if (children.length !== prevProps.children.length) {
+      this.init();
+      this.setRef(SliderRef);
+    }
+    if (!isEqual(this.props, prevProps)) {
+      this.slideInit();
+    }
   }
 
   /**
@@ -195,21 +206,14 @@ class Slider extends Component {
    * @param {Object} options
    * @param {Number} options.autoplaySpeed
    */
-  autoPlay = (options) => {
-    let { autoplay, autoplaySpeed } = this.settings;
+  autoPlay = () => {
+    const { autoplay, autoplaySpeed } = this.settings;
     const { pauseOnHover } = this.settings;
-    if (!options) {
-      autoplay = this.settings.autoplay; // eslint-disable-line prefer-destructuring
-      autoplaySpeed = this.settings.autoplaySpeed; // eslint-disable-line prefer-destructuring
-    } else {
-      autoplay = true;
-      autoplaySpeed = options.autoplaySpeed; // eslint-disable-line prefer-destructuring
-    }
     if (autoplay && autoplaySpeed > 0 && !this.autoplayTimer) {
       const { SliderRef } = this.state;
       this.autoplayTimer = setInterval(this.slickNext, autoplaySpeed);
       if (pauseOnHover) {
-        SliderRef.addEventListener('mouseover', () => this.handleAutoplayPause(options));
+        SliderRef.addEventListener('mouseover', () => this.handleAutoplayPause());
         SliderRef.removeEventListener('mouseleave', this.autoPlay);
       }
     }
@@ -248,13 +252,13 @@ class Slider extends Component {
    * @param {Object} options
    * @param {Number} options.autoplaySpeed
    */
-  handleAutoplayPause = (options) => {
+  handleAutoplayPause = () => {
     const { SliderRef } = this.state;
     if (this.autoplayTimer) {
       clearInterval(this.autoplayTimer);
       this.autoplayTimer = null;
       SliderRef.removeEventListener('mouseover', this.handleAutoplayPause);
-      SliderRef.addEventListener('mouseleave', () => this.autoPlay(options));
+      SliderRef.addEventListener('mouseleave', () => this.autoPlay());
     }
   };
 

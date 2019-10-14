@@ -139,6 +139,7 @@
 .carousel-dots {
   position: absolute;
   bottom: 0px;
+  left: 0;
 
   display: block;
 

@@ -7,9 +7,9 @@ class Carousel extends Component {
 
   slickPrev = () => this.innerSlider.slickPrev();
 
-  slickPlay = () => this.innerSlider.play();
+  slickPlay = () => this.innerSlider.autoPlay();
 
-  slickPause = () => this.innerSlider.pause();
+  slickPause = () => this.innerSlider.handleAutoplayPause();
 
   slickGoTo = () => this.innerSlider.slickSet();
 
