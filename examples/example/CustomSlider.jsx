@@ -5,11 +5,59 @@ import {
   Slider,
   Row,
   Col,
-  InputNumber
+  InputNumber,
+  Collapse
 } from 'antd';
+import PropTypes from 'prop-types';
 import map from 'lodash/map';
+import get from 'lodash/get';
 import Carousel from '../../src';
 import 'antd/dist/antd.css';
+
+const CustomSlide = ({ value, onChange, ...options }) => (
+  <Row>
+    <Col span={18}>
+      <Slider
+        {...options}
+        value={value}
+        onChange={onChange}
+      />
+    </Col>
+    <Col span={6}>
+      <InputNumber
+        {...options}
+        style={{ marginLeft: 16 }}
+        value={value}
+        onChange={onChange}
+      />
+    </Col>
+  </Row>
+);
+const CustomSwitch = ({ value, onChange, ...options }) => (
+  <Switch
+    {...options}
+    checked={value}
+    onChange={onChange}
+  />
+);
+const customPropTypes = {
+  value: PropTypes.any,
+  onChange: PropTypes.func,
+  options: PropTypes.shape({
+    min: PropTypes.number,
+    max: PropTypes.object,
+    step: PropTypes.number
+  })
+};
+const customDefaultProps = {
+  value: null,
+  onChange: () => {},
+  options: {}
+};
+CustomSlide.propTypes = customPropTypes;
+CustomSwitch.propTypes = customPropTypes;
+CustomSwitch.defaultProps = customDefaultProps;
+CustomSlide.defaultProps = customDefaultProps;
 
 class CustomSlider extends Component {
   constructor(props) {
@@ -28,29 +76,160 @@ class CustomSlider extends Component {
       duration: 200,
       shift: 0
     };
+    this.datas = [{
+      name: 'arrows',
+      component: 'switch'
+    }, {
+      name: 'centerMode',
+      component: 'switch'
+    }, {
+      name: 'centerPadding',
+      component: {
+        name: 'slider',
+        step: 10,
+        min: 10,
+        max: 200
+      }
+    }, {
+      name: 'duration',
+      component: {
+        name: 'slider',
+        step: 100,
+        min: 100,
+        max: 500
+      }
+    }, {
+      name: 'shift',
+      component: {
+        name: 'slider',
+        step: 10,
+        min: 0,
+        max: 100
+      }
+    }, {
+      name: 'slidesToShow',
+      component: {
+        name: 'slider',
+        step: 1,
+        min: 1,
+        max: 20
+      }
+    }, {
+      name: 'slidesToScroll',
+      component: {
+        name: 'slider',
+        step: 1,
+        min: 1,
+        max: 20
+      }
+    }, {
+      name: 'dots-Group',
+      component: [{
+        name: 'dots',
+        component: 'switch'
+      }, {
+        name: 'dotsScroll',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 10
+        }
+      }]
+    }, {
+      name: 'AutoPlay-Group',
+      component: [{
+        name: 'autoplay',
+        component: 'switch',
+        onChange: (checked) => {
+          if (checked) {
+            this.sliderRef.slickPlay();
+          } else {
+            this.sliderRef.slickPause();
+          }
+        }
+      }, {
+        name: 'autoplaySpeed',
+        component: {
+          name: 'slider',
+          step: 1000,
+          min: 1000,
+          max: 10000
+        }
+      }]
+    }];
+    this.component = {
+      slider: CustomSlide,
+      switch: CustomSwitch
+    };
+    this.deleteValue = ['name'];
     this.sliderRef = null;
   }
 
+  getCustomComponent = (key) => get(this.component, key);
+
+  getOptions = (options) => {
+    const newOptions = { ...options };
+    this.deleteValue.forEach((value) => {
+      delete newOptions[value];
+    });
+    return newOptions;
+  };
+
+  createComponent = ({ name, component, onChange }) => {
+    const componentName = component.name || component;
+    const CustomComponent = this.getCustomComponent(componentName);
+    const customOptions = this.getOptions(component);
+    return (
+      <div>
+        <span>{name}</span>
+        <CustomComponent
+          {...customOptions}
+          value={get(this.state, name)}
+          onChange={(value) => {
+            const newState = { ...this.state };
+            newState[name] = value;
+            this.setState(newState, () => {
+              if (typeof onChange === 'function' && onChange) {
+                onChange(value);
+              }
+            });
+          }}
+        />
+      </div>
+    );
+  };
+
+  format = (options) => (
+    <div>
+      {
+        map(options || this.datas, (data) => {
+          let result = null;
+          const { name, component } = data;
+          if (typeof component === 'object' && Array.isArray(component)) {
+            result = (
+              <div>
+                <span>{name}</span>
+                {this.format(component)}
+              </div>
+            );
+          } else {
+            result = this.createComponent(data);
+          }
+          return result;
+        })
+      }
+    </div>
+  );
+
   render() {
-    const {
-      dots,
-      slidesToShow,
-      slidesToScroll,
-      centerMode,
-      boxCount,
-      autoplay,
-      autoplaySpeed,
-      centerPadding,
-      arrows,
-      dotsScroll,
-      duration,
-      shift
-    } = this.state;
+    const { boxCount } = this.state;
     return (
       <div>
         <h2>Custom Slider</h2>
-        <Form labelAlign="left" labelCol={{ span: 3 }}>
-          <Form.Item label="boxCount" wrapperCol={{ span: 6 }}>
+        <div>
+          <div>
+            <span>boxCount</span>
             <Row>
               <Col span={16}>
                 <Slider
@@ -70,172 +249,9 @@ class CustomSlider extends Component {
                 />
               </Col>
             </Row>
-          </Form.Item>
-          <Form.Item label="arrows" wrapperCol={{ span: 6 }}>
-            <Switch
-              checked={arrows}
-              onChange={(checked) => this.setState({ arrows: checked })}
-            />
-          </Form.Item>
-          <Form.Item label="centerMode" wrapperCol={{ span: 6 }}>
-            <Switch
-              checked={centerMode}
-              onChange={(checked) => this.setState({ centerMode: checked })}
-            />
-          </Form.Item>
-          <Form.Item label="centerPadding" wrapperCol={{ span: 6 }}>
-            <Row>
-              <Col span={16}>
-                <Slider
-                  step={10}
-                  min={10}
-                  max={200}
-                  value={centerPadding}
-                  onChange={(value) => this.setState({ centerPadding: value })}
-                />
-              </Col>
-              <Col span={4}>
-                <InputNumber
-                  step={10}
-                  min={10}
-                  max={200}
-                  style={{ marginLeft: 16 }}
-                  value={centerPadding}
-                  onChange={(value) => this.setState({ centerPadding: value })}
-                />
-              </Col>
-            </Row>
-          </Form.Item>
-          <Form.Item label="duration" wrapperCol={{ span: 6 }}>
-            <Row>
-              <Col span={16}>
-                <Slider
-                  step={100}
-                  min={100}
-                  max={500}
-                  value={duration}
-                  onChange={(value) => this.setState({ duration: value })}
-                />
-              </Col>
-              <Col span={4}>
-                <InputNumber
-                  step={100}
-                  min={100}
-                  max={500}
-                  style={{ marginLeft: 16 }}
-                  value={duration}
-                  onChange={(value) => this.setState({ duration: value })}
-                />
-              </Col>
-            </Row>
-          </Form.Item>
-          <Form.Item label="shift" wrapperCol={{ span: 6 }}>
-            <Row>
-              <Col span={16}>
-                <Slider
-                  step={10}
-                  min={0}
-                  max={100}
-                  value={shift}
-                  onChange={(value) => this.setState({ shift: value })}
-                />
-              </Col>
-              <Col span={4}>
-                <InputNumber
-                  step={10}
-                  min={0}
-                  max={100}
-                  style={{ marginLeft: 16 }}
-                  value={shift}
-                  onChange={(value) => this.setState({ shift: value })}
-                />
-              </Col>
-            </Row>
-          </Form.Item>
-          <Form.Item label="slidesToShow" wrapperCol={{ span: 6 }}>
-            <Slider
-              min={1}
-              max={20}
-              onChange={(value) => this.setState({ slidesToShow: value })}
-              value={slidesToShow || 1}
-            />
-          </Form.Item>
-          <Form.Item label="slidesToScroll" wrapperCol={{ span: 6 }}>
-            <Slider
-              min={1}
-              max={20}
-              onChange={(value) => this.setState({ slidesToScroll: value })}
-              value={slidesToScroll || 1}
-            />
-          </Form.Item>
-          <Form.Item label="dots-Group" labelCol={{ span: 24 }}>
-            <Form wrapperCol={{ span: 12 }} labelCol={{ span: 6 }}>
-              <Form.Item label="dots" labelCol={{ span: 3 }} style={{ width: '50%', display: 'inline-block' }}>
-                <Switch checked={dots} onChange={(checked) => this.setState({ dots: checked })} />
-              </Form.Item>
-              <Form.Item label="dotsScroll" labelCol={{ span: 3 }} style={{ width: '50%', display: 'inline-block' }}>
-                <Row>
-                  <Col span={16}>
-                    <Slider
-                      min={1}
-                      max={10}
-                      value={dotsScroll}
-                      onChange={(value) => this.setState({ dotsScroll: value })}
-                    />
-                  </Col>
-                  <Col span={4}>
-                    <InputNumber
-                      min={1}
-                      max={10}
-                      style={{ marginLeft: 16 }}
-                      value={dotsScroll}
-                      onChange={(value) => this.setState({ dotsScroll: value })}
-                    />
-                  </Col>
-                </Row>
-              </Form.Item>
-            </Form>
-          </Form.Item>
-          <Form.Item label="AutoPlay-Group" labelCol={{ span: 24 }}>
-            <Form wrapperCol={{ span: 12 }} labelCol={{ span: 6 }}>
-              <Form.Item label="autoplay" labelCol={{ span: 3 }} style={{ width: '50%', display: 'inline-block' }}>
-                <Switch
-                  checked={autoplay}
-                  onChange={(checked) => this.setState({ autoplay: checked }, () => {
-                    if (checked) {
-                      this.sliderRef.slickPlay();
-                    } else {
-                      this.sliderRef.slickPause();
-                    }
-                  })}
-                />
-              </Form.Item>
-              <Form.Item label="autoplaySpeed" labelCol={{ span: 3 }} style={{ width: '50%', display: 'inline-block' }}>
-                <Row>
-                  <Col span={16}>
-                    <Slider
-                      step={1000}
-                      min={1000}
-                      max={10000}
-                      value={autoplaySpeed}
-                      onChange={(value) => this.setState({ autoplaySpeed: value })}
-                    />
-                  </Col>
-                  <Col span={4}>
-                    <InputNumber
-                      step={1000}
-                      min={1000}
-                      max={10000}
-                      style={{ marginLeft: 16 }}
-                      value={autoplaySpeed}
-                      onChange={(value) => this.setState({ autoplaySpeed: value })}
-                    />
-                  </Col>
-                </Row>
-              </Form.Item>
-            </Form>
-          </Form.Item>
-        </Form>
+          </div>
+          {this.format()}
+        </div>
         <Carousel {...this.state} ref={(ele) => { this.sliderRef = ele; }}>
           {
             map(boxCount, ((value, index) => (
