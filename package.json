@@ -10,13 +10,14 @@
   "scripts": {
     "babel": "babel ./src --out-dir ./lib",
     "dev": "run-p dev:client",
-    "dev:client": "webpack-dev-server --mode development --devtool inline-source-map --hot --colors --progress --config ./webpack.dev.config.js",
+    "dev:client": "webpack-dev-server --mode development --devtool inline-source-map --hot --colors --progress --config ./build/webpack.dev.config.js",
     "build": "bash ./script/build.sh",
     "build:gh": "bash ./script/build-gh.sh",
-    "build:client": "webpack --mode production --progress --color --devtool false",
-    "build:gh-client": "webpack --mode production --progress --color --devtool false --config ./webpack.gh.config.js",
+    "build:client": "webpack --mode production --progress --color --devtool false --config ./build/webpack.config.js",
+    "build:gh-client": "webpack --mode production --progress --color --devtool false --config ./build/webpack.gh.config.js",
     "prepublishOnly": "npm run lint && npm run build",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "lint:fix": "eslint --ext .ts,.tsx,.js,.jsx ./src --fix"
   },
   "author": "Hans wu",
   "repository": {
@@ -26,6 +27,7 @@
   "keywords": [
     "carousel",
     "slider",
+    "infinite",
     "react",
     "react-component"
   ],
@@ -33,7 +35,6 @@
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.1.2",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
     "autoprefixer": "^9.6.4",
@@ -46,21 +47,15 @@
     "compression-webpack-plugin": "^3.0.0",
     "css-loader": "^2.1.1",
     "cssnano": "^4.1.10",
-    "del": "^5.1.0",
     "eslint": "^5.9.0",
     "eslint-config-airbnb": "^18.0.1",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^6.1.1",
-    "eslint-plugin-react": "^7.11.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.16.0",
     "express": "^4.14.0",
-    "extract-text-webpack-plugin": "^3.0.2",
     "friendly-errors-webpack-plugin": "^1.7.0",
-    "gulp": "^4.0.2",
-    "gulp-sass": "^4.0.2",
     "html-webpack-plugin": "^3.2.0",
-    "image-webpack-loader": "^4.3.1",
     "jest": "^24.8.0",
-    "lint-staged": "^7.0.3",
     "mini-css-extract-plugin": "^0.8.0",
     "node-notifier": "^6.0.0",
     "node-sass": "^4.12.0",
@@ -69,13 +64,10 @@
     "opn": "^6.0.0",
     "portfinder": "^1.0.24",
     "postcss-loader": "^3.0.0",
-    "prettier": "^1.14.3",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "sass-loader": "^8.0.0",
-    "style-loader": "^0.23.0",
     "uglifyjs-webpack-plugin": "^2.1.2",
-    "url-loader": "^1.1.1",
     "webpack": "^4.21.0",
     "webpack-auto-inject-version": "^1.1.0",
     "webpack-cli": "^3.1.2",
@@ -92,12 +84,6 @@
   "peerDependencies": {
     "react": "^16.0.0",
     "react-dom": "^16.0.0"
-  },
-  "lint-staged": {
-    "*.{js,json,md}": [
-      "prettier --write",
-      "git add"
-    ]
   },
   "npmName": "infinite-react-carousel",
   "npmFileMap": [

@@ -1,5 +1,5 @@
-const path = require('path');
 /* eslint-disable */
+const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
@@ -8,15 +8,16 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const portfinder = require('portfinder');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
-const config = require('./config');
+const BrotliPlugin = require('brotli-webpack-plugin');
+const config = require('../config');
 
-const DIST = path.join(__dirname, './dist');
+const DIST = path.join(__dirname, '../dist');
 const dateFormat = 'mmddhhMM';
 const HOST = process.env.HOST;
 const PORT = process.env.PORT && Number(process.env.PORT);
 const devWebpackConfig = {
   name: 'infinite-react-carousel',
-  entry: ['babel-polyfill', './docs/index.js'],
+  entry: ['babel-polyfill', './examples/index.js'],
   output: {
     library: 'Carousel',
     libraryTarget: 'umd',
@@ -131,7 +132,8 @@ const devWebpackConfig = {
       chunkFilename: '[id].css',
       filename: '[name].css'
     }),
-    new CompressionPlugin()
+    new CompressionPlugin(),
+    new BrotliPlugin()
   ]
 };
 module.exports = new Promise((resolve, reject) => {

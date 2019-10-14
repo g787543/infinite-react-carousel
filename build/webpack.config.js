@@ -1,14 +1,14 @@
-const path = require('path');
 /* eslint-disable */
+const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const WebpackAutoInject = require('webpack-auto-inject-version');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const BrotliPlugin = require('brotli-webpack-plugin');
-const config = require('./config');
+const config = require('../config');
 
-const DIST = path.join(__dirname, './dist');
+const DIST = path.join(__dirname, '../dist');
 const dateFormat = 'mmddhhMM';
 const HOST = process.env.HOST;
 const PORT = process.env.PORT && Number(process.env.PORT);
