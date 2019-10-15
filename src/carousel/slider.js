@@ -23,16 +23,16 @@ class Slider extends Component {
       SliderRef: null,
       width: 0,
       height: 0,
-      autoplaying: null
+      autoplaying: null,
+      settings: null,
+      activeIndex: 0
     };
-    this.settings = null;
     this.newChildren = [];
     this.offset = 0;
     this.target = 0;
     this.items = null;
     this.dim = 1;
     this.xform = 'transform';
-    this.activeIndex = 0;
     this.resizeObserver = null;
     this.autoplayTimer = null;
     ['webkit', 'Moz', 'O', 'ms'].every((prefix) => {
@@ -88,9 +88,10 @@ class Slider extends Component {
   handleResize = () => {
     this.slideInit();
     this.connectObserver();
-    if (this.settings.fullWidth) {
+    const { settings } = this.state;
+    if (settings.fullWidth) {
       const { width } = this.state;
-      this.dim = width * 2 + this.settings.gutter;
+      this.dim = width * 2 + settings.gutter;
       this.offset = this.center * 2 * width;
       this.target = this.offset;
     } else {
@@ -102,44 +103,45 @@ class Slider extends Component {
    * settings init
    */
   init = () => {
-    this.settings = { ...defaultProps, ...this.props };
+    let { settings } = this.state;
+    settings = { ...defaultProps, ...this.props };
     // force showing one slide and scrolling by one if the fade mode is on
-    if (this.settings.fade) {
+    if (settings.fade) {
       if (
-        this.settings.slidesToShow > 1 && process.env.NODE_ENV !== 'production'
+        settings.slidesToShow > 1 && process.env.NODE_ENV !== 'production'
       ) {
         console.warn(
-          `slidesToShow should be equal to 1 when fade is true, you're using ${this.settings.slidesToShow}`
+          `slidesToShow should be equal to 1 when fade is true, you're using ${settings.slidesToShow}`
         );
       }
-      this.settings.slidesToShow = 1;
+      settings.slidesToShow = 1;
     }
     let { children } = this.props;
     children = React.Children.toArray(children).filter((child) => (typeof child === 'string' ? !!child.trim() : !!child));
     if (
-      this.settings.variableWidth && (this.settings.rows > 1 || this.settings.slidesPerRow > 1)
+      settings.variableWidth && (settings.rows > 1 || settings.slidesPerRow > 1)
     ) {
       console.warn(
         'variableWidth is not supported in case of rows > 1 or slidesPerRow > 1'
       );
-      this.settings.variableWidth = false;
+      settings.variableWidth = false;
     }
     this.newChildren = [];
     let currentWidth = null;
     for (
       let i = 0;
       i < children.length;
-      i += this.settings.rows * this.settings.slidesPerRow
+      i += settings.rows * settings.slidesPerRow
     ) {
       const newSlide = [];
       for (
         let j = i;
-        j < i + this.settings.rows * this.settings.slidesPerRow;
-        j += this.settings.slidesPerRow
+        j < i + settings.rows * settings.slidesPerRow;
+        j += settings.slidesPerRow
       ) {
         const row = [];
-        for (let k = j; k < j + this.settings.slidesPerRow; k += 1) {
-          if (this.settings.variableWidth && children[k].props.style) {
+        for (let k = j; k < j + settings.slidesPerRow; k += 1) {
+          if (settings.variableWidth && children[k].props.style) {
             currentWidth = children[k].props.style.width;
           }
           if (k >= children.length) break;
@@ -148,7 +150,7 @@ class Slider extends Component {
               key: 100 * i + 10 * j + k,
               tabIndex: -1,
               style: {
-                width: `${100 / this.settings.slidesPerRow}%`,
+                width: `${100 / settings.slidesPerRow}%`,
                 display: 'inline-block'
               }
             })
@@ -156,7 +158,7 @@ class Slider extends Component {
         }
         newSlide.push(<div key={10 * i + j}>{row}</div>);
       }
-      if (this.settings.variableWidth) {
+      if (settings.variableWidth) {
         this.newChildren.push(
           <div key={i} style={{ width: currentWidth }}>
             {newSlide}
@@ -175,6 +177,9 @@ class Slider extends Component {
         );
       }
     }
+    if (!this.state.settings) {
+      this.setState({ settings });
+    }
   };
 
   /**
@@ -184,8 +189,8 @@ class Slider extends Component {
     const slides = element.querySelectorAll('.carousel-item');
     this.items = new CircularArray(slides);
     this.slideInit();
-    const { swipe } = this.settings;
-    const { slidesToShow, centerMode } = this.settings;
+    const { settings } = this.state;
+    const { swipe, slidesToShow, centerMode } = settings;
     if (centerMode ? slidesToShow + 2 : slidesToShow < slides.length) {
       if (swipe) {
         element.addEventListener('touchstart', this.handleCarouselTap);
@@ -207,8 +212,8 @@ class Slider extends Component {
    * @param {Number} options.autoplaySpeed
    */
   autoPlay = () => {
-    const { autoplay, autoplaySpeed } = this.settings;
-    const { pauseOnHover } = this.settings;
+    const { settings } = this.state;
+    const { autoplay, autoplaySpeed, pauseOnHover } = settings;
     if (autoplay && autoplaySpeed > 0 && !this.autoplayTimer) {
       const { SliderRef } = this.state;
       this.autoplayTimer = setInterval(this.slickNext, autoplaySpeed);
@@ -384,9 +389,10 @@ class Slider extends Component {
    * Auto scrolls to nearest carousel item.
    */
   autoScroll = () => {
+    const { settings } = this.state;
     if (this.amplitude) {
       const elapsed = Date.now() - this.timestamp;
-      const delta = this.amplitude * Math.exp(-elapsed / this.settings.duration);
+      const delta = this.amplitude * Math.exp(-elapsed / settings.duration);
       if (delta > 2 || delta < -2) {
         this.scroll(this.target - delta);
         requestAnimationFrame(this.autoScroll);
@@ -401,8 +407,8 @@ class Slider extends Component {
    * @param {Number} x
    */
   scroll = (x, type) => {
-    const { SliderRef, width } = this.state;
-    const { centerMode, beforeChange, afterChange } = this.settings;
+    const { SliderRef, width, settings } = this.state;
+    const { centerMode, beforeChange, afterChange } = settings;
     // Start actual scroll
     let i;
     let el;
@@ -414,10 +420,10 @@ class Slider extends Component {
     const dir = delta < 0 ? 1 : -1;
     const tween = (-dir * delta * 2) / this.dim;
     const half = Math.floor(this.items.length / 2);
-    if (this.settings.fullWidth) {
+    if (settings.fullWidth) {
       alignment = 'translateX(0)';
     } else if (centerMode) {
-      alignment = `translateX(${(SliderRef.clientWidth - width) / 2 - this.settings.centerPadding}px)`;
+      alignment = `translateX(${(SliderRef.clientWidth - width) / 2 - settings.centerPadding}px)`;
     } else {
       alignment = `translateX(${(SliderRef.clientWidth - width) / 2}px)`;
     }
@@ -437,7 +443,7 @@ class Slider extends Component {
       SliderRef.classList.remove('scrolling');
       this.arrowClick = null;
       this.swiping = false;
-    }, this.settings.duration);
+    }, settings.duration);
 
     // center
     // Don't show wrapped items.
@@ -455,7 +461,7 @@ class Slider extends Component {
         each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
         el.classList.add('active');
       }
-      const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * this.settings.shift * tween * i}px)`;
+      const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween * i}px)`;
       this.updateItemStyle(el, transformString);
     }
 
@@ -464,7 +470,7 @@ class Slider extends Component {
       // Don't show wrapped items.
       if (!this.noWrap || this.center + i < this.items.length) {
         el = this.items.get(this.wrap(this.center + i));
-        const transformString = `${alignment} translateX(${this.settings.shift + (this.dim * i - delta) / 2}px)`;
+        const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
         this.updateItemStyle(el, transformString);
       }
 
@@ -472,7 +478,7 @@ class Slider extends Component {
       // Don't show wrapped items.
       if (!this.noWrap || this.center - i >= 0) {
         el = this.items.get(this.wrap(this.center - i));
-        const transformString = `${alignment} translateX(${-this.settings.shift + (-this.dim * i - delta) / 2}px)`;
+        const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
         this.updateItemStyle(el, transformString);
       }
     }
@@ -484,9 +490,10 @@ class Slider extends Component {
       if (!el.classList.contains('active')) {
         each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
         el.classList.add('active');
-        this.activeIndex = this.wrap(this.center);
+        const activeIndex = this.wrap(this.center);
+        this.setState({ activeIndex });
       }
-      const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * this.settings.shift * tween}px)`;
+      const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween}px)`;
       this.updateItemStyle(el, transformString);
     }
 
@@ -517,12 +524,13 @@ class Slider extends Component {
    * Carousel first initional
    */
   slideInit = () => {
+    const { settings } = this.state;
     const {
       centerMode,
       centerPadding,
       slidesToShow,
       initialSlide
-    } = this.settings;
+    } = settings;
     const { SliderRef } = this.state;
     if (SliderRef) {
       let padding = 0;
@@ -644,7 +652,8 @@ class Slider extends Component {
     if (n) {
       this.cycleTo(n);
     } else {
-      this.cycleTo(this.activeIndex + 1);
+      const { activeIndex } = this.state;
+      this.cycleTo(activeIndex + 1);
     }
   };
 
@@ -657,7 +666,8 @@ class Slider extends Component {
     if (typeof n === 'number') {
       this.cycleTo(n);
     } else {
-      this.slickPrev(this.activeIndex - 1);
+      const { activeIndex } = this.state;
+      this.cycleTo(activeIndex - 1);
     }
   };
 
@@ -670,10 +680,11 @@ class Slider extends Component {
 
   render() {
     this.init();
-    const { height } = this.state;
-    const { centerPadding, centerMode } = this.settings;
+    const { height, settings, activeIndex } = this.state;
+    if (!settings) return null;
+    const { centerPadding, centerMode } = settings;
     const padding = typeof centerPadding === 'string' ? centerPadding : `${centerPadding}px`;
-    const spec = { ...this.props, ...this.state, ...this.settings };
+    const spec = { ...this.props, ...this.state, ...settings };
 
     /*  arrow  */
     const arrowProps = extractObject(spec, [
@@ -687,16 +698,16 @@ class Slider extends Component {
     ]);
     let prevArrow;
     let nextArrow;
-    if (this.settings.arrows) {
+    if (settings.arrows) {
       prevArrow = (
         <PrevArrow
-          clickHandler={() => this.slickPrev(this.activeIndex - 1)}
+          clickHandler={() => this.slickPrev(activeIndex - 1)}
           {...arrowProps}
         />
       );
       nextArrow = (
         <NextArrow
-          clickHandler={() => this.slickNext(this.activeIndex + 1)}
+          clickHandler={() => this.slickNext(activeIndex + 1)}
           {...arrowProps}
         />
       );
@@ -704,12 +715,11 @@ class Slider extends Component {
 
     /*  Dots  */
     let dots;
-    if (this.settings.dots === true && this.items) {
-      if (this.items.length >= this.settings.slidesToShow) {
+    if (settings.dots === true && this.items) {
+      if (this.items.length >= settings.slidesToShow) {
         const dotProps = extractObject(spec, [
           'dotsClass',
           'slidesToShow',
-          'currentSlide',
           'dotsScroll',
           'clickHandler',
           'children',
@@ -717,8 +727,9 @@ class Slider extends Component {
           'infinite',
           'appendDots'
         ]);
-        const { pauseOnDotsHover } = this.settings;
+        const { pauseOnDotsHover } = settings;
         Object.assign(dotProps, {
+          activeIndex,
           slideCount: this.items.length,
           clickHandler: (options) => this.slickSet(options.index * options.dotsScroll),
           onMouseEnter: pauseOnDotsHover ? this.onDotsLeave : null,
@@ -742,22 +753,22 @@ class Slider extends Component {
           padding: centerMode ? `0 ${padding}` : 0
         }}
       >
-        {!this.settings.unslick ? prevArrow : ''}
+        {!settings.unslick ? prevArrow : ''}
         <div style={{ height: `${height}px` }} className="carousel-track">
           {this.newChildren}
         </div>
-        {!this.settings.unslick ? nextArrow : ''}
-        {!this.settings.unslick ? dots : ''}
+        {!settings.unslick ? nextArrow : ''}
+        {!settings.unslick ? dots : ''}
       </div>
     );
-    if (this.settings === 'unslick') {
-      const className = `regular slider ${this.settings.className || ''}`;
+    if (settings === 'unslick') {
+      const className = `regular slider ${settings.className || ''}`;
       component = <div className={className}>{this.newChildren}</div>;
-    } else if (this.newChildren.length <= this.settings.slidesToShow) {
-      this.settings.unslick = true;
+    } else if (this.newChildren.length <= settings.slidesToShow) {
+      settings.unslick = true;
     }
     return (
-      <div className={classNames(this.settings.className)}>{component}</div>
+      <div className={classNames(settings.className)}>{component}</div>
     );
   }
 }

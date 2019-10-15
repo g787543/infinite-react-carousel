@@ -14,7 +14,7 @@ const Dots = ({
   dotsScroll,
   slidesToShow,
   infinite,
-  currentSlide,
+  activeIndex,
   clickHandler,
   onMouseEnter,
   onMouseOver,
@@ -48,14 +48,14 @@ const Dots = ({
     const rightBound = i * dotsScroll + (dotsScroll - 1);
     const className = classnames({
       'carousel-dots-active':
-        currentSlide >= leftBound && currentSlide <= rightBound
+      activeIndex >= leftBound && activeIndex <= rightBound
     });
 
     const dotOptions = {
       message: 'dots',
       index: i,
       dotsScroll,
-      currentSlide
+      activeIndex
     };
     return (
       <li className={className}>
