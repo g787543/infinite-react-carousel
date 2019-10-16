@@ -132,10 +132,6 @@
 }
 
 /* Dots */
-.slick-dotted.slick-slider {
-  margin-bottom: 30px;
-}
-
 .carousel-dots {
   position: absolute;
   bottom: 0px;
@@ -195,7 +191,7 @@
 
 .carousel-dots li button:before {
   font-family: 'slick';
-  font-size: 6px;
+  font-size: 40px;
   line-height: 20px;
 
   position: absolute;
@@ -215,7 +211,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.carousel-dots li.slick-active button:before {
+.carousel-dots li.carousel-dots-active button:before {
   opacity: .75;
   color: black;
 }

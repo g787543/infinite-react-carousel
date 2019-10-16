@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import each from 'lodash/each';
+import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import classNames from 'classnames';
 import CircularArray from './array';
@@ -24,7 +25,7 @@ class Slider extends Component {
       width: 0,
       height: 0,
       autoplaying: null,
-      settings: null,
+      settings: defaultProps,
       activeIndex: 0
     };
     this.newChildren = [];
@@ -70,14 +71,11 @@ class Slider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { children } = this.props;
     const { SliderRef } = this.state;
-    if (children.length !== prevProps.children.length) {
-      this.init();
-      this.setRef(SliderRef);
-    }
     if (!isEqual(this.props, prevProps)) {
+      this.init();
       this.slideInit();
+      this.setRef(SliderRef);
     }
   }
 
@@ -177,8 +175,8 @@ class Slider extends Component {
         );
       }
     }
-    if (!this.state.settings) {
-      this.setState({ settings });
+    if (!isEqual(get(this.state, 'settings'), settings)) {
+      this.setState({ settings }, () => console.log('change state'));
     }
   };
 
@@ -191,7 +189,7 @@ class Slider extends Component {
     this.slideInit();
     const { settings } = this.state;
     const { swipe, slidesToShow, centerMode } = settings;
-    if (centerMode ? slidesToShow + 2 : slidesToShow < slides.length) {
+    if ((centerMode ? slidesToShow + 2 : slidesToShow) < slides.length) {
       if (swipe) {
         element.addEventListener('touchstart', this.handleCarouselTap);
         element.addEventListener('touchmove', this.handleCarouselDrag);
@@ -212,8 +210,8 @@ class Slider extends Component {
    * @param {Number} options.autoplaySpeed
    */
   autoPlay = () => {
-    const { settings } = this.state;
-    const { autoplay, autoplaySpeed, pauseOnHover } = settings;
+    // const { settings } = this.state;
+    const { autoplay, autoplaySpeed, pauseOnHover } = this.props;
     if (autoplay && autoplaySpeed > 0 && !this.autoplayTimer) {
       const { SliderRef } = this.state;
       this.autoplayTimer = setInterval(this.slickNext, autoplaySpeed);
@@ -222,6 +220,16 @@ class Slider extends Component {
         SliderRef.removeEventListener('mouseleave', this.autoPlay);
       }
     }
+  };
+
+  /**
+   * autoPlay init func
+   * @param {Object} options
+   * @param {Number} options.autoplaySpeed
+   */
+  autoPlayInit = () => {
+    this.handleAutoplayPause();
+    this.autoPlay();
   };
 
   /**
@@ -681,10 +689,10 @@ class Slider extends Component {
   render() {
     this.init();
     const { height, settings, activeIndex } = this.state;
+    const spec = { ...settings, ...this.prop };
     if (!settings) return null;
     const { centerPadding, centerMode } = settings;
     const padding = typeof centerPadding === 'string' ? centerPadding : `${centerPadding}px`;
-    const spec = { ...this.props, ...this.state, ...settings };
 
     /*  arrow  */
     const arrowProps = extractObject(spec, [
@@ -764,8 +772,6 @@ class Slider extends Component {
     if (settings === 'unslick') {
       const className = `regular slider ${settings.className || ''}`;
       component = <div className={className}>{this.newChildren}</div>;
-    } else if (this.newChildren.length <= settings.slidesToShow) {
-      settings.unslick = true;
     }
     return (
       <div className={classNames(settings.className)}>{component}</div>

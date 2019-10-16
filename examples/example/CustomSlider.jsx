@@ -74,7 +74,8 @@ class CustomSlider extends Component {
       arrows: true,
       dotsScroll: 1,
       duration: 200,
-      shift: 0
+      shift: 0,
+      pauseOnHover: true
     };
     this.datas = [{
       name: 'arrows',
@@ -139,6 +140,9 @@ class CustomSlider extends Component {
     }, {
       name: 'AutoPlay-Group',
       component: [{
+        name: 'pauseOnHover',
+        component: 'switch',
+      }, {
         name: 'autoplay',
         component: 'switch',
         onChange: (checked) => {
@@ -155,7 +159,8 @@ class CustomSlider extends Component {
           step: 1000,
           min: 1000,
           max: 10000
-        }
+        },
+        onChange: () => this.sliderRef.autoplayInit()
       }]
     }];
     this.component = {

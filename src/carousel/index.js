@@ -13,6 +13,8 @@ class Carousel extends Component {
 
   slickGoTo = () => this.innerSlider.slickSet();
 
+  autoplayInit = () => this.innerSlider.autoPlayInit();
+
   render() {
     const { children } = this.props;
     return (
