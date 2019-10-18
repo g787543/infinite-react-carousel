@@ -454,17 +454,16 @@ class Slider extends Component {
     const delta = this.offset - this.center * this.dim;
     const dir = delta < 0 ? 1 : -1;
     const tween = (-dir * delta * 2) / this.dim;
-    const half = Math.floor(this.items.length / 2);
     if (settings.fullWidth) {
       alignment = 'translateX(0)';
     } else if (centerMode) {
       if (slidesToShow % 2 === 0) {
-        alignment = 'translateX(0px)';
+        alignment = `translateX(${width * (slidesToShow / 2)}px)`;
       } else {
         alignment = `translateX(${(SliderRef.clientWidth - width) / 2 - settings.centerPadding}px)`;
       }
     } else {
-      alignment = `translateX(${SliderRef.clientWidth - width}px)`;
+      alignment = 'translateX(0px)';
     }
 
     // Track scrolling state
@@ -503,23 +502,44 @@ class Slider extends Component {
       const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween * i}px)`;
       this.updateItemStyle(el, transformString);
     }
+    if (centerMode) {
+      const half = Math.floor(this.items.length / 2);
+      for (i = 1; i <= half; i += 1) {
+        // right side
+        // Don't show wrapped items.
+        if (!this.noWrap || this.center + i < this.items.length) {
+          el = this.items.get(this.wrap(this.center + i));
+          const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
+          this.updateItemStyle(el, transformString);
+        }
 
-    for (i = 1; i <= half; i += 1) {
-      // right side
-      // Don't show wrapped items.
-      if (!this.noWrap || this.center + i < this.items.length) {
+        // left side
+        // Don't show wrapped items.
+        if (!this.noWrap || this.center - i >= 0) {
+          el = this.items.get(this.wrap(this.center - i));
+          const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+          this.updateItemStyle(el, transformString);
+        }
+      }
+    } else {
+      for (i = 1; i <= slidesToShow; i += 1) {
         el = this.items.get(this.wrap(this.center + i));
         const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
         this.updateItemStyle(el, transformString);
       }
-
-      // left side
-      // Don't show wrapped items.
-      if (!this.noWrap || this.center - i >= 0) {
-        el = this.items.get(this.wrap(this.center - i));
-        const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
-        console.log(transformString);
-        this.updateItemStyle(el, transformString);
+      for (i = 1; i <= Math.ceil((this.items.length - slidesToShow) / 2); i += 1) {
+        // right side
+        if (!this.noWrap || this.center + slidesToShow + i < this.items.length) {
+          el = this.items.get(this.wrap(this.center + slidesToShow + i));
+          const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
+          this.updateItemStyle(el, transformString);
+        }
+        // left side
+        if (!this.noWrap || this.center - i >= 0) {
+          el = this.items.get(this.wrap(this.center - i));
+          const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+          this.updateItemStyle(el, transformString);
+        }
       }
     }
 
