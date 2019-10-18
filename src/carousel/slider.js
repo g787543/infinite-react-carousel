@@ -180,6 +180,34 @@ class Slider extends Component {
     }
   };
 
+  signupListener = () => {
+    const { settings, SliderRef } = this.state;
+    const { swipe } = settings;
+    if (swipe) {
+      SliderRef.addEventListener('touchstart', this.handleCarouselTap);
+      SliderRef.addEventListener('touchmove', this.handleCarouselDrag);
+      SliderRef.addEventListener('touchend', this.handleCarouselRelease);
+    }
+    SliderRef.addEventListener('mousedown', this.handleCarouselTap);
+    SliderRef.addEventListener('mousemove', this.handleCarouselDrag);
+    SliderRef.addEventListener('mouseup', this.handleCarouselRelease);
+    SliderRef.addEventListener('mouseleave', this.handleCarouselRelease);
+  }
+
+  removeListener = () => {
+    const { settings, SliderRef } = this.state;
+    const { swipe } = settings;
+    if (swipe) {
+      SliderRef.removeEventListener('touchstart', this.handleCarouselTap);
+      SliderRef.removeEventListener('touchmove', this.handleCarouselDrag);
+      SliderRef.removeEventListener('touchend', this.handleCarouselRelease);
+    }
+    SliderRef.removeEventListener('mousedown', this.handleCarouselTap);
+    SliderRef.removeEventListener('mousemove', this.handleCarouselDrag);
+    SliderRef.removeEventListener('mouseup', this.handleCarouselRelease);
+    SliderRef.removeEventListener('mouseleave', this.handleCarouselRelease);
+  }
+
   /**
    * Get slider reference
    */
@@ -188,18 +216,12 @@ class Slider extends Component {
     this.items = new CircularArray(slides);
     this.slideInit();
     const { settings } = this.state;
-    const { swipe, slidesToShow, centerMode } = settings;
-    if ((centerMode ? slidesToShow + 2 : slidesToShow) < slides.length) {
-      if (swipe) {
-        element.addEventListener('touchstart', this.handleCarouselTap);
-        element.addEventListener('touchmove', this.handleCarouselDrag);
-        element.addEventListener('touchend', this.handleCarouselRelease);
-      }
-      element.addEventListener('mousedown', this.handleCarouselTap);
-      element.addEventListener('mousemove', this.handleCarouselDrag);
-      element.addEventListener('mouseup', this.handleCarouselRelease);
-      element.addEventListener('mouseleave', this.handleCarouselRelease);
+    const { slidesToShow } = settings;
+    if (slidesToShow < slides.length) {
+      this.signupListener();
       this.autoPlay();
+    } else {
+      this.removeListener();
     }
     element.addEventListener('click', this.handleClick);
   });
