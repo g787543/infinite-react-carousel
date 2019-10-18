@@ -438,7 +438,12 @@ class Slider extends Component {
    */
   scroll = (x, type) => {
     const { SliderRef, width, settings } = this.state;
-    const { centerMode, beforeChange, afterChange } = settings;
+    const {
+      centerMode,
+      beforeChange,
+      afterChange,
+      slidesToShow
+    } = settings;
     // Start actual scroll
     let i;
     let el;
@@ -453,9 +458,13 @@ class Slider extends Component {
     if (settings.fullWidth) {
       alignment = 'translateX(0)';
     } else if (centerMode) {
-      alignment = `translateX(${(SliderRef.clientWidth - width) / 2 - settings.centerPadding}px)`;
+      if (slidesToShow % 2 === 0) {
+        alignment = 'translateX(0px)';
+      } else {
+        alignment = `translateX(${(SliderRef.clientWidth - width) / 2 - settings.centerPadding}px)`;
+      }
     } else {
-      alignment = `translateX(${(SliderRef.clientWidth - width) / 2}px)`;
+      alignment = `translateX(${SliderRef.clientWidth - width}px)`;
     }
 
     // Track scrolling state
@@ -509,6 +518,7 @@ class Slider extends Component {
       if (!this.noWrap || this.center - i >= 0) {
         el = this.items.get(this.wrap(this.center - i));
         const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+        console.log(transformString);
         this.updateItemStyle(el, transformString);
       }
     }
