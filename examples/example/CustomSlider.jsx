@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import {
-  Form,
-  Switch,
-  Slider,
   Row,
   Col,
+  Switch,
+  Slider,
   InputNumber,
-  Collapse
+  Collapse,
+  List
 } from 'antd';
 import PropTypes from 'prop-types';
 import map from 'lodash/map';
@@ -16,14 +16,14 @@ import 'antd/dist/antd.css';
 
 const CustomSlide = ({ value, onChange, ...options }) => (
   <Row>
-    <Col span={18}>
+    <Col span={15}>
       <Slider
         {...options}
         value={value}
         onChange={onChange}
       />
     </Col>
-    <Col span={6}>
+    <Col span={6} offset={1}>
       <InputNumber
         {...options}
         style={{ marginLeft: 16 }}
@@ -78,51 +78,54 @@ class CustomSlider extends Component {
       pauseOnHover: true
     };
     this.datas = [{
-      name: 'arrows',
-      component: 'switch'
-    }, {
-      name: 'centerMode',
-      component: 'switch'
-    }, {
-      name: 'centerPadding',
-      component: {
-        name: 'slider',
-        step: 10,
-        min: 10,
-        max: 200
-      }
-    }, {
-      name: 'duration',
-      component: {
-        name: 'slider',
-        step: 100,
-        min: 100,
-        max: 500
-      }
-    }, {
-      name: 'shift',
-      component: {
-        name: 'slider',
-        step: 10,
-        min: 0,
-        max: 100
-      }
-    }, {
-      name: 'slidesToShow',
-      component: {
-        name: 'slider',
-        step: 1,
-        min: 1,
-        max: 20
-      }
-    }, {
-      name: 'slidesToScroll',
-      component: {
-        name: 'slider',
-        step: 1,
-        min: 1,
-        max: 20
-      }
+      name: 'Basic',
+      component: [{
+        name: 'arrows',
+        component: 'switch'
+      }, {
+        name: 'centerMode',
+        component: 'switch'
+      }, {
+        name: 'centerPadding',
+        component: {
+          name: 'slider',
+          step: 10,
+          min: 10,
+          max: 200
+        }
+      }, {
+        name: 'duration',
+        component: {
+          name: 'slider',
+          step: 100,
+          min: 100,
+          max: 500
+        }
+      }, {
+        name: 'shift',
+        component: {
+          name: 'slider',
+          step: 10,
+          min: 0,
+          max: 100
+        }
+      }, {
+        name: 'slidesToShow',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 20
+        }
+      }, {
+        name: 'slidesToScroll',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 20
+        }
+      }]
     }, {
       name: 'dots-Group',
       component: [{
@@ -205,68 +208,74 @@ class CustomSlider extends Component {
     );
   };
 
-  format = (options) => (
-    <div>
-      {
-        map(options || this.datas, (data) => {
-          let result = null;
-          const { name, component } = data;
-          if (typeof component === 'object' && Array.isArray(component)) {
-            result = (
-              <div>
-                <span>{name}</span>
-                {this.format(component)}
-              </div>
-            );
-          } else {
-            result = this.createComponent(data);
-          }
-          return result;
-        })
-      }
-    </div>
-  );
+  format = (options) => map(options || this.datas, (data) => {
+    let result = null;
+    const { name, component } = data;
+    if (typeof component === 'object' && Array.isArray(component)) {
+      result = (
+        <Collapse.Panel header={name}>
+          <List
+            itemLayout="horizontal"
+            dataSource={component}
+            renderItem={(item) => {
+              console.log(item);
+              return (
+                <List.Item>
+                  {this.createComponent(item)}
+                </List.Item>
+              );
+            }}
+          />
+        </Collapse.Panel>
+      );
+    } else {
+      result = this.createComponent(data);
+    }
+    return result;
+  });
 
   render() {
     const { boxCount } = this.state;
     return (
-      <div>
-        <h2>Custom Slider</h2>
-        <div>
-          <div>
-            <span>boxCount</span>
-            <Row>
-              <Col span={16}>
-                <Slider
-                  min={1}
-                  max={100}
-                  value={boxCount.length}
-                  onChange={(value) => this.setState({ boxCount: new Array(value) })}
-                />
-              </Col>
-              <Col span={4}>
-                <InputNumber
-                  min={1}
-                  max={100}
-                  style={{ marginLeft: 16 }}
-                  value={boxCount.length}
-                  onChange={(value) => this.setState({ boxCount: new Array(value) })}
-                />
-              </Col>
-            </Row>
-          </div>
-          {this.format()}
-        </div>
-        <Carousel {...this.state} ref={(ele) => { this.sliderRef = ele; }}>
-          {
-            map(boxCount, ((value, index) => (
-              <div key={`${new Date().getTime() * index}`}>
-                <h3>{index + 1}</h3>
-              </div>
-            )))
-          }
-        </Carousel>
-      </div>
+      <Row>
+        <Col span={8}>
+          <Collapse accordion>
+            <Collapse.Panel header="boxCount">
+              <Row>
+                <Col span={16}>
+                  <Slider
+                    min={1}
+                    max={100}
+                    value={boxCount.length}
+                    onChange={(value) => this.setState({ boxCount: new Array(value) })}
+                  />
+                </Col>
+                <Col span={4}>
+                  <InputNumber
+                    min={1}
+                    max={100}
+                    style={{ marginLeft: 16 }}
+                    value={boxCount.length}
+                    onChange={(value) => this.setState({ boxCount: new Array(value) })}
+                  />
+                </Col>
+              </Row>
+            </Collapse.Panel>
+            {this.format()}
+          </Collapse>
+        </Col>
+        <Col span={15} offset={1}>
+          <Carousel {...this.state} ref={(ele) => { this.sliderRef = ele; }}>
+            {
+              map(boxCount, ((value, index) => (
+                <div key={`${new Date().getTime() * index}`}>
+                  <h3>{index + 1}</h3>
+                </div>
+              )))
+            }
+          </Carousel>
+        </Col>
+      </Row>
     );
   }
 }
