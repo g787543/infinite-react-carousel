@@ -604,22 +604,24 @@ class Slider extends Component {
       const sliderWidth = centerMode
         ? SliderRef.offsetWidth - padding * 2
         : SliderRef.offsetWidth;
-      const width = sliderWidth / slidesToShow;
-      this.setState({ width }, () => {
-        this.dim = width * 2;
-        // this.settings.gutter = padding;
-        this.scroll();
-        if (
-          initialSlide && typeof initialSlide === 'number' && initialSlide > 0
-        ) {
-          this.slickSet(initialSlide);
-        } else if (
-          typeof initialSlide !== 'number' && process.env.NODE_ENV !== 'production'
-        ) {
-          console.warn('initialSlide must be a number');
-        }
-        this.connectObserver();
-      });
+      if (sliderWidth > 0) {
+        const width = sliderWidth / slidesToShow;
+        this.setState({ width }, () => {
+          this.dim = width * 2;
+          // this.settings.gutter = padding;
+          this.scroll();
+          if (
+            initialSlide && typeof initialSlide === 'number' && initialSlide > 0
+          ) {
+            this.slickSet(initialSlide);
+          } else if (
+            typeof initialSlide !== 'number' && process.env.NODE_ENV !== 'production'
+          ) {
+            console.warn('initialSlide must be a number');
+          }
+          this.connectObserver();
+        });
+      }
     }
   };
 
