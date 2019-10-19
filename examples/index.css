@@ -4,7 +4,7 @@ h3 {
     color: #fff;
     font-size: 36px;
     line-height: 100px;
-    margin: 10px;
+    margin: 0px 10px !important;
     padding: 2%;
     position: relative;
     text-align: center;

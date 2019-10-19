@@ -6,7 +6,8 @@ import {
   Slider,
   InputNumber,
   Collapse,
-  List
+  List,
+  Typography
 } from 'antd';
 import PropTypes from 'prop-types';
 import map from 'lodash/map';
@@ -16,17 +17,20 @@ import 'antd/dist/antd.css';
 
 const CustomSlide = ({ value, onChange, ...options }) => (
   <Row>
-    <Col span={15}>
+    <Col span={14}>
       <Slider
         {...options}
         value={value}
         onChange={onChange}
       />
     </Col>
-    <Col span={6} offset={1}>
+    <Col span={9} offset={1}>
       <InputNumber
         {...options}
-        style={{ marginLeft: 16 }}
+        style={{
+          marginLeft: 16,
+          width: '100%'
+        }}
         value={value}
         onChange={onChange}
       />
@@ -75,12 +79,53 @@ class CustomSlider extends Component {
       dotsScroll: 1,
       duration: 200,
       shift: 0,
-      pauseOnHover: true
+      pauseOnHover: true,
+      rows: 1,
+      slidesPerRow: 1,
+      arrowsBlock: true
     };
     this.datas = [{
+      name: 'Slider-Group',
+      component: [{
+        name: 'rows',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 5,
+        },
+      }, {
+        name: 'slidesPerRow',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 5,
+        },
+      }, {
+        name: 'slidesToShow',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 20
+        }
+      }, {
+        name: 'slidesToScroll',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 20
+        }
+      }]
+    }, {
       name: 'Basic',
       component: [{
         name: 'arrows',
+        component: 'switch'
+      }, {
+        name: 'arrowsBlock',
         component: 'switch'
       }, {
         name: 'centerMode',
@@ -108,22 +153,6 @@ class CustomSlider extends Component {
           step: 10,
           min: 0,
           max: 100
-        }
-      }, {
-        name: 'slidesToShow',
-        component: {
-          name: 'slider',
-          step: 1,
-          min: 1,
-          max: 20
-        }
-      }, {
-        name: 'slidesToScroll',
-        component: {
-          name: 'slider',
-          step: 1,
-          min: 1,
-          max: 20
         }
       }]
     }, {
@@ -189,22 +218,35 @@ class CustomSlider extends Component {
     const CustomComponent = this.getCustomComponent(componentName);
     const customOptions = this.getOptions(component);
     return (
-      <div>
-        <span>{name}</span>
-        <CustomComponent
-          {...customOptions}
-          value={get(this.state, name)}
-          onChange={(value) => {
-            const newState = { ...this.state };
-            newState[name] = value;
-            this.setState(newState, () => {
-              if (typeof onChange === 'function' && onChange) {
-                onChange(value);
-              }
-            });
-          }}
-        />
-      </div>
+      <Row style={{ width: '100%' }}>
+        <Col span={24}>
+          <Typography.Title
+            level={4}
+            style={{
+              background: 'none',
+              margin: 0,
+              textAlign: 'left'
+            }}
+          >
+            {name}
+          </Typography.Title>
+        </Col>
+        <Col offset={1} span={22}>
+          <CustomComponent
+            {...customOptions}
+            value={get(this.state, name)}
+            onChange={(value) => {
+              const newState = { ...this.state };
+              newState[name] = value;
+              this.setState(newState, () => {
+                if (typeof onChange === 'function' && onChange) {
+                  onChange(value);
+                }
+              });
+            }}
+          />
+        </Col>
+      </Row>
     );
   };
 
@@ -217,14 +259,11 @@ class CustomSlider extends Component {
           <List
             itemLayout="horizontal"
             dataSource={component}
-            renderItem={(item) => {
-              console.log(item);
-              return (
-                <List.Item>
-                  {this.createComponent(item)}
-                </List.Item>
-              );
-            }}
+            renderItem={(item) => (
+              <List.Item>
+                {this.createComponent(item)}
+              </List.Item>
+            )}
           />
         </Collapse.Panel>
       );
@@ -241,20 +280,23 @@ class CustomSlider extends Component {
         <Col span={8}>
           <Collapse accordion>
             <Collapse.Panel header="boxCount">
-              <Row>
-                <Col span={16}>
-                  <Slider
-                    min={1}
-                    max={100}
-                    value={boxCount.length}
-                    onChange={(value) => this.setState({ boxCount: new Array(value) })}
-                  />
+              <Row style={{ width: '100%' }}>
+                <Col span={24}>
+                  <Typography.Title
+                    level={4}
+                    style={{
+                      background: 'none',
+                      margin: 0,
+                      textAlign: 'left'
+                    }}
+                  >
+                    boxCount
+                  </Typography.Title>
                 </Col>
-                <Col span={4}>
-                  <InputNumber
+                <Col offset={1} span={22}>
+                  <CustomSlide
                     min={1}
                     max={100}
-                    style={{ marginLeft: 16 }}
                     value={boxCount.length}
                     onChange={(value) => this.setState({ boxCount: new Array(value) })}
                   />
