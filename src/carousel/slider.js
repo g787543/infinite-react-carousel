@@ -176,7 +176,7 @@ class Slider extends Component {
       }
     }
     if (!isEqual(get(this.state, 'settings'), settings)) {
-      this.setState({ settings }, () => console.log('change state'));
+      this.setState({ settings });
     }
   };
 
@@ -747,7 +747,7 @@ class Slider extends Component {
     if (!settings) return null;
     const { centerPadding, centerMode } = settings;
     const padding = typeof centerPadding === 'string' ? centerPadding : `${centerPadding}px`;
-
+    console.log(spec);
     /*  arrow  */
     const arrowProps = extractObject(spec, [
       'arrows',
@@ -756,7 +756,8 @@ class Slider extends Component {
       'slideCount',
       'slidesToShow',
       'prevArrow',
-      'nextArrow'
+      'nextArrow',
+      'arrowsBlock'
     ]);
     let prevArrow;
     let nextArrow;
@@ -803,23 +804,25 @@ class Slider extends Component {
     }
     /*  Slide  */
     let component = (
-      <div
-        ref={(e) => {
-          const { SliderRef } = this.state;
-          if (!SliderRef) {
-            this.setRef(e);
-          }
-        }}
-        className="carousel-initialized"
-        style={{
-          padding: centerMode ? `0 ${padding}` : 0
-        }}
-      >
-        {!settings.unslick ? prevArrow : ''}
-        <div style={{ height: `${height}px` }} className="carousel-track">
-          {this.newChildren}
+      <div style={{ position: 'relative', paddingBottom: '25px' }}>
+        <div
+          ref={(e) => {
+            const { SliderRef } = this.state;
+            if (!SliderRef) {
+              this.setRef(e);
+            }
+          }}
+          className="carousel-initialized"
+          style={{
+            padding: centerMode ? `0 ${padding}` : 0
+          }}
+        >
+          {!settings.unslick ? prevArrow : ''}
+          <div style={{ height: `${height}px` }} className="carousel-track">
+            {this.newChildren}
+          </div>
+          {!settings.unslick ? nextArrow : ''}
         </div>
-        {!settings.unslick ? nextArrow : ''}
         {!settings.unslick ? dots : ''}
       </div>
     );

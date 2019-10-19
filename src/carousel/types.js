@@ -56,7 +56,8 @@ const defaultProps = {
   duration: 200, //
   shift: 0, //
   gutter: 0, //
-  fullWidth: false //
+  fullWidth: false, //
+  arrowsBlock: true
 };
 
 const propTypes = {
@@ -116,7 +117,8 @@ const propTypes = {
   duration: PropTypes.number,
   shift: PropTypes.number,
   gutter: PropTypes.number,
-  fullWidth: PropTypes.bool
+  fullWidth: PropTypes.bool,
+  arrowsBlock: PropTypes.bool
 };
 
 export { defaultProps, propTypes, autoplayProps };

@@ -9,7 +9,8 @@ const Arrow = ({
   // slideCount,
   type,
   prevArrow,
-  nextArrow
+  nextArrow,
+  arrowsBlock,
 }) => {
   const ClickHandler = (options, e) => {
     if (e) {
@@ -17,7 +18,10 @@ const Arrow = ({
     }
     clickHandler(options, e);
   };
-  const classes = { 'carousel-arrow': true };
+  const classes = {
+    'carousel-arrow': true,
+    block: arrowsBlock,
+  };
   let handler = null;
   if (type === 'prev') {
     Object.assign(classes, {
@@ -85,7 +89,8 @@ Arrow.propTypes = {
     PropTypes.element,
     PropTypes.instanceOf(Element),
     PropTypes.oneOf([null])
-  ])
+  ]),
+  arrowsBlock: PropTypes.bool,
 };
 Arrow.defaultProps = {
   arrows: true,
@@ -93,6 +98,7 @@ Arrow.defaultProps = {
   clickHandler: () => {},
   // slideCount,
   type: 'prev',
+  arrowsBlock: true,
   prevArrow: null,
   nextArrow: null
 };
