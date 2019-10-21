@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import {
   Row,
   Col,
@@ -12,8 +12,24 @@ import {
 import PropTypes from 'prop-types';
 import map from 'lodash/map';
 import get from 'lodash/get';
+import transform from 'lodash/transform';
+import isEqual from 'lodash/isEqual';
+import isObject from 'lodash/isObject';
 import Carousel from '../../src';
+import { defaultProps } from '../../src/carousel/types';
 import 'antd/dist/antd.css';
+
+function changes(object, base) {
+  return transform(object, (result, value, key) => {
+    if (!isEqual(value, base[key])) {
+      result[key] = (isObject(value) && isObject(base[key])) ? changes(value, base[key]) : value;
+    }
+  });
+}
+
+function difference(object, base) {
+  return changes(object, base);
+}
 
 const CustomSlide = ({ value, onChange, ...options }) => (
   <Row>
@@ -67,22 +83,8 @@ class CustomSlider extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dots: true,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      centerMode: true,
       boxCount: new Array(10),
-      autoplaySpeed: 3000,
-      autoplay: false,
-      centerPadding: 50,
-      arrows: true,
-      dotsScroll: 1,
-      duration: 200,
-      shift: 0,
-      pauseOnHover: true,
-      rows: 1,
-      slidesPerRow: 1,
-      arrowsBlock: true
+      ...defaultProps
     };
     this.datas = [{
       name: 'Slider-Group',
@@ -250,12 +252,12 @@ class CustomSlider extends Component {
     );
   };
 
-  format = (options) => map(options || this.datas, (data) => {
+  format = (options) => map(options || this.datas, (data, index) => {
     let result = null;
     const { name, component } = data;
     if (typeof component === 'object' && Array.isArray(component)) {
       result = (
-        <Collapse.Panel header={name}>
+        <Collapse.Panel header={name} key={index + 1}>
           <List
             itemLayout="horizontal"
             dataSource={component}
@@ -275,11 +277,16 @@ class CustomSlider extends Component {
 
   render() {
     const { boxCount } = this.state;
+    const newObject = { ...this.state };
+    delete newObject.boxCount;
+    const diff = difference(newObject, defaultProps);
+    const diffArray = [];
+    Object.keys(diff).map((key) => diffArray.push({ key, value: diff[key] }));
     return (
       <Row>
         <Col span={8}>
           <Collapse accordion>
-            <Collapse.Panel header="boxCount">
+            <Collapse.Panel header="boxCount" key={0}>
               <Row style={{ width: '100%' }}>
                 <Col span={24}>
                   <Typography.Title
@@ -316,6 +323,178 @@ class CustomSlider extends Component {
               )))
             }
           </Carousel>
+          <Col span={24}>
+            <pre>
+              <code className="hljs javascript">
+                <span className="hljs-keyword">import</span>
+                &nbsp;React,&nbsp;
+                {`${'{'}`}
+                &nbsp;Component&nbsp;
+                {`${'}'}`}
+                <span className="hljs-keyword">&nbsp;from&nbsp;</span>
+                <span className="hljs-string">&apos;react&apos;</span>
+                ;
+                <br />
+                <span className="hljs-keyword">import</span>
+                &nbsp;Slider&nbsp;
+                <span className="hljs-keyword">from&nbsp;</span>
+                <span className="hljs-string">&apos;infinite-react-carousel&apos;</span>
+                ;
+                <br />
+                <br />
+                <span className="hljs-keyword">export</span>
+                &nbsp;
+                <span className="hljs-keyword">default</span>
+                &nbsp;
+                <span className="hljs-className">
+                  <span className="hljs-keyword">className</span>
+                  &nbsp;
+                  <span className="hljs-title">CustomSlider</span>
+                  &nbsp;
+                  <span className="hljs-keyword">extends</span>
+                  &nbsp;
+                  <span className="hljs-title">Component</span>
+                  &nbsp;
+                </span>
+                {`${'{'}`}
+                <br />
+                &nbsp;&nbsp;render()&nbsp;
+                {`${'{'}`}
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <span className="hljs-keyword">const</span>
+                &nbsp;settings =
+                  &nbsp;
+                {`${'{'}`}
+                <br />
+                {
+                  map(diffArray, (diffItem, index) => {
+                    const { key, value } = diffItem;
+                    const className = (type) => {
+                      let result = null;
+                      switch (type) {
+                      case 'boolean': {
+                        result = 'literal';
+                        break;
+                      }
+                      case 'number': {
+                        result = 'number';
+                        break;
+                      }
+                      default: {
+                        result = 'string';
+                        break;
+                      }
+                      }
+                      return result;
+                    };
+                    return (
+                      <Fragment>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <span className="hljs-attr">{key}</span>
+                        :
+                        &nbsp;
+                        <span className={`hljs-${className(typeof value)}`}>{value.toString()}</span>
+                        {index !== diffArray.length - 1 ? ',' : '' }
+                        <br />
+                      </Fragment>
+                    );
+                  })
+                }
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                {`${'}'}`}
+                ;
+                <br />
+                <span className="hljs-keyword">&nbsp;&nbsp;&nbsp;&nbsp;return</span>
+                (
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span className="hljs-tag">
+                  &lt;
+                  <span className="hljs-name">div</span>
+                  &gt;
+                </span>
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span className="hljs-tag">
+                  &lt;
+                  <span className="hljs-name">span</span>
+                  &gt;
+                </span>
+                CustomSlider
+                <span className="hljs-tag">
+                  &lt;
+                  <span className="hljs-name">/span</span>
+                  &gt;
+                </span>
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span className="hljs-tag">
+                  &lt;
+                  <span className="hljs-name">Slider</span>
+                  &nbsp;
+                  {`${'{'}`}
+                  &nbsp;...settings&nbsp;
+                  {`${'}'}`}
+                  &gt;
+                </span>
+                {
+                  map(boxCount, (value, index) => (
+                    <Fragment>
+                      <br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <span className="hljs-tag">
+                        &lt;
+                        <span className="hljs-name">div</span>
+                        &gt;
+                      </span>
+                      <br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <span className="hljs-tag">
+                        &lt;
+                        <span className="hljs-name">h3</span>
+                        &gt;
+                      </span>
+                      {index + 1}
+                      <span className="hljs-tag">
+                        &lt;
+                        <span className="hljs-name">/h3</span>
+                        &gt;
+                      </span>
+                      <br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <span className="hljs-tag">
+                        &lt;
+                        <span className="hljs-name">/div</span>
+                        &gt;
+                      </span>
+                    </Fragment>
+                  ))
+                }
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span className="hljs-tag">
+                  &lt;
+                  <span className="hljs-name">/Slider</span>
+                  &gt;
+                </span>
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span className="hljs-tag">
+                  &lt;
+                  <span className="hljs-name">/div</span>
+                  &gt;
+                </span>
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;);
+                <br />
+                &nbsp;&nbsp;
+                {`${'}'}`}
+                <br />
+                {`${'}'}`}
+              </code>
+            </pre>
+          </Col>
         </Col>
       </Row>
     );
