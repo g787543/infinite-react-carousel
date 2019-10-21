@@ -801,6 +801,7 @@ class Slider extends Component {
         dots = <Dots {...dotProps} />;
       }
     }
+    const judge = this.items ? settings.slidesToShow < this.items.length : false;
     /*  Slide  */
     let component = (
       <Fragment>
@@ -816,13 +817,13 @@ class Slider extends Component {
             padding: centerMode ? `0 ${padding}` : 0
           }}
         >
-          {!settings.unslick ? prevArrow : ''}
+          {!settings.unslick && judge ? prevArrow : ''}
           <div style={{ height: `${height}px` }} className="carousel-track">
             {this.newChildren}
           </div>
-          {!settings.unslick ? nextArrow : ''}
+          {!settings.unslick && judge ? nextArrow : ''}
         </div>
-        {!settings.unslick ? dots : ''}
+        {!settings.unslick && judge ? dots : ''}
       </Fragment>
     );
     if (settings === 'unslick') {
