@@ -747,7 +747,6 @@ class Slider extends Component {
     if (!settings) return null;
     const { centerPadding, centerMode } = settings;
     const padding = typeof centerPadding === 'string' ? centerPadding : `${centerPadding}px`;
-    console.log(spec);
     /*  arrow  */
     const arrowProps = extractObject(spec, [
       'arrows',
@@ -804,7 +803,7 @@ class Slider extends Component {
     }
     /*  Slide  */
     let component = (
-      <div style={{ position: 'relative', paddingBottom: '25px' }}>
+      <div className="carousel">
         <div
           ref={(e) => {
             const { SliderRef } = this.state;

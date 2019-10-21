@@ -39,7 +39,7 @@ const Arrow = ({
     key: type === 'prev' ? '0' : '1',
     'data-role': 'none',
     className: classnames(classes),
-    style: { display: 'block' },
+    // style: { display: 'block' },
     onClick: handler
   };
   // const customProps = {
