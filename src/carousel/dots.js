@@ -58,7 +58,7 @@ const Dots = ({
       activeIndex
     };
     return (
-      <li className={className}>
+      <li className={className} key={`${new Date().getTime() * i}`}>
         {React.cloneElement(customPaging(i), {
           onClick: (e) => ClickHandler(dotOptions, e)
         })}

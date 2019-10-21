@@ -15,6 +15,7 @@ const defaultProps = {
   autoplaySpeed: 3000, //
   beforeChange: null, //
   centerMode: false, //
+  slidesToScroll: 1,
   centerPadding: 50, //
   className: '', //
   cssEase: 'ease',
