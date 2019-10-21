@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
@@ -803,7 +803,7 @@ class Slider extends Component {
     }
     /*  Slide  */
     let component = (
-      <div className="carousel">
+      <Fragment>
         <div
           ref={(e) => {
             const { SliderRef } = this.state;
@@ -823,7 +823,7 @@ class Slider extends Component {
           {!settings.unslick ? nextArrow : ''}
         </div>
         {!settings.unslick ? dots : ''}
-      </div>
+      </Fragment>
     );
     if (settings === 'unslick') {
       const className = `regular slider ${settings.className || ''}`;
