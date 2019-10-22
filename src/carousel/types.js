@@ -7,7 +7,7 @@ const autoplayProps = {
 
 const defaultProps = {
   accessibility: true,
-  adaptiveHeight: false,
+  adaptiveHeight: false, //
   afterChange: null, //
   appendDots: (dots) => <ul style={{ display: 'block' }}>{dots}</ul>, //
   arrows: true, //
@@ -15,16 +15,14 @@ const defaultProps = {
   autoplaySpeed: 3000, //
   beforeChange: null, //
   centerMode: false, //
-  slidesToScroll: 1,
+  arrowsScroll: 1,
   centerPadding: 50, //
   className: '', //
-  cssEase: 'ease',
   customPaging: (i) => <button type="button">{i + 1}</button>, //
   dots: false, //
   dotsClass: 'carousel-dots', //
   dotsScroll: 1, //
   draggable: true,
-  easing: 'linear',
   edgeFriction: 0.35,
   fade: false,
   focusOnSelect: false,
@@ -58,7 +56,7 @@ const defaultProps = {
   shift: 0, //
   gutter: 0, //
   fullWidth: false, //
-  arrowsBlock: true
+  arrowsBlock: true //
 };
 
 const propTypes = {
@@ -67,6 +65,7 @@ const propTypes = {
   afterChange: PropTypes.func,
   appendDots: PropTypes.func,
   arrows: PropTypes.bool,
+  arrowsScroll: PropTypes.number,
   autoplay: PropTypes.bool,
   autoplaySpeed: PropTypes.number,
   beforeChange: PropTypes.func,

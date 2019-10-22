@@ -187,6 +187,10 @@ class Slider extends Component {
       SliderRef.addEventListener('touchstart', this.handleCarouselTap);
       SliderRef.addEventListener('touchmove', this.handleCarouselDrag);
       SliderRef.addEventListener('touchend', this.handleCarouselRelease);
+    } else {
+      SliderRef.removeEventListener('touchstart', this.handleCarouselTap);
+      SliderRef.removeEventListener('touchmove', this.handleCarouselDrag);
+      SliderRef.removeEventListener('touchend', this.handleCarouselRelease);
     }
     SliderRef.addEventListener('mousedown', this.handleCarouselTap);
     SliderRef.addEventListener('mousemove', this.handleCarouselDrag);
@@ -556,6 +560,7 @@ class Slider extends Component {
       const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween}px)`;
       this.updateItemStyle(el, transformString);
     }
+    this.adaptHeight();
 
     // onCycleTo callback
     const currItem = SliderRef.querySelectorAll('.carousel-item')[
@@ -611,7 +616,7 @@ class Slider extends Component {
           // this.settings.gutter = padding;
           this.scroll();
           if (
-            initialSlide && typeof initialSlide === 'number' && initialSlide > 0
+            typeof initialSlide === 'number' && initialSlide >= 0
           ) {
             this.slickSet(initialSlide);
           } else if (
@@ -620,6 +625,20 @@ class Slider extends Component {
             console.warn('initialSlide must be a number');
           }
           this.connectObserver();
+        });
+      }
+    }
+  };
+
+  adaptHeight = () => {
+    const { settings, SliderRef, height } = this.state;
+    if (settings.adaptiveHeight && SliderRef) {
+      const index = this.wrap(this.center);
+      const elem = this.items.get(index);
+      const { offsetHeight } = elem;
+      if (height !== offsetHeight) {
+        this.setState({
+          height: offsetHeight
         });
       }
     }
@@ -750,6 +769,7 @@ class Slider extends Component {
     /*  arrow  */
     const arrowProps = extractObject(spec, [
       'arrows',
+      'arrowsScroll',
       'centerMode',
       'currentSlide',
       'slideCount',
@@ -758,20 +778,17 @@ class Slider extends Component {
       'nextArrow',
       'arrowsBlock'
     ]);
+    Object.assign(arrowProps, {
+      clickHandler: (options) => this.slickSet(activeIndex + options.arrowsScroll)
+    });
     let prevArrow;
     let nextArrow;
     if (settings.arrows) {
       prevArrow = (
-        <PrevArrow
-          clickHandler={() => this.slickPrev(activeIndex - 1)}
-          {...arrowProps}
-        />
+        <PrevArrow {...arrowProps} />
       );
       nextArrow = (
-        <NextArrow
-          clickHandler={() => this.slickNext(activeIndex + 1)}
-          {...arrowProps}
-        />
+        <NextArrow {...arrowProps} />
       );
     }
 
