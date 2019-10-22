@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 const Arrow = ({
   arrows,
+  arrowsScroll,
   // currentSlide,
   clickHandler,
   // slideCount,
@@ -23,16 +24,21 @@ const Arrow = ({
     block: arrowsBlock,
   };
   let handler = null;
+  const arrowOptions = {
+    arrowsScroll
+  };
   if (type === 'prev') {
     Object.assign(classes, {
       'carousel-prev': true
     });
-    handler = ClickHandler.bind(this, { message: 'previous' });
+    Object.assign(arrowOptions, { message: 'previous' });
+    handler = ClickHandler.bind(this, arrowOptions);
   } else if (type === 'next') {
     Object.assign(classes, {
       'carousel-next': true
     });
-    handler = ClickHandler.bind(this, { message: 'next' });
+    Object.assign(arrowOptions, { message: 'next' });
+    handler = ClickHandler.bind(this, arrowOptions);
   }
 
   const arrowProps = {
@@ -74,6 +80,7 @@ const Arrow = ({
 
 Arrow.propTypes = {
   arrows: PropTypes.bool,
+  arrowsScroll: PropTypes.number,
   // currentSlide: PropTypes,
   clickHandler: PropTypes.func,
   // slideCount,
@@ -94,6 +101,7 @@ Arrow.propTypes = {
 };
 Arrow.defaultProps = {
   arrows: true,
+  arrowsScroll: 1,
   // currentSlide,
   clickHandler: () => {},
   // slideCount,
