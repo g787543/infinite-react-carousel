@@ -26,7 +26,7 @@ const defaultProps = {
   edgeFriction: 0.35,
   fade: false,
   focusOnSelect: false,
-  initialSlide: 0, //
+  initialSlide: false, //
   lazyLoad: null,
   nextArrow: null, //
   onEdge: null,
@@ -82,7 +82,10 @@ const propTypes = {
   edgeFriction: PropTypes.number,
   fade: PropTypes.bool,
   focusOnSelect: PropTypes.bool,
-  initialSlide: PropTypes.number,
+  initialSlide: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.bool
+  ]),
   lazyLoad: PropTypes.bool,
   nextArrow: PropTypes.oneOfType([
     PropTypes.instanceOf(Element),

@@ -157,7 +157,7 @@ class CustomSlider extends Component {
       }, {
         name: 'initialSlide',
         component: {
-          name: 'slider',
+          name: ['switch', 'slider'],
           min: 0,
           max: 10
         }
@@ -246,7 +246,12 @@ class CustomSlider extends Component {
     this.sliderRef = null;
   }
 
-  getCustomComponent = (key) => get(this.component, key);
+  getCustomComponent = (key) => {
+    if (typeof key === 'object' && Array.isArray(key)) {
+      return map(key, (k) => get(this.component, k));
+    }
+    return [get(this.component, key)];
+  };
 
   getOptions = (options) => {
     const newOptions = { ...options };
@@ -275,19 +280,23 @@ class CustomSlider extends Component {
           </Typography.Title>
         </Col>
         <Col offset={1} span={22}>
-          <CustomComponent
-            {...customOptions}
-            value={get(this.state, name)}
-            onChange={(value) => {
-              const newState = { ...this.state };
-              newState[name] = value;
-              this.setState(newState, () => {
-                if (typeof onChange === 'function' && onChange) {
-                  onChange(value);
-                }
-              });
-            }}
-          />
+          {
+            map(CustomComponent, (CComponent) => (
+              <CComponent
+                {...customOptions}
+                value={get(this.state, name)}
+                onChange={(value) => {
+                  const newState = { ...this.state };
+                  newState[name] = value;
+                  this.setState(newState, () => {
+                    if (typeof onChange === 'function' && onChange) {
+                      onChange(value);
+                    }
+                  });
+                }}
+              />
+            ))
+          }
         </Col>
       </Row>
     );

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
@@ -17,7 +17,7 @@ const extractObject = (spec, keys) => {
   return newObject;
 };
 
-class Slider extends Component {
+class Slider extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -615,14 +615,16 @@ class Slider extends Component {
           this.dim = width * 2;
           // this.settings.gutter = padding;
           this.scroll();
-          if (
-            typeof initialSlide === 'number' && initialSlide >= 0
-          ) {
-            this.slickSet(initialSlide);
-          } else if (
-            typeof initialSlide !== 'number' && process.env.NODE_ENV !== 'production'
-          ) {
-            console.warn('initialSlide must be a number');
+          if (initialSlide) {
+            if (typeof initialSlide === 'number') {
+              if (initialSlide > 0) {
+                this.slickSet(initialSlide);
+              }
+            } else if (
+              typeof initialSlide !== 'number' && process.env.NODE_ENV !== 'production'
+            ) {
+              console.warn('initialSlide must be a number');
+            }
           }
           this.connectObserver();
         });
@@ -779,7 +781,7 @@ class Slider extends Component {
       'arrowsBlock'
     ]);
     Object.assign(arrowProps, {
-      clickHandler: (options) => this.slickSet(activeIndex + options.arrowsScroll)
+      // clickHandler: (options) => this.slickSet(activeIndex + options.arrowsScroll)
     });
     let prevArrow;
     let nextArrow;
