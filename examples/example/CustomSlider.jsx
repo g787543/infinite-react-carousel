@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import {
   Row,
   Col,
@@ -7,9 +7,11 @@ import {
   InputNumber,
   Collapse,
   List,
-  Typography
+  Typography,
+  Input,
 } from 'antd';
 import PropTypes from 'prop-types';
+import Highlight from 'react-highlight';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import transform from 'lodash/transform';
@@ -60,6 +62,13 @@ const CustomSwitch = ({ value, onChange, ...options }) => (
     onChange={onChange}
   />
 );
+const CustomInput = ({ value, onChange, ...options }) => (
+  <Input
+    {...options}
+    value={value}
+    onChange={(e) => onChange(e.currentTarget.value)}
+  />
+);
 const customPropTypes = {
   value: PropTypes.any,
   onChange: PropTypes.func,
@@ -74,10 +83,12 @@ const customDefaultProps = {
   onChange: () => {},
   options: {}
 };
-CustomSlide.propTypes = customPropTypes;
 CustomSwitch.propTypes = customPropTypes;
 CustomSwitch.defaultProps = customDefaultProps;
+CustomSlide.propTypes = customPropTypes;
 CustomSlide.defaultProps = customDefaultProps;
+CustomInput.propTypes = customPropTypes;
+CustomInput.defaultProps = customDefaultProps;
 
 class CustomSlider extends Component {
   constructor(props) {
@@ -87,7 +98,7 @@ class CustomSlider extends Component {
       ...defaultProps
     };
     this.datas = [{
-      name: 'Slider-Group',
+      name: 'Slider',
       component: [{
         name: 'rows',
         component: {
@@ -113,25 +124,28 @@ class CustomSlider extends Component {
           max: 20
         }
       }, {
-        name: 'slidesToScroll',
+        name: 'gutter',
         component: {
           name: 'slider',
-          step: 1,
-          min: 1,
-          max: 20
+          step: 10,
+          min: 0,
+          max: 100
         }
       }]
     }, {
       name: 'Basic',
       component: [{
-        name: 'arrows',
-        component: 'switch'
-      }, {
-        name: 'arrowsBlock',
-        component: 'switch'
+        name: 'className',
+        component: 'input'
       }, {
         name: 'centerMode',
         component: 'switch'
+      }, {
+        name: 'swipe',
+        component: 'switch'
+      }, {
+        name: 'adaptiveHeight',
+        component: 'switch',
       }, {
         name: 'centerPadding',
         component: {
@@ -141,6 +155,32 @@ class CustomSlider extends Component {
           max: 200
         }
       }, {
+        name: 'initialSlide',
+        component: {
+          name: 'slider',
+          min: 0,
+          max: 10
+        }
+      }]
+    }, {
+      name: 'Arrows',
+      component: [{
+        name: 'arrows',
+        component: 'switch'
+      }, {
+        name: 'arrowsBlock',
+        component: 'switch'
+      }, {
+        name: 'arrowsScroll',
+        component: {
+          name: 'slider',
+          min: 1,
+          max: 10,
+        }
+      }]
+    }, {
+      name: 'Animation',
+      component: [{
         name: 'duration',
         component: {
           name: 'slider',
@@ -158,7 +198,7 @@ class CustomSlider extends Component {
         }
       }]
     }, {
-      name: 'dots-Group',
+      name: 'Dots',
       component: [{
         name: 'dots',
         component: 'switch'
@@ -172,7 +212,7 @@ class CustomSlider extends Component {
         }
       }]
     }, {
-      name: 'AutoPlay-Group',
+      name: 'AutoPlay',
       component: [{
         name: 'pauseOnHover',
         component: 'switch',
@@ -199,7 +239,8 @@ class CustomSlider extends Component {
     }];
     this.component = {
       slider: CustomSlide,
-      switch: CustomSwitch
+      switch: CustomSwitch,
+      input: CustomInput
     };
     this.deleteValue = ['name'];
     this.sliderRef = null;
@@ -281,7 +322,7 @@ class CustomSlider extends Component {
     delete newObject.boxCount;
     const diff = difference(newObject, defaultProps);
     const diffArray = [];
-    Object.keys(diff).map((key) => diffArray.push({ key, value: diff[key] }));
+    Object.keys(diff).sort().forEach((key) => diffArray.push({ key, value: diff[key] }));
     return (
       <Row>
         <Col span={8}>
@@ -318,182 +359,50 @@ class CustomSlider extends Component {
             {
               map(boxCount, ((value, index) => (
                 <div key={`${new Date().getTime() * index}`}>
-                  <h3>{index + 1}</h3>
+                  {
+                    index === 3 ? (
+                      <div>
+                        <h3>{index + 1}</h3>
+                        <h3>{index + 1}</h3>
+                        <h3>{index + 1}</h3>
+                      </div>
+                    ) : (
+                      <h3>{index + 1}</h3>
+                    )
+                  }
                 </div>
               )))
             }
           </Carousel>
           <Col span={24}>
-            <pre>
-              <code className="hljs javascript">
-                <span className="hljs-keyword">import</span>
-                &nbsp;React,&nbsp;
-                {`${'{'}`}
-                &nbsp;Component&nbsp;
-                {`${'}'}`}
-                <span className="hljs-keyword">&nbsp;from&nbsp;</span>
-                <span className="hljs-string">&apos;react&apos;</span>
-                ;
-                <br />
-                <span className="hljs-keyword">import</span>
-                &nbsp;Slider&nbsp;
-                <span className="hljs-keyword">from&nbsp;</span>
-                <span className="hljs-string">&apos;infinite-react-carousel&apos;</span>
-                ;
-                <br />
-                <br />
-                <span className="hljs-keyword">export</span>
-                &nbsp;
-                <span className="hljs-keyword">default</span>
-                &nbsp;
-                <span className="hljs-className">
-                  <span className="hljs-keyword">className</span>
-                  &nbsp;
-                  <span className="hljs-title">CustomSlider</span>
-                  &nbsp;
-                  <span className="hljs-keyword">extends</span>
-                  &nbsp;
-                  <span className="hljs-title">Component</span>
-                  &nbsp;
-                </span>
-                {`${'{'}`}
-                <br />
-                &nbsp;&nbsp;render()&nbsp;
-                {`${'{'}`}
-                <br />
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <span className="hljs-keyword">const</span>
-                &nbsp;settings =
-                  &nbsp;
-                {`${'{'}`}
-                <br />
-                {
-                  map(diffArray, (diffItem, index) => {
-                    const { key, value } = diffItem;
-                    const className = (type) => {
-                      let result = null;
-                      switch (type) {
-                      case 'boolean': {
-                        result = 'literal';
-                        break;
-                      }
-                      case 'number': {
-                        result = 'number';
-                        break;
-                      }
-                      default: {
-                        result = 'string';
-                        break;
-                      }
-                      }
-                      return result;
-                    };
-                    return (
-                      <Fragment>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span className="hljs-attr">{key}</span>
-                        :
-                        &nbsp;
-                        <span className={`hljs-${className(typeof value)}`}>{value.toString()}</span>
-                        {index !== diffArray.length - 1 ? ',' : '' }
-                        <br />
-                      </Fragment>
-                    );
-                  })
-                }
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                {`${'}'}`}
-                ;
-                <br />
-                <span className="hljs-keyword">&nbsp;&nbsp;&nbsp;&nbsp;return</span>
-                (
-                <br />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span className="hljs-tag">
-                  &lt;
-                  <span className="hljs-name">div</span>
-                  &gt;
-                </span>
-                <br />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span className="hljs-tag">
-                  &lt;
-                  <span className="hljs-name">span</span>
-                  &gt;
-                </span>
-                CustomSlider
-                <span className="hljs-tag">
-                  &lt;
-                  <span className="hljs-name">/span</span>
-                  &gt;
-                </span>
-                <br />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span className="hljs-tag">
-                  &lt;
-                  <span className="hljs-name">Slider</span>
-                  &nbsp;
-                  {`${'{'}`}
-                  &nbsp;...settings&nbsp;
-                  {`${'}'}`}
-                  &gt;
-                </span>
-                {
-                  map(boxCount, (value, index) => (
-                    <Fragment>
-                      <br />
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      <span className="hljs-tag">
-                        &lt;
-                        <span className="hljs-name">div</span>
-                        &gt;
-                      </span>
-                      <br />
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      <span className="hljs-tag">
-                        &lt;
-                        <span className="hljs-name">h3</span>
-                        &gt;
-                      </span>
-                      {index + 1}
-                      <span className="hljs-tag">
-                        &lt;
-                        <span className="hljs-name">/h3</span>
-                        &gt;
-                      </span>
-                      <br />
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      <span className="hljs-tag">
-                        &lt;
-                        <span className="hljs-name">/div</span>
-                        &gt;
-                      </span>
-                    </Fragment>
-                  ))
-                }
-                <br />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span className="hljs-tag">
-                  &lt;
-                  <span className="hljs-name">/Slider</span>
-                  &gt;
-                </span>
-                <br />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <span className="hljs-tag">
-                  &lt;
-                  <span className="hljs-name">/div</span>
-                  &gt;
-                </span>
-                <br />
-                &nbsp;&nbsp;&nbsp;&nbsp;);
-                <br />
-                &nbsp;&nbsp;
-                {`${'}'}`}
-                <br />
-                {`${'}'}`}
-              </code>
-            </pre>
+            <Highlight languages={['javascript']}>
+              {`import React, { Component } from 'react';
+import Slider from 'infinite-react-carousel';
+
+export default className CustomSlider extends Component {
+  render() {
+    const settings =  {
+      ${map(diffArray, (diffItem) => {
+        const { key, value } = diffItem;
+        if (typeof value === 'string') {
+          return `${key}: '${value}'`;
+        }
+        return `${key}: ${value}`;
+      }).join(',\r      ')}
+    };
+    return (
+      <div>
+        <span>CustomSlider</span>
+        <Slider { ...settings }>
+          ${map(boxCount, (value, index) => (`<div>
+            <h3>${index + 1}</h3>
+          </div>`)).join('\r          ')}
+        </Slider>
+      </div>
+    );
+  }
+}`}
+            </Highlight>
           </Col>
         </Col>
       </Row>
