@@ -1,6 +1,6 @@
 {
   "name": "infinite-react-carousel",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Infinite carousel for react",
   "main": "./lib",
   "files": [
