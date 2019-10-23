@@ -780,17 +780,20 @@ class Slider extends PureComponent {
       'nextArrow',
       'arrowsBlock'
     ]);
-    Object.assign(arrowProps, {
-      // clickHandler: (options) => this.slickSet(activeIndex + options.arrowsScroll)
-    });
     let prevArrow;
     let nextArrow;
     if (settings.arrows) {
       prevArrow = (
-        <PrevArrow {...arrowProps} />
+        <PrevArrow
+          {...arrowProps}
+          clickHandler={(options) => this.slickSet(activeIndex - options.arrowsScroll)}
+        />
       );
       nextArrow = (
-        <NextArrow {...arrowProps} />
+        <NextArrow
+          {...arrowProps}
+          clickHandler={(options) => this.slickSet(activeIndex + options.arrowsScroll)}
+        />
       );
     }
 
