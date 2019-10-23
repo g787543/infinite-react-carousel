@@ -786,13 +786,13 @@ class Slider extends PureComponent {
       prevArrow = (
         <PrevArrow
           {...arrowProps}
-          clickHandler={(options) => this.slickSet(activeIndex - options.arrowsScroll)}
+          clickHandler={(options) => this.slickPrev(activeIndex - options.arrowsScroll)}
         />
       );
       nextArrow = (
         <NextArrow
           {...arrowProps}
-          clickHandler={(options) => this.slickSet(activeIndex + options.arrowsScroll)}
+          clickHandler={(options) => this.slickNext(activeIndex + options.arrowsScroll)}
         />
       );
     }
