@@ -85,13 +85,13 @@ Arrow.propTypes = {
   clickHandler: PropTypes.func,
   // slideCount,
   type: PropTypes.oneOf(['prev', 'next']),
-  prevArrow: PropTypes.oneOf([
+  prevArrow: PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.element,
     PropTypes.instanceOf(Element),
     PropTypes.oneOf([null])
   ]),
-  nextArrow: PropTypes.oneOf([
+  nextArrow: PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.element,
     PropTypes.instanceOf(Element),

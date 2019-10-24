@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
@@ -17,7 +17,7 @@ const extractObject = (spec, keys) => {
   return newObject;
 };
 
-class Slider extends PureComponent {
+class Slider extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -68,6 +68,12 @@ class Slider extends PureComponent {
 
   componentDidMount() {
     window.addEventListener('resize', this.handleResize);
+    this.init();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    this.init();
+    return isEqual(nextProps, this.props) || isEqual(nextState, this.state);
   }
 
   componentDidUpdate(prevProps) {
@@ -762,7 +768,6 @@ class Slider extends PureComponent {
   slickSet = (n, callback) => this.cycleTo(n, callback);
 
   render() {
-    this.init();
     const { height, settings, activeIndex } = this.state;
     const spec = { ...settings, ...this.prop };
     if (!settings) return null;
