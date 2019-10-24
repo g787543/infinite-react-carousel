@@ -1,6 +1,6 @@
 {
   "name": "infinite-react-carousel",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Infinite carousel for react",
   "main": "./lib",
   "files": [
@@ -20,6 +20,7 @@
     "lint:fix": "eslint --ext .ts,.tsx,.js,.jsx ./src --fix"
   },
   "author": "Hans wu",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/g787543/infinite-react-carousel"
