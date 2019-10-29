@@ -38,6 +38,18 @@ class CircularArray {
     return result;
   };
 
+  getIndex = (i) => {
+    let result;
+    if (i < 0 || i < this.length - this.array.length) {
+      result = -i % this.array.length === 0
+        ? 0
+        : this.array.length + (i % this.array.length);
+    } else {
+      result = i % this.array.length;
+    }
+    return result;
+  }
+
   set = (i, v) => {
     if (i < 0 || i < this.length - this.array.length) {
       throw new Error('can not set index < 0');
