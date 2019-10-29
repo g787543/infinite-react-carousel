@@ -14,7 +14,11 @@ const HOST = process.env.HOST;
 const PORT = process.env.PORT && Number(process.env.PORT);
 module.exports = {
   name: 'infinite-react-carousel',
-  entry: ['babel-polyfill', './src/index.js'],
+  entry: [
+    'babel-polyfill',
+    'resize-observer-polyfill',
+    './src/index.js'
+  ],
   output: {
     library: 'Carousel',
     libraryTarget: 'umd',

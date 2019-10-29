@@ -17,7 +17,9 @@
     "build:gh-client": "webpack --mode production --progress --color --devtool false --config ./build/webpack.gh.config.js",
     "prepublishOnly": "npm run lint && npm run build",
     "lint": "eslint src",
-    "lint:fix": "eslint --ext .ts,.tsx,.js,.jsx ./src --fix"
+    "lint:fix": "eslint --ext .ts,.tsx,.js,.jsx ./src --fix",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "author": "Hans wu",
   "license": "MIT",
@@ -36,6 +38,7 @@
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.1.2",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
     "antd": "^3.23.6",
@@ -47,8 +50,11 @@
     "brotli-webpack-plugin": "^1.1.0",
     "clean-webpack-plugin": "^0.1.19",
     "compression-webpack-plugin": "^3.0.0",
+    "core-js": "^3.3.5",
     "css-loader": "^2.1.1",
     "cssnano": "^4.1.10",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.15.1",
     "eslint": "^5.9.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
@@ -58,6 +64,7 @@
     "friendly-errors-webpack-plugin": "^1.7.0",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.8.0",
+    "jest-css-modules": "^2.1.0",
     "mini-css-extract-plugin": "^0.8.0",
     "node-notifier": "^6.0.0",
     "node-sass": "^4.12.0",
@@ -66,6 +73,7 @@
     "opn": "^6.0.0",
     "portfinder": "^1.0.24",
     "postcss-loader": "^3.0.0",
+    "raf": "^3.4.1",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-highlight": "^0.12.0",
@@ -87,6 +95,14 @@
   "peerDependencies": {
     "react": "^16.0.0",
     "react-dom": "^16.0.0"
+  },
+  "jest": {
+    "setupFiles": [
+      "./test-setup.js"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sss|styl)$": "<rootDir>/node_modules/jest-css-modules"
+    }
   },
   "npmName": "infinite-react-carousel",
   "npmFileMap": [
