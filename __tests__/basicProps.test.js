@@ -1,54 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { mount } from 'enzyme';
-import Carousel from '../src';
 import {
-  delay,
   createStartTouchEventObject,
   createMoveTouchEventObject,
   resizeWindow
-} from '../test-helper';
+} from './test-helper';
+import { SliderWithScroll as Slider } from './testComponent';
 import '../examples/index.css';
-
-class Slider extends Component {
-  constructor(props) {
-    super(props);
-    this.innerSlider = null;
-  }
-
-  testForScroll = async (befroeScroll, afterScroll, time = 200) => {
-    befroeScroll();
-    await delay(time);
-    afterScroll();
-  }
-
-  render() {
-    return (
-      <Carousel
-        ref={(ele) => {
-          if (ele) {
-            this.innerSlider = ele;
-          }
-        }}
-        {...this.props}
-      >
-        <div>
-          <h3>slide1</h3>
-        </div>
-        <div>
-          <h3>slide2</h3>
-        </div>
-        <div>
-          <h3>slide3</h3>
-          <h3>slide3</h3>
-          <h3>slide3</h3>
-        </div>
-        <div>
-          <h3>slide4</h3>
-        </div>
-      </Carousel>
-    );
-  }
-}
 
 describe('Slider - [Basic]', () => {
   const wrapper = mount(<Slider />);
@@ -148,22 +106,19 @@ describe('Slider - [Basic]', () => {
           .querySelector('.carousel-item.active')
           .textContent
       ).toEqual('slide4');
-    });
+    }, 400);
 
-    await wrapperInstance.testForScroll(
-      () => {
-        wrapper.find('.carousel-arrow.carousel-next').simulate('click');
-      }, () => {
-        expect(
-          wrapper
-            .find('.carousel-track')
-            .getDOMNode()
-            .querySelector('.carousel-item.active')
-            .textContent
-        ).toEqual('slide1');
-      },
-      400
-    );
+    await wrapperInstance.testForScroll(() => {
+      wrapper.find('.carousel-arrow.carousel-prev').simulate('click');
+    }, () => {
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide3');
+    });
   });
 
   it('[Props]className', async () => {
@@ -177,11 +132,10 @@ describe('Slider - [Basic]', () => {
   });
 
   it('[Props]swipe', async () => {
-
+    // TODO
   });
 
   it('[Props]adaptiveHeight', async () => {
-
-
+    // TODO
   });
 });
