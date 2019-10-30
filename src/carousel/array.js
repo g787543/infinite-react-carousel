@@ -58,7 +58,7 @@ class CircularArray {
       this.array[this.length % this.array.length] = undefined;
       this.length += 1;
     }
-    this.array[i % this.array.length] = v;
+    this.array[this.getIndex(i)] = v;
     if (i === this.length) this.length += 1;
   };
 }
