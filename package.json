@@ -19,7 +19,8 @@
     "lint": "eslint src",
     "lint:fix": "eslint --ext .ts,.tsx,.js,.jsx ./src --fix",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "author": "Hans wu",
   "license": "MIT",
@@ -97,8 +98,11 @@
     "react-dom": "^16.0.0"
   },
   "jest": {
+    "testMatch": [
+      "<rootDir>/__tests__/*.test.{js,jsx,mjs}"
+    ],
     "setupFiles": [
-      "./test-setup.js"
+      "./__tests__/test-setup.js"
     ],
     "moduleNameMapper": {
       "\\.(css|less|scss|sss|styl)$": "<rootDir>/node_modules/jest-css-modules"
