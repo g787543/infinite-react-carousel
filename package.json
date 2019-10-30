@@ -15,10 +15,10 @@
     "build:gh": "bash ./script/build-gh.sh",
     "build:client": "webpack --mode production --progress --color --devtool false --config ./build/webpack.config.js",
     "build:gh-client": "webpack --mode production --progress --color --devtool false --config ./build/webpack.gh.config.js",
-    "prepublishOnly": "npm run lint && npm run build",
+    "prepublishOnly": "npm run lint && npm run test && npm run build",
     "lint": "eslint src",
     "lint:fix": "eslint --ext .ts,.tsx,.js,.jsx ./src --fix",
-    "test": "jest",
+    "test": "npm run lint && jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },
