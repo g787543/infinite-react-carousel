@@ -58,7 +58,7 @@ const Dots = ({
       activeIndex
     };
     return (
-      <li className={className} key={`${new Date().getTime() * i}`}>
+      <li className={`${className} carousel-dot-${i + 1}`} key={`${new Date().getTime() * i}`}>
         {React.cloneElement(customPaging(i), {
           onClick: (e) => ClickHandler(dotOptions, e)
         })}
