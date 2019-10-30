@@ -45,10 +45,13 @@ class Slider extends Component {
       return true;
     });
     /* switch */
-    this.beforeChange = false;
+    this.doubleTrigger = false;
+    this.initialSet = false;
+    this.beforeChangeTrigger = false;
     this.autoplayTimer = null;
     this.arrowClick = null;
-
+    this.scrollType = null;
+    this.scrollOptions = {};
     /* functionBind */
     this.handleCarouselTap = this.handleCarouselTap.bind(this);
     this.handleCarouselDrag = this.handleCarouselDrag.bind(this);
@@ -99,7 +102,7 @@ class Slider extends Component {
       this.offset = this.center * 2 * width;
       this.target = this.offset;
     } else {
-      this.scroll();
+      this.scroll('resize');
     }
   };
 
@@ -344,7 +347,7 @@ class Slider extends Component {
         if (delta > 2 || delta < -2) {
           this.dragged = true;
           this.reference = x;
-          this.scroll(this.offset + delta);
+          this.scroll('drag', this.offset + delta);
         }
       } else if (this.dragged) {
         // If dragging don't allow vertical scroll.
@@ -392,6 +395,7 @@ class Slider extends Component {
     }
     this.amplitude = this.target - this.offset;
     this.timestamp = Date.now();
+    this.scrollType = 'scroll';
     requestAnimationFrame(this.autoScroll);
 
     if (this.dragged) {
@@ -433,11 +437,16 @@ class Slider extends Component {
     if (this.amplitude) {
       const elapsed = Date.now() - this.timestamp;
       const delta = this.amplitude * Math.exp(-elapsed / settings.duration);
-      if (delta > 2 || delta < -2) {
-        this.scroll(this.target - delta);
+      if (this.doubleTrigger) {
+        this.beforeChangeTrigger = false;
+        this.scroll('auto', this.target - delta);
+        requestAnimationFrame(this.autoScroll);
+        this.doubleTrigger = false;
+      } else if (delta > 2 || delta < -2) {
+        this.scroll('auto', this.target - delta);
         requestAnimationFrame(this.autoScroll);
       } else {
-        this.scroll(this.target);
+        this.scroll('end', this.target);
       }
     }
   };
@@ -446,7 +455,7 @@ class Slider extends Component {
    * Scroll to target
    * @param {Number} x
    */
-  scroll = (x, type) => {
+  scroll = (type, x) => {
     const { SliderRef, width, settings } = this.state;
     const {
       centerMode,
@@ -488,18 +497,32 @@ class Slider extends Component {
       if (afterChange && typeof afterChange === 'function' && type === 'end') {
         afterChange(this.wrap(this.center));
       }
-      SliderRef.classList.remove('scrolling');
-      this.arrowClick = null;
-      this.swiping = false;
     }, settings.duration);
-
     // center
     // Don't show wrapped items.
     const index = this.wrap(this.center);
     if (
-      beforeChange && typeof beforeChange === 'function' && !this.beforeChange
+      !this.beforeChangeTrigger
+      && beforeChange
+      && typeof beforeChange === 'function'
+      && (type !== 'start' && type !== 'end')
     ) {
-      beforeChange(index, index + 1);
+      this.beforeChangeTrigger = true;
+      if (this.scrollType === 'scroll') {
+        beforeChange(index);
+      } else if (this.scrollType === 'arrows') {
+        const slides = settings.arrowsScroll;
+        const newIndex = this.items.getIndex(this.arrowClick === 'prev' ? index - slides : index + slides);
+        beforeChange(index, newIndex);
+      } else if (this.scrollType === 'dots') {
+        beforeChange(index, this.scrollOptions.index * this.scrollOptions.dotsScroll);
+      }
+    }
+    if (type === 'end') {
+      SliderRef.classList.remove('scrolling');
+      this.beforeChangeTrigger = false;
+      this.arrowClick = null;
+      this.swiping = false;
     }
     if (!this.noWrap || (this.center >= 0 && this.center < this.items.length)) {
       el = this.items.get(index);
@@ -612,29 +635,32 @@ class Slider extends Component {
       } else if (process.env.NODE_ENV !== 'production') {
         console.warn('centerPadding have to be number or string like 50px');
       }
-      const sliderWidth = centerMode
-        ? SliderRef.offsetWidth - padding * 2
-        : SliderRef.offsetWidth;
-      if (sliderWidth > 0) {
-        const width = sliderWidth / slidesToShow;
-        this.setState({ width }, () => {
-          this.dim = width * 2;
-          // this.settings.gutter = padding;
-          this.scroll();
-          if (initialSlide) {
-            if (typeof initialSlide === 'number') {
-              if (initialSlide > 0) {
-                this.slickSet(initialSlide);
-              }
-            } else if (
-              typeof initialSlide !== 'number' && process.env.NODE_ENV !== 'production'
-            ) {
-              console.warn('initialSlide must be a number');
-            }
-          }
-          this.connectObserver();
-        });
+      let { offsetWidth } = SliderRef;
+      if (offsetWidth <= 0) {
+        offsetWidth = window.innerWidth;
       }
+      const sliderWidth = centerMode
+        ? offsetWidth - padding * 2
+        : offsetWidth;
+      const width = sliderWidth / slidesToShow;
+      this.setState({ width }, () => {
+        this.dim = width * 2;
+        // this.settings.gutter = padding;
+        this.scroll('start');
+        if (initialSlide) {
+          if (typeof initialSlide === 'number') {
+            if (initialSlide > 0 && !this.initialSet) {
+              this.slickSet(initialSlide);
+              this.initialSet = true;
+            }
+          } else if (
+            typeof initialSlide !== 'number' && process.env.NODE_ENV !== 'production'
+          ) {
+            console.warn('initialSlide must be a number');
+          }
+        }
+        this.connectObserver();
+      });
     }
   };
 
@@ -737,6 +763,9 @@ class Slider extends Component {
    * @param {Number} n
    */
   slickNext = (n) => {
+    if (this.arrowClick) {
+      this.doubleTrigger = true;
+    }
     this.arrowClick = 'next';
     if (n) {
       this.cycleTo(n);
@@ -751,6 +780,9 @@ class Slider extends Component {
    * @param {Number} n
    */
   slickPrev = (n) => {
+    if (this.arrowClick) {
+      this.doubleTrigger = true;
+    }
     this.arrowClick = 'prev';
     if (typeof n === 'number') {
       this.cycleTo(n);
@@ -791,13 +823,23 @@ class Slider extends Component {
       prevArrow = (
         <PrevArrow
           {...arrowProps}
-          clickHandler={(options) => this.slickPrev(activeIndex - options.arrowsScroll)}
+          clickHandler={(options) => {
+            this.beforeChangeTrigger = false;
+            this.scrollType = 'arrows';
+            this.scrollOptions = options;
+            this.slickPrev(activeIndex - options.arrowsScroll);
+          }}
         />
       );
       nextArrow = (
         <NextArrow
           {...arrowProps}
-          clickHandler={(options) => this.slickNext(activeIndex + options.arrowsScroll)}
+          clickHandler={(options) => {
+            this.beforeChangeTrigger = false;
+            this.scrollType = 'arrows';
+            this.scrollOptions = options;
+            this.slickNext(activeIndex + options.arrowsScroll);
+          }}
         />
       );
     }
@@ -820,7 +862,12 @@ class Slider extends Component {
         Object.assign(dotProps, {
           activeIndex,
           slideCount: this.items.length,
-          clickHandler: (options) => this.slickSet(options.index * options.dotsScroll),
+          clickHandler: (options) => {
+            this.beforeChangeTrigger = false;
+            this.scrollType = 'dots';
+            this.scrollOptions = options;
+            this.slickSet(options.index * options.dotsScroll);
+          },
           onMouseEnter: pauseOnDotsHover ? this.onDotsLeave : null,
           onMouseOver: pauseOnDotsHover ? this.onDotsOver : null,
           onMouseLeave: pauseOnDotsHover ? this.onDotsLeave : null
