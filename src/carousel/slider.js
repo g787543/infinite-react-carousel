@@ -50,7 +50,8 @@ class Slider extends Component {
     this.beforeChangeTrigger = false;
     this.autoplayTimer = null;
     this.arrowClick = null;
-
+    this.scrollType = null;
+    this.scrollOptions = {};
     /* functionBind */
     this.handleCarouselTap = this.handleCarouselTap.bind(this);
     this.handleCarouselDrag = this.handleCarouselDrag.bind(this);
@@ -394,6 +395,7 @@ class Slider extends Component {
     }
     this.amplitude = this.target - this.offset;
     this.timestamp = Date.now();
+    this.scrollType = 'scroll';
     requestAnimationFrame(this.autoScroll);
 
     if (this.dragged) {
@@ -506,8 +508,15 @@ class Slider extends Component {
       && (type !== 'start' && type !== 'end')
     ) {
       this.beforeChangeTrigger = true;
-      const newIndex = this.items.getIndex(this.arrowClick === 'next' ? index + 1 : index - 1);
-      beforeChange(index, newIndex);
+      if (this.scrollType === 'scroll') {
+        beforeChange(index);
+      } else if (this.scrollType === 'arrows') {
+        const slides = settings.arrowsScroll;
+        const newIndex = this.items.getIndex(this.arrowClick === 'prev' ? index - slides : index + slides);
+        beforeChange(index, newIndex);
+      } else if (this.scrollType === 'dots') {
+        beforeChange(index, this.scrollOptions.index * this.scrollOptions.dotsScroll);
+      }
     }
     if (type === 'end') {
       SliderRef.classList.remove('scrolling');
@@ -814,13 +823,23 @@ class Slider extends Component {
       prevArrow = (
         <PrevArrow
           {...arrowProps}
-          clickHandler={(options) => this.slickPrev(activeIndex - options.arrowsScroll)}
+          clickHandler={(options) => {
+            this.beforeChangeTrigger = false;
+            this.scrollType = 'arrows';
+            this.scrollOptions = options;
+            this.slickPrev(activeIndex - options.arrowsScroll);
+          }}
         />
       );
       nextArrow = (
         <NextArrow
           {...arrowProps}
-          clickHandler={(options) => this.slickNext(activeIndex + options.arrowsScroll)}
+          clickHandler={(options) => {
+            this.beforeChangeTrigger = false;
+            this.scrollType = 'arrows';
+            this.scrollOptions = options;
+            this.slickNext(activeIndex + options.arrowsScroll);
+          }}
         />
       );
     }
@@ -843,7 +862,12 @@ class Slider extends Component {
         Object.assign(dotProps, {
           activeIndex,
           slideCount: this.items.length,
-          clickHandler: (options) => this.slickSet(options.index * options.dotsScroll),
+          clickHandler: (options) => {
+            this.beforeChangeTrigger = false;
+            this.scrollType = 'dots';
+            this.scrollOptions = options;
+            this.slickSet(options.index * options.dotsScroll);
+          },
           onMouseEnter: pauseOnDotsHover ? this.onDotsLeave : null,
           onMouseOver: pauseOnDotsHover ? this.onDotsOver : null,
           onMouseLeave: pauseOnDotsHover ? this.onDotsLeave : null
