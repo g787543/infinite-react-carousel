@@ -4,9 +4,9 @@ import { SliderWithBeforeChange } from './testComponent';
 
 describe('beforeChange', () => {
   describe('[Arrows]', () => {
+    const wrapper = mount(<SliderWithBeforeChange />);
+    const wrapperInstance = wrapper.instance();
     it('should slide 1 item', async () => {
-      const wrapper = mount(<SliderWithBeforeChange />);
-      const wrapperInstance = wrapper.instance();
       expect(
         wrapper
           .find('.carousel-track')
@@ -59,8 +59,6 @@ describe('beforeChange', () => {
     });
 
     it('should slide 2 items', async () => {
-      const wrapper = mount(<SliderWithBeforeChange />);
-      const wrapperInstance = wrapper.instance();
       wrapper.setProps({ arrowsScroll: 2 });
       wrapper.update();
       expect(wrapper.props().arrowsScroll).toEqual(2);
@@ -70,52 +68,8 @@ describe('beforeChange', () => {
           .getDOMNode()
           .querySelector('.carousel-item.active')
           .textContent
-      ).toEqual('slide1');
-      expect(wrapper.state()).toEqual({ currentSlide: null, nextSlide: null });
-      await wrapperInstance.testForScroll(
-        () => {
-          wrapper.find('.carousel-arrow.carousel-next').simulate('click');
-        }, () => {
-          expect(
-            wrapper
-              .find('.carousel-track')
-              .getDOMNode()
-              .querySelector('.carousel-item.active')
-              .textContent
-          ).toEqual('slide3');
-          expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 2 });
-        },
-        400
-      );
-
-      await wrapperInstance.testForScroll(() => {
-        wrapper.find('.carousel-arrow.carousel-prev').simulate('click');
-      }, () => {
-        expect(
-          wrapper
-            .find('.carousel-track')
-            .getDOMNode()
-            .querySelector('.carousel-item.active')
-            .textContent
-        ).toEqual('slide1');
-        expect(wrapper.state()).toEqual({ currentSlide: 2, nextSlide: 0 });
-      }, 400);
-    });
-
-    it('should slide 3 items', async () => {
-      const wrapper = mount(<SliderWithBeforeChange />);
-      const wrapperInstance = wrapper.instance();
-      wrapper.setProps({ arrowsScroll: 3 });
-      wrapper.update();
-      expect(wrapper.props().arrowsScroll).toEqual(3);
-      expect(
-        wrapper
-          .find('.carousel-track')
-          .getDOMNode()
-          .querySelector('.carousel-item.active')
-          .textContent
-      ).toEqual('slide1');
-      expect(wrapper.state()).toEqual({ currentSlide: null, nextSlide: null });
+      ).toEqual('slide2');
+      expect(wrapper.state()).toEqual({ currentSlide: 2, nextSlide: 1 });
       await wrapperInstance.testForScroll(
         () => {
           wrapper.find('.carousel-arrow.carousel-next').simulate('click');
@@ -127,9 +81,66 @@ describe('beforeChange', () => {
               .querySelector('.carousel-item.active')
               .textContent
           ).toEqual('slide4');
-          expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 3 });
+          expect(wrapper.state()).toEqual({ currentSlide: 1, nextSlide: 3 });
         },
-        400
+        800
+      );
+
+      await wrapperInstance.testForScroll(() => {
+        wrapper.find('.carousel-arrow.carousel-prev').simulate('click');
+      }, () => {
+        expect(
+          wrapper
+            .find('.carousel-track')
+            .getDOMNode()
+            .querySelector('.carousel-item.active')
+            .textContent
+        ).toEqual('slide2');
+        expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 1 });
+      }, 1000);
+    });
+
+    it('should slide 3 items', async () => {
+      wrapper.setProps({ arrowsScroll: 3 });
+      wrapper.update();
+      expect(wrapper.props().arrowsScroll).toEqual(3);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide2');
+      expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 1 });
+      await wrapperInstance.testForScroll(
+        () => {
+          wrapper.find('.carousel-arrow.carousel-next').simulate('click');
+        }, () => {
+          expect(
+            wrapper
+              .find('.carousel-track')
+              .getDOMNode()
+              .querySelector('.carousel-item.active')
+              .textContent
+          ).toEqual('slide5');
+          expect(wrapper.state()).toEqual({ currentSlide: 1, nextSlide: 4 });
+        },
+        1200
+      );
+      await wrapperInstance.testForScroll(
+        () => {
+          wrapper.find('.carousel-arrow.carousel-prev').simulate('click');
+        }, () => {
+          expect(
+            wrapper
+              .find('.carousel-track')
+              .getDOMNode()
+              .querySelector('.carousel-item.active')
+              .textContent
+          ).toEqual('slide2');
+          expect(wrapper.state()).toEqual({ currentSlide: 4, nextSlide: 1 });
+        },
+        1400
       );
     });
   });
