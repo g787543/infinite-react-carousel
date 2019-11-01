@@ -131,19 +131,6 @@ describe('beforeChange', () => {
         },
         400
       );
-
-      await wrapperInstance.testForScroll(() => {
-        wrapper.find('.carousel-arrow.carousel-prev').simulate('click');
-      }, () => {
-        expect(
-          wrapper
-            .find('.carousel-track')
-            .getDOMNode()
-            .querySelector('.carousel-item.active')
-            .textContent
-        ).toEqual('slide1');
-        expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 0 });
-      }, 600);
     });
   });
   describe('[Dots]', () => {
