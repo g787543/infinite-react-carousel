@@ -4,6 +4,7 @@
 [![npm](https://img.shields.io/npm/dt/infinite-react-carousel.svg)](https://www.npmjs.com/package/infinite-react-carousel)
 [![Bundle Size](https://badgen.net/bundlephobia/minzip/infinite-react-carousel)](https://bundlephobia.com/result?p=infinite-react-carousel@latest)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+[![Codecov](https://img.shields.io/codecov/c/github/g787543/infinite-react-carousel/master.svg)](https://codecov.io/gh/g787543/infinite-react-carousel/branch/master)
 [![CircleCI](https://circleci.com/gh/g787543/infinite-react-carousel.svg?style=svg)](https://circleci.com/gh/g787543/infinite-react-carousel)
 
 ### Installation
