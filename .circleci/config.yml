@@ -23,9 +23,7 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      - run: 
-          name: Run Test
-          command: npm run test
+      - run: npm run test
       - codecov/upload:
           file: coverage/*.json
           flags: frontend
