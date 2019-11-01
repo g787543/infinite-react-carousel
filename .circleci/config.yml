@@ -1,11 +1,10 @@
 version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.1
 jobs:
-  build:
-    branches:
-      ignore:
-        - gh-pages
+  upload-codecov:
     docker:
-      - image: circleci/node:12.13.0
+      - image: circleci/node:10.15.3
     working_directory: ~/repo
     environment:
       - SOURCE_BRANCH: master
@@ -23,10 +22,44 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      - run: npm run test
+      - run:
+          name: Git Clone
+          command: |
+            if [ $CIRCLE_BRANCH == $SOURCE_BRANCH ]; then
+              git config --global user.email $GH_EMAIL
+              git config --global user.name $GH_NAME
+
+              git clone $CIRCLE_REPOSITORY_URL out
+
+              cd out
+              git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
+            fi
+      - run: 
+          name: Run Test
+          command: npm run test
       - codecov/upload:
           file: coverage/*.json
           flags: frontend
+  build-and-deploy:
+    docker:
+      - image: circleci/node:10.15.3
+    working_directory: ~/repo
+    environment:
+      - SOURCE_BRANCH: master
+      - TARGET_BRANCH: gh-pages
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
       - deploy:
           name: Deploy
           command: |
@@ -54,3 +87,20 @@ jobs:
 
               git push origin $TARGET_BRANCH
             fi
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - upload-codecov:
+          filters:
+            branches:
+              only:
+                - master
+      - build-and-deploy:
+          requires:
+            - upload-codecov
+          filters:
+            branches:
+              only:
+                - master
