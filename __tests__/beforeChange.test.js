@@ -143,7 +143,7 @@ describe('beforeChange', () => {
             .textContent
         ).toEqual('slide1');
         expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 0 });
-      }, 800);
+      }, 600);
     });
   });
   describe('[Dots]', () => {

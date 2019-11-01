@@ -19,8 +19,7 @@
     "lint": "eslint src",
     "lint:fix": "eslint --ext .ts,.tsx,.js,.jsx ./src --fix",
     "test": "npm run lint && jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:watch": "jest --watch"
   },
   "author": "Hans wu",
   "license": "MIT",
@@ -106,7 +105,9 @@
     ],
     "moduleNameMapper": {
       "\\.(css|less|scss|sss|styl)$": "<rootDir>/node_modules/jest-css-modules"
-    }
+    },
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
   },
   "npmName": "infinite-react-carousel",
   "npmFileMap": [

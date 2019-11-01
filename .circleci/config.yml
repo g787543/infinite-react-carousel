@@ -5,7 +5,7 @@ jobs:
       ignore:
         - gh-pages
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:12.13.0
     working_directory: ~/repo
     environment:
       - SOURCE_BRANCH: master
@@ -23,6 +23,12 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
+      - run: 
+          name: Run Test
+          command: npm run test
+      - codecov/upload:
+          file: coverage/*.json
+          flags: frontend
       - deploy:
           name: Deploy
           command: |
