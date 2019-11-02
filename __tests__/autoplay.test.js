@@ -78,8 +78,12 @@ describe('Slider - [Autoplay]', () => {
           .textContent
       ).toEqual('slide3');
     });
-  
+
     it('should slides when pauseOnHover is false', async () => {
+      wrapper.setProps({
+        pauseOnHover: false,
+        autoplay: true
+      }).update();
       expect(
         wrapper
           .find('.carousel-track')
@@ -89,7 +93,6 @@ describe('Slider - [Autoplay]', () => {
       ).toEqual('slide3');
       const timer = wrapperInstance.innerSlider.innerSlider.autoplayTimer;
       expect(typeof timer).toBe('number');
-      wrapper.setProps({ paruseOnHover: false }).update();
       const mouseOver = document.createEvent('Event');
       mouseOver.initEvent('mouseover');
       wrapperInstance.innerSlider.innerSlider.state.SliderRef.dispatchEvent(mouseOver);
@@ -108,7 +111,94 @@ describe('Slider - [Autoplay]', () => {
     });
   });
 
+  let speed = 0;
   describe('[autoplaySpeed]', () => {
+    it('should autoplay in 2000ms', async () => {
+      speed = 2000;
+      wrapper.setProps({
+        autoplaySpeed: speed,
+      }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide4');
+      await delay(speed + 200);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide5slide5slide5');
+    });
 
+    it('should autoplay in 1000ms', async () => {
+      speed = 1000;
+      wrapper.setProps({
+        autoplaySpeed: speed,
+      }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide5slide5slide5');
+      await delay(speed + 200);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide6');
+    });
+  });
+
+  describe('[autoplayScroll]', () => {
+    it('should slides 2 items when autoplay is true', async () => {
+      wrapper.setProps({
+        autoplayScroll: 2
+      }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide6');
+      await delay(speed + 300);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide2');
+    });
+
+    it('should slides 3 items when autoplay is true', async () => {
+      wrapper.setProps({
+        autoplayScroll: 3
+      }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide2');
+      await delay(speed + 400);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide5slide5slide5');
+    });
   });
 });
