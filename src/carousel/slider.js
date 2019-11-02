@@ -241,17 +241,29 @@ class Slider extends Component {
 
   /**
    * autoPlay func
-   * @param {Object} options
-   * @param {Number} options.autoplaySpeed
    */
   autoPlay = () => {
-    // const { settings } = this.state;
     const { autoplay, autoplaySpeed, pauseOnHover } = this.props;
+    const { SliderRef } = this.state;
     if (autoplay && autoplaySpeed > 0 && !this.autoplayTimer) {
-      const { SliderRef } = this.state;
-      this.autoplayTimer = setInterval(this.slickNext, autoplaySpeed);
+      this.scrollType = 'autoplay';
+      this.autoplayTimer = setInterval(() => {
+        const { autoplayScroll } = this.props;
+        const { activeIndex } = this.state;
+        this.beforeChangeTrigger = false;
+        this.slickNext(activeIndex + autoplayScroll, this.scrollType);
+      }, autoplaySpeed);
       if (pauseOnHover) {
-        SliderRef.addEventListener('mouseover', () => this.handleAutoplayPause());
+        SliderRef.addEventListener('mouseover', this.handleAutoplayPause);
+        SliderRef.removeEventListener('mouseleave', this.autoPlay);
+      } else {
+        SliderRef.removeEventListener('mouseover', this.handleAutoplayPause);
+        SliderRef.removeEventListener('mouseleave', this.autoPlay);
+      }
+    } else if (autoplay && autoplaySpeed && this.autoplayTimer) {
+      this.autoPlayInit();
+      if (!pauseOnHover) {
+        SliderRef.removeEventListener('mouseover', this.handleAutoplayPause);
         SliderRef.removeEventListener('mouseleave', this.autoPlay);
       }
     }
@@ -306,7 +318,7 @@ class Slider extends Component {
       clearInterval(this.autoplayTimer);
       this.autoplayTimer = null;
       SliderRef.removeEventListener('mouseover', this.handleAutoplayPause);
-      SliderRef.addEventListener('mouseleave', () => this.autoPlay());
+      SliderRef.addEventListener('mouseleave', this.autoPlay);
     }
   };
 
@@ -432,7 +444,7 @@ class Slider extends Component {
   /**
    * Auto scrolls to nearest carousel item.
    */
-  autoScroll = () => {
+  autoScroll = (type) => {
     const { settings } = this.state;
     if (this.amplitude) {
       const elapsed = Date.now() - this.timestamp;
@@ -443,7 +455,7 @@ class Slider extends Component {
         requestAnimationFrame(this.autoScroll);
         this.doubleTrigger = false;
       } else if (delta > 2 || delta < -2) {
-        this.scroll('auto', this.target - delta);
+        this.scroll(type === 'start' ? type : 'auto', this.target - delta);
         requestAnimationFrame(this.autoScroll);
       } else {
         this.scroll('end', this.target);
@@ -453,6 +465,7 @@ class Slider extends Component {
 
   /**
    * Scroll to target
+   * @param {string} type
    * @param {Number} x
    */
   scroll = (type, x) => {
@@ -491,13 +504,15 @@ class Slider extends Component {
       SliderRef.classList.add('scrolling');
     }
     if (this.scrollingTimeout != null) {
-      window.clearTimeout(this.scrollingTimeout);
+      clearTimeout(this.scrollingTimeout);
     }
-    this.scrollingTimeout = window.setTimeout(() => {
-      if (afterChange && typeof afterChange === 'function' && type === 'end') {
-        afterChange(this.wrap(this.center));
-      }
-    }, settings.duration);
+    if (type === 'start') {
+      this.scrollingTimeout = setTimeout(() => {
+        if (afterChange && typeof afterChange === 'function' && type === 'end') {
+          afterChange(this.wrap(this.center));
+        }
+      }, settings.duration);
+    }
     // center
     // Don't show wrapped items.
     const index = this.wrap(this.center);
@@ -516,6 +531,10 @@ class Slider extends Component {
         beforeChange(index, newIndex);
       } else if (this.scrollType === 'dots') {
         beforeChange(index, this.scrollOptions.index * this.scrollOptions.dotsScroll);
+      } else if (this.scrollType === 'autoplay') {
+        const slides = settings.autoplayScroll;
+        const newIndex = this.items.getIndex(index + slides);
+        beforeChange(index, newIndex);
       }
     }
     if (type === 'end') {
@@ -754,20 +773,25 @@ class Slider extends Component {
     if (this.offset !== this.target) {
       this.amplitude = this.target - this.offset;
       this.timestamp = Date.now();
-      requestAnimationFrame(this.autoScroll);
+      requestAnimationFrame(() => {
+        this.autoScroll('start');
+      });
     }
   };
 
   /**
    * Cycle to next item
    * @param {Number} n
+   * @param {string} type
    */
-  slickNext = (n) => {
+  slickNext = (n, type = 'arrow') => {
     if (this.arrowClick) {
       this.doubleTrigger = true;
     }
-    this.arrowClick = 'next';
-    if (n) {
+    if (type === 'arrow') {
+      this.arrowClick = 'next';
+    }
+    if (typeof n === 'number' && n) {
       this.cycleTo(n);
     } else {
       const { activeIndex } = this.state;
@@ -778,13 +802,16 @@ class Slider extends Component {
   /**
    * Cycle to previous item
    * @param {Number} n
+   * * @param {string} type
    */
-  slickPrev = (n) => {
+  slickPrev = (n, type = 'arrow') => {
     if (this.arrowClick) {
       this.doubleTrigger = true;
     }
-    this.arrowClick = 'prev';
-    if (typeof n === 'number') {
+    if (type === 'arrow') {
+      this.arrowClick = 'prev';
+    }
+    if (typeof n === 'number' && n) {
       this.cycleTo(n);
     } else {
       const { activeIndex } = this.state;
