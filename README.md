@@ -61,6 +61,7 @@ const SimpleSlider = () => (
 | initialSlide | Index of first slide | false | Boolean, Number |
 | pauseOnHover | Prevents autoplay while hovering on track | true | Boolean |
 | autoplay | Enable/disable slider autoplay | false | Boolean |
+| autoplayScroll | How many slides to scroll when autoplay is true | 1 | Number |
 | autoplaySpeed | Delay between each auto scroll (in milliseconds) | 3000 | Number |
 | beforeChange | Before Index change callback. `(oldIndex, newIndex) => ...` | null | Function |
 | afterChange | Index change callback. `index => ...` | null | Function |
