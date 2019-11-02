@@ -1,6 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { SliderWithBeforeChange } from './testComponent';
+import { delay } from './test-helper';
+import { defaultProps } from '../src/carousel/types';
 
 describe('beforeChange', () => {
   describe('[Arrows]', () => {
@@ -281,6 +283,73 @@ describe('beforeChange', () => {
         expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 0 });
       },
       600);
+    });
+  });
+  describe('[AutoPlay]', () => {
+    const wrapper = mount(<SliderWithBeforeChange />);
+    wrapper.setProps({
+      autoplay: true
+    }).update();
+    it('should slide 1 item at once', async () => {
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide4');
+      expect(wrapper.state()).toEqual({ currentSlide: 2, nextSlide: 3 });
+      await delay(defaultProps.autoplaySpeed + 200);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide5');
+      expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 4 });
+    });
+
+    it('should slide 2 item at once', async () => {
+      wrapper.setProps({ autoplayScroll: 2 }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide5');
+      expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 4 });
+      await delay(defaultProps.autoplaySpeed + 300);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: 4, nextSlide: 0 });
+    });
+
+    it('should slide 3 item at once', async () => {
+      wrapper.setProps({ autoplayScroll: 3 }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: 4, nextSlide: 0 });
+      await delay(defaultProps.autoplaySpeed + 400);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide4');
+      expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 3 });
     });
   });
 
