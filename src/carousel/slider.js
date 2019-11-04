@@ -243,8 +243,12 @@ class Slider extends Component {
    * autoPlay func
    */
   autoPlay = () => {
-    const { autoplay, autoplaySpeed, pauseOnHover } = this.props;
-    const { SliderRef } = this.state;
+    const {
+      SliderRef,
+      settings: {
+        autoplay, autoplaySpeed, pauseOnHover
+      }
+    } = this.state;
     if (autoplay && autoplaySpeed > 0 && !this.autoplayTimer) {
       this.scrollType = 'autoplay';
       this.autoplayTimer = setInterval(() => {
@@ -275,8 +279,21 @@ class Slider extends Component {
    * @param {Number} options.autoplaySpeed
    */
   autoPlayInit = () => {
-    this.handleAutoplayPause();
-    this.autoPlay();
+    const { settings } = this.state;
+    if (settings.autoplay) {
+      this.handleAutoplayPause();
+      this.autoPlay();
+    } else {
+      this.setState({
+        settings: {
+          ...settings,
+          autoplay: true
+        }
+      }, () => {
+        this.handleAutoplayPause();
+        this.autoPlay();
+      });
+    }
   };
 
   /**
