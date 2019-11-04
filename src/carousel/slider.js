@@ -95,7 +95,7 @@ class Slider extends Component {
   handleResize = (e) => {
     this.slideInit();
     this.connectObserver();
-    const { settings } = this.state;
+    const { settings, activeIndex } = this.state;
     const { onResize } = settings;
     if (settings.fullWidth) {
       const { width } = this.state;
@@ -104,6 +104,7 @@ class Slider extends Component {
       this.target = this.offset;
     } else {
       this.scroll('resize');
+      this.slickSet(activeIndex);
     }
     onResize(e);
   };
@@ -518,7 +519,10 @@ class Slider extends Component {
     }
 
     // Track scrolling state
-    if (!SliderRef.classList.contains('scrolling') && !this.arrowClick) {
+    if (
+      !SliderRef.classList.contains('scrolling')
+      && !this.arrowClick
+      && (type !== 'init' && type !== 'resize')) {
       this.swiping = true;
       SliderRef.classList.add('scrolling');
     }
@@ -684,7 +688,7 @@ class Slider extends Component {
       this.setState({ width }, () => {
         this.dim = width * 2;
         // this.settings.gutter = padding;
-        this.scroll('start');
+        this.scroll('init');
         if (initialSlide) {
           if (typeof initialSlide === 'number') {
             if (initialSlide > 0 && !this.initialSet) {
