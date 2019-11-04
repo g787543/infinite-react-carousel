@@ -77,6 +77,7 @@ const SimpleSlider = () => (
 | dotsScroll | How many slides to scroll on one page | 1 | Number |
 | appendDots | Custom dots templates. Works same as customPaging | ```(dots) => <ul style={{ display: 'block' }}>{dots}</ul>``` | Function |
 | customPaging | Custom paging templates | ```(i) => <button type="button">{i + 1}</button>``` | Function |
+| onReszie | detect carousel resize | ```(e) => {}``` | Function |
 
 ### Methods
 

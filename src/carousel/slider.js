@@ -92,10 +92,11 @@ class Slider extends Component {
    * Handle Throttle Resize
    * @param {Event} e
    */
-  handleResize = () => {
+  handleResize = (e) => {
     this.slideInit();
     this.connectObserver();
     const { settings } = this.state;
+    const { onResize } = settings;
     if (settings.fullWidth) {
       const { width } = this.state;
       this.dim = width * 2 + settings.gutter;
@@ -104,6 +105,7 @@ class Slider extends Component {
     } else {
       this.scroll('resize');
     }
+    onResize(e);
   };
 
   /**
