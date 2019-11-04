@@ -84,8 +84,9 @@ const SimpleSlider = () => (
 |------|-------------|
 | slickNext | Go to the next slide |
 | slickPrev | Go to the previous slide |
+| slickGoTo | Go to any slide |
 | slickPause | Pause the autoplay |
-| autoplayInit | Start the autoplay |
+| slickPlay | Start the autoplay |
 
 ### Development
 
