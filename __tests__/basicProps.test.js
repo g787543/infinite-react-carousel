@@ -1,8 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import {
-  createStartTouchEventObject,
-  createMoveTouchEventObject,
+  sendTouchEvent,
   resizeWindow
 } from './test-helper';
 import { SliderWithScroll as Slider } from './testComponent';
@@ -42,17 +41,45 @@ describe('Slider - [Basic]', () => {
     it('swipe', async () => {
       // swipe: true
       await wrapperInstance.testForScroll(() => {
-        wrapper.simulate('touchStart',
-          createStartTouchEventObject({ x: 100, y: 0 }));
-        wrapper.simulate('touchMove',
-          createMoveTouchEventObject({ x: 1000, y: 0 }));
-        wrapper.simulate('touchEnd',
-          createMoveTouchEventObject({ x: 1000, y: 0 }));
+        expect(
+          wrapper
+            .find('.carousel-track')
+            .getDOMNode()
+            .querySelector('.carousel-item.active')
+            .textContent
+        ).toEqual('slide1');
+        sendTouchEvent(1200, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchstart', 'start');
+        sendTouchEvent(100, 10, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchmove');
+        sendTouchEvent(100, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchend');
       }, () => {
-        // console.log(wrapper.html());
-        // console.log(wrapper
-        //   .find('.carousel-track').html());
-      }, 100);
+        expect(
+          wrapper
+            .find('.carousel-track')
+            .getDOMNode()
+            .querySelector('.carousel-item.active')
+            .textContent
+        ).toEqual('slide2');
+      });
+      await wrapperInstance.testForScroll(() => {
+        expect(
+          wrapper
+            .find('.carousel-track')
+            .getDOMNode()
+            .querySelector('.carousel-item.active')
+            .textContent
+        ).toEqual('slide2');
+        sendTouchEvent(100, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchstart', 'start');
+        sendTouchEvent(1200, 10, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchmove');
+        sendTouchEvent(1200, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchend');
+      }, () => {
+        expect(
+          wrapper
+            .find('.carousel-track')
+            .getDOMNode()
+            .querySelector('.carousel-item.active')
+            .textContent
+        ).toEqual('slide1');
+      });
     });
     it('adaptiveHeight', async () => {
       // adaptiveHeight: false
@@ -66,8 +93,7 @@ describe('Slider - [Basic]', () => {
 
   it('[Props]centerMode', async () => {
     await wrapperInstance.testForScroll(() => {
-      wrapper.setProps({ centerMode: true });
-      wrapper.update();
+      wrapper.setProps({ centerMode: true }).update();
     }, () => {
       expect(
         wrapper
@@ -81,8 +107,7 @@ describe('Slider - [Basic]', () => {
 
   it('[Props]centerPadding', async () => {
     await wrapperInstance.testForScroll(() => {
-      wrapper.setProps({ centerPadding: 100 });
-      wrapper.update();
+      wrapper.setProps({ centerPadding: 100 }).update();
     }, () => {
       expect(
         wrapper
@@ -96,8 +121,7 @@ describe('Slider - [Basic]', () => {
 
   it('[Props]initialSlide', async () => {
     await wrapperInstance.testForScroll(() => {
-      wrapper.setProps({ initialSlide: 3 });
-      wrapper.update();
+      wrapper.setProps({ initialSlide: 3 }).update();
     }, () => {
       expect(
         wrapper
@@ -122,8 +146,7 @@ describe('Slider - [Basic]', () => {
   });
 
   it('[Props]className', async () => {
-    wrapper.setProps({ className: 'test-carousel' });
-    wrapper.update();
+    wrapper.setProps({ className: 'test-carousel' }).update();
     expect(
       wrapper
         .find('.test-carousel')
@@ -132,7 +155,47 @@ describe('Slider - [Basic]', () => {
   });
 
   it('[Props]swipe', async () => {
-    // TODO
+    wrapper.setProps({ swipe: false }).update();
+    await wrapperInstance.testForScroll(() => {
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide3');
+      sendTouchEvent(1200, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchstart', 'start');
+      sendTouchEvent(100, 10, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchmove');
+      sendTouchEvent(100, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchend');
+    }, () => {
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide3');
+    });
+    await wrapperInstance.testForScroll(() => {
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide3');
+      sendTouchEvent(100, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchstart', 'start');
+      sendTouchEvent(1200, 10, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchmove');
+      sendTouchEvent(1200, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchend');
+    }, () => {
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide3');
+    });
   });
 
   it('[Props]adaptiveHeight', async () => {
