@@ -1,9 +1,3 @@
-export function repeatClicks(node, count) {
-  for (let i = 0; i < count; i += 1) {
-    node.simulate('click');
-  }
-}
-
 export function resizeWindow(x, y) {
   window.innerWidth = x;
   window.innerHeight = y;
@@ -16,14 +10,22 @@ export function delay(duration) {
   });
 }
 
-function createClientXY(x, y) {
-  return { clientX: x, clientY: y };
-}
-
-export function createStartTouchEventObject({ x = 0, y = 0 }) {
-  return { touches: [createClientXY(x, y)] };
-}
-
-export function createMoveTouchEventObject({ x = 0, y = 0 }) {
-  return { changedTouches: [createClientXY(x, y)] };
+export function sendTouchEvent(x, y, element, eventType) {
+  const touchObj = {
+    identifier: Date.now(),
+    target: element,
+    radiusX: 2.5,
+    radiusY: 2.5,
+    rotationAngle: 10,
+    force: 0.5,
+    clientX: x,
+    clientY: y
+  };
+  const touchEvent = new TouchEvent(eventType, {
+    cancelable: true,
+    bubbles: true,
+    targetTouches: [touchObj],
+    shiftKey: true,
+  });
+  element.dispatchEvent(touchEvent);
 }

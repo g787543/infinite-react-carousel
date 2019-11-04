@@ -8,3 +8,4 @@ yarn.lock
 .vscode
 package-lock.json
 .DS_Store
+/coverage

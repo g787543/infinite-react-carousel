@@ -227,6 +227,14 @@ class CustomSlider extends Component {
           }
         }
       }, {
+        name: 'autoplayScroll',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 6
+        },
+      }, {
         name: 'autoplaySpeed',
         component: {
           name: 'slider',
@@ -234,7 +242,7 @@ class CustomSlider extends Component {
           min: 1000,
           max: 10000
         },
-        onChange: () => this.sliderRef.autoplayInit()
+        onChange: () => this.sliderRef.slickPlay()
       }]
     }];
     this.component = {
