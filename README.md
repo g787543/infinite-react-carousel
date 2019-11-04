@@ -78,6 +78,8 @@ const SimpleSlider = () => (
 | appendDots | Custom dots templates. Works same as customPaging | ```(dots) => <ul style={{ display: 'block' }}>{dots}</ul>``` | Function |
 | customPaging | Custom paging templates | ```(i) => <button type="button">{i + 1}</button>``` | Function |
 | onReszie | detect carousel resize | ```(e) => {}``` | Function |
+| onSwipe | Callback after slide changes by swiping | ```(direction) => {}``` | Function |
+| accessibility | Enable tabbing and arrow key navigation | true | Boolean |
 
 ### Methods
 
