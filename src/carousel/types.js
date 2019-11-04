@@ -58,7 +58,8 @@ const defaultProps = {
   fullWidth: false, //
   arrowsBlock: true, //
   autoplayScroll: 1, //
-  onResize: () => {}
+  onResize: () => {},
+  onSwipe: () => {}
 };
 
 const propTypes = {
@@ -125,7 +126,8 @@ const propTypes = {
   fullWidth: PropTypes.bool,
   arrowsBlock: PropTypes.bool,
   autoplayScroll: PropTypes.number,
-  onResize: PropTypes.func
+  onResize: PropTypes.func,
+  onSwipe: PropTypes.func
 };
 
 export { defaultProps, propTypes, autoplayProps };
