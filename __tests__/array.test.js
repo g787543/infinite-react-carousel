@@ -98,12 +98,18 @@ describe('CircularArray', () => {
     });
   });
   describe('[Element]', () => {
-    const array = [<div>0</div>, <div>1</div>, <div>2</div>, <div>3</div>, <div>4</div>];
+    const nodeFragment = document.createDocumentFragment();
+    for (let i = 0; i < 5; i += 1) {
+      const div = document.createElement('div');
+      div.innerHTML = i;
+      nodeFragment.appendChild(div);
+    }
+    const array = nodeFragment.childNodes;
     const array1 = [<span>0</span>, <span>1</span>, <span>2</span>, <span>3</span>, <span>4</span>];
     const items = new CircularArray(array);
     expect(items.array.length).toEqual(5);
     it('check constructor', () => {
-      expect(items.array).toEqual(array);
+      expect(items.array).toEqual(Array.from(array));
     });
     it('CircularArray.get', () => {
       for (let i = -10; i <= 10; i += 1) {
@@ -126,7 +132,7 @@ describe('CircularArray', () => {
       }
     });
     it('CircularArray.toString', () => {
-      expect(items.toString()).toEqual('{"type":"div","key":null,"ref":null,"props":{"children":"0"},"_owner":null,"_store":{}},{"type":"div","key":null,"ref":null,"props":{"children":"1"},"_owner":null,"_store":{}},{"type":"div","key":null,"ref":null,"props":{"children":"2"},"_owner":null,"_store":{}},{"type":"div","key":null,"ref":null,"props":{"children":"3"},"_owner":null,"_store":{}},{"type":"div","key":null,"ref":null,"props":{"children":"4"},"_owner":null,"_store":{}}');
+      expect(items.toString()).toEqual('{},{},{},{},{}');
     });
     it('CircularArray.set', () => {
       for (let i = 0; i < items.array.length; i += 1) {
@@ -138,5 +144,13 @@ describe('CircularArray', () => {
         expect(item).toEqual(array1[index]);
       });
     });
+  });
+  it('test error', () => {
+    try {
+      const items = new CircularArray({ test: 123 });
+      expect(items).toEqual(null);
+    } catch (error) {
+      expect(error.message).toEqual('can not create array');
+    }
   });
 });

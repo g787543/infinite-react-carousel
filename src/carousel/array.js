@@ -13,6 +13,8 @@ class CircularArray {
       this.array = n;
     } else if (typeof n === 'object' && n.length > 0) {
       n.forEach((e) => this.array.push(e));
+    } else {
+      throw new Error('can not create array');
     }
   }
 
