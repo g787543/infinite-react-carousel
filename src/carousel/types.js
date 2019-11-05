@@ -48,7 +48,6 @@ const defaultProps = {
   swipeToSlide: false,
   useCSS: true,
   useTransform: true,
-  variableWidth: false,
   vertical: false,
   waitForAnimate: true,
 
@@ -116,7 +115,6 @@ const propTypes = {
   swipeToSlide: PropTypes.bool,
   useCSS: PropTypes.bool,
   useTransform: PropTypes.bool,
-  variableWidth: PropTypes.bool,
   vertical: PropTypes.bool,
   waitForAnimate: PropTypes.bool,
 

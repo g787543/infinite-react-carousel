@@ -98,7 +98,7 @@ class Slider extends Component {
   handleResize = (e) => {
     this.slideInit();
     this.connectObserver();
-    const { settings } = this.state;
+    const { settings, activeIndex } = this.state;
     const { onResize } = settings;
     if (settings.fullWidth) {
       const { width } = this.state;
@@ -107,6 +107,7 @@ class Slider extends Component {
       this.target = this.offset;
     } else {
       this.scroll('resize');
+      this.slickSet(activeIndex);
     }
     onResize(e);
   };
@@ -130,16 +131,7 @@ class Slider extends Component {
     }
     let { children } = this.props;
     children = React.Children.toArray(children).filter((child) => (typeof child === 'string' ? !!child.trim() : !!child));
-    if (
-      settings.variableWidth && (settings.rows > 1 || settings.slidesPerRow > 1)
-    ) {
-      console.warn(
-        'variableWidth is not supported in case of rows > 1 or slidesPerRow > 1'
-      );
-      settings.variableWidth = false;
-    }
     this.newChildren = [];
-    let currentWidth = null;
     for (
       let i = 0;
       i < children.length;
@@ -153,9 +145,6 @@ class Slider extends Component {
       ) {
         const row = [];
         for (let k = j; k < j + settings.slidesPerRow; k += 1) {
-          if (settings.variableWidth && children[k].props.style) {
-            currentWidth = children[k].props.style.width;
-          }
           if (k >= children.length) break;
           row.push(
             React.cloneElement(children[k], {
@@ -170,24 +159,16 @@ class Slider extends Component {
         }
         newSlide.push(<div key={10 * i + j}>{row}</div>);
       }
-      if (settings.variableWidth) {
-        this.newChildren.push(
-          <div key={i} style={{ width: currentWidth }}>
-            {newSlide}
-          </div>
-        );
-      } else {
-        const { width } = this.state;
-        this.newChildren.push(
-          <div
-            key={i}
-            className="carousel-item"
-            style={{ width: `${width}px` }}
-          >
-            {newSlide}
-          </div>
-        );
-      }
+      const { width } = this.state;
+      this.newChildren.push(
+        <div
+          key={i}
+          className="carousel-item"
+          style={{ width: `${width}px` }}
+        >
+          {newSlide}
+        </div>
+      );
     }
     if (!isEqual(get(this.state, 'settings'), settings)) {
       this.setState({ settings });
@@ -553,7 +534,10 @@ class Slider extends Component {
     }
 
     // Track scrolling state
-    if (!SliderRef.classList.contains('scrolling') && !this.arrowClick) {
+    if (
+      !SliderRef.classList.contains('scrolling')
+      && !this.arrowClick
+      && (type !== 'init' && type !== 'resize')) {
       this.swiping = true;
       SliderRef.classList.add('scrolling');
     }
@@ -719,7 +703,7 @@ class Slider extends Component {
       this.setState({ width }, () => {
         this.dim = width * 2;
         // this.settings.gutter = padding;
-        this.scroll('start');
+        this.scroll('init');
         if (initialSlide) {
           if (typeof initialSlide === 'number') {
             if (initialSlide > 0 && !this.initialSet) {
