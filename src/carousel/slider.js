@@ -75,6 +75,8 @@ class Slider extends Component {
   componentDidMount() {
     window.addEventListener('resize', this.handleResize);
     this.init();
+    const { onInit } = this.props;
+    if (onInit && typeof onInit === 'function') onInit(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -85,9 +87,11 @@ class Slider extends Component {
   componentDidUpdate(prevProps) {
     const { SliderRef } = this.state;
     if (!isEqual(this.props, prevProps)) {
+      const { onReInit } = this.props;
       this.init();
       this.slideInit();
       this.setRef(SliderRef);
+      if (onReInit && typeof onReInit === 'function') onReInit(this);
     }
   }
 
@@ -131,16 +135,7 @@ class Slider extends Component {
     }
     let { children } = this.props;
     children = React.Children.toArray(children).filter((child) => (typeof child === 'string' ? !!child.trim() : !!child));
-    if (
-      settings.variableWidth && (settings.rows > 1 || settings.slidesPerRow > 1)
-    ) {
-      console.warn(
-        'variableWidth is not supported in case of rows > 1 or slidesPerRow > 1'
-      );
-      settings.variableWidth = false;
-    }
     this.newChildren = [];
-    let currentWidth = null;
     for (
       let i = 0;
       i < children.length;
@@ -154,9 +149,6 @@ class Slider extends Component {
       ) {
         const row = [];
         for (let k = j; k < j + settings.slidesPerRow; k += 1) {
-          if (settings.variableWidth && children[k].props.style) {
-            currentWidth = children[k].props.style.width;
-          }
           if (k >= children.length) break;
           row.push(
             React.cloneElement(children[k], {
@@ -169,26 +161,18 @@ class Slider extends Component {
             })
           );
         }
-        newSlide.push(<div key={10 * i + j}>{row}</div>);
+        newSlide.push(<div className="carousel-row" key={10 * i + j}>{row}</div>);
       }
-      if (settings.variableWidth) {
-        this.newChildren.push(
-          <div key={i} style={{ width: currentWidth }}>
-            {newSlide}
-          </div>
-        );
-      } else {
-        const { width } = this.state;
-        this.newChildren.push(
-          <div
-            key={i}
-            className="carousel-item"
-            style={{ width: `${width}px` }}
-          >
-            {newSlide}
-          </div>
-        );
-      }
+      const { width } = this.state;
+      this.newChildren.push(
+        <div
+          key={i}
+          className="carousel-item"
+          style={{ width: `${width}px` }}
+        >
+          {newSlide}
+        </div>
+      );
     }
     if (!isEqual(get(this.state, 'settings'), settings)) {
       this.setState({ settings });
