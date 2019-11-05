@@ -75,6 +75,8 @@ class Slider extends Component {
   componentDidMount() {
     window.addEventListener('resize', this.handleResize);
     this.init();
+    const { onInit } = this.props;
+    if (onInit && typeof onInit === 'function') onInit(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -85,9 +87,11 @@ class Slider extends Component {
   componentDidUpdate(prevProps) {
     const { SliderRef } = this.state;
     if (!isEqual(this.props, prevProps)) {
+      const { onReInit } = this.props;
       this.init();
       this.slideInit();
       this.setRef(SliderRef);
+      if (onReInit && typeof onReInit === 'function') onReInit(this);
     }
   }
 
@@ -157,7 +161,7 @@ class Slider extends Component {
             })
           );
         }
-        newSlide.push(<div key={10 * i + j}>{row}</div>);
+        newSlide.push(<div className="carousel-row" key={10 * i + j}>{row}</div>);
       }
       const { width } = this.state;
       this.newChildren.push(

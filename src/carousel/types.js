@@ -6,7 +6,7 @@ const autoplayProps = {
 };
 
 const defaultProps = {
-  accessibility: true,
+  accessibility: true, //
   adaptiveHeight: false, //
   afterChange: null, //
   appendDots: (dots) => <ul style={{ display: 'block' }}>{dots}</ul>, //
@@ -15,7 +15,7 @@ const defaultProps = {
   autoplaySpeed: 3000, //
   beforeChange: null, //
   centerMode: false, //
-  arrowsScroll: 1,
+  arrowsScroll: 1, //
   centerPadding: 50, //
   className: '', //
   customPaging: (i) => <button type="button">{i + 1}</button>, //
@@ -30,9 +30,9 @@ const defaultProps = {
   lazyLoad: null,
   nextArrow: null, //
   onEdge: null,
-  onInit: null,
+  onInit: null, //
   onLazyLoadError: null,
-  onReInit: null,
+  onReInit: null, //
   pauseOnDotsHover: false,
   pauseOnFocus: false,
   pauseOnHover: true, //
@@ -44,12 +44,8 @@ const defaultProps = {
   slidesPerRow: 1, //
   slidesToShow: 1, //
   swipe: true, //
-  swipeEvent: null,
   swipeToSlide: false,
-  useCSS: true,
-  useTransform: true,
   vertical: false,
-  waitForAnimate: true,
 
   duration: 200, //
   shift: 0, //
@@ -57,8 +53,8 @@ const defaultProps = {
   fullWidth: false, //
   arrowsBlock: true, //
   autoplayScroll: 1, //
-  onResize: () => {},
-  onSwipe: () => {}
+  onResize: () => {}, //
+  onSwipe: () => {} //
 };
 
 const propTypes = {
@@ -111,12 +107,8 @@ const propTypes = {
   slidesPerRow: PropTypes.number,
   slidesToShow: PropTypes.number,
   swipe: PropTypes.bool,
-  swipeEvent: PropTypes.func,
   swipeToSlide: PropTypes.bool,
-  useCSS: PropTypes.bool,
-  useTransform: PropTypes.bool,
   vertical: PropTypes.bool,
-  waitForAnimate: PropTypes.bool,
 
   duration: PropTypes.number,
   shift: PropTypes.number,
