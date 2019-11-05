@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import PropTypes from 'prop-types';
+import { arrowsDefaultProps as defaultProps, arrowsPropTypes as propTypes } from './types';
 
 const Arrow = ({
   arrows,
@@ -76,38 +76,8 @@ const Arrow = ({
   return customArrow;
 };
 
-Arrow.propTypes = {
-  arrows: PropTypes.bool,
-  arrowsScroll: PropTypes.number,
-  // currentSlide: PropTypes,
-  clickHandler: PropTypes.func,
-  // slideCount,
-  type: PropTypes.oneOf(['prev', 'next']),
-  prevArrow: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.element,
-    PropTypes.instanceOf(Element),
-    PropTypes.oneOf([null])
-  ]),
-  nextArrow: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.element,
-    PropTypes.instanceOf(Element),
-    PropTypes.oneOf([null])
-  ]),
-  arrowsBlock: PropTypes.bool,
-};
-Arrow.defaultProps = {
-  arrows: true,
-  arrowsScroll: 1,
-  // currentSlide,
-  clickHandler: () => {},
-  // slideCount,
-  type: 'prev',
-  arrowsBlock: true,
-  prevArrow: null,
-  nextArrow: null
-};
+Arrow.propTypes = propTypes;
+Arrow.defaultProps = defaultProps;
 
 const PrevArrow = (props) => <Arrow type="prev" {...props} />;
 const NextArrow = (props) => <Arrow type="next" {...props} />;
