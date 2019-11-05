@@ -80,8 +80,6 @@ class SliderWithBeforeChange extends Component {
       currentSlide,
       nextSlide
     });
-    this.currentSlide = currentSlide;
-    this.nextSlide = nextSlide;
   }
 
   testForScroll = async (befroeScroll, afterScroll, time = 200) => {
@@ -99,12 +97,7 @@ class SliderWithBeforeChange extends Component {
           }
         }}
         {...this.props}
-        beforeChange={(currentSlide, nextSlide) => {
-          this.beforeChange(currentSlide, nextSlide);
-          if (this.props.beforeChange) {
-            this.props.beforeChange(currentSlide, nextSlide);
-          }
-        }}
+        beforeChange={this.beforeChange}
       >
         <div>slide1</div>
         <div>slide2</div>

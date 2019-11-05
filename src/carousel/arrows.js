@@ -52,7 +52,7 @@ const Arrow = ({
   //   currentSlide,
   //   slideCount,
   // };
-  let customArrow;
+  let customArrow = null;
   if (arrows) {
     if (prevArrow && type === 'prev') {
       customArrow = React.cloneElement(prevArrow, {
@@ -72,8 +72,6 @@ const Arrow = ({
         </button>
       );
     }
-  } else {
-    customArrow = null;
   }
   return customArrow;
 };
