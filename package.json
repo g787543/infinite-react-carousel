@@ -121,6 +121,9 @@
   "bugs": {
     "url": "https://github.com/g787543/infinite-react-carousel/issues"
   },
-  "homepage": "https://github.com/g787543/infinite-react-carousel"
+  "homepage": "https://github.com/g787543/infinite-react-carousel",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
 
