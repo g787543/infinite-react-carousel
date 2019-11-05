@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 const getDotCount = (spec) => {
   let dots;
   if (spec.infinite) dots = Math.ceil(spec.slideCount / spec.dotsScroll);
-  else dots = Math.ceil((spec.slideCount - spec.slidesToShow) / spec.dotsScroll) + 1;
   return dots;
 };
 

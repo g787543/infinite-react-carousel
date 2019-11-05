@@ -18,7 +18,7 @@
     "prepublishOnly": "npm run lint && npm run test && npm run build",
     "lint": "eslint src",
     "lint:fix": "eslint --ext .ts,.tsx,.js,.jsx ./src --fix",
-    "test": "npm run lint && jest",
+    "test": "jest",
     "test:watch": "jest --watch"
   },
   "author": "Hans wu",
