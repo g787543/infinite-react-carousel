@@ -1,12 +1,11 @@
 import React from 'react';
 import classnames from 'classnames';
-import PropTypes from 'prop-types';
+import {
+  dotsDefaultProps,
+  dotsPropTypes
+} from './types';
 
-const getDotCount = (spec) => {
-  let dots;
-  if (spec.infinite) dots = Math.ceil(spec.slideCount / spec.dotsScroll);
-  return dots;
-};
+const getDotCount = (spec) => Math.ceil(spec.slideCount / spec.dotsScroll);
 
 const Dots = ({
   slideCount,
@@ -70,34 +69,7 @@ const Dots = ({
   });
 };
 
-Dots.defaultProps = {
-  slideCount: 0,
-  dotsScroll: 1,
-  slidesToShow: 1,
-  infinite: true,
-  currentSlide: 0,
-  clickHandler: () => {},
-  onMouseEnter: () => {},
-  onMouseOver: () => {},
-  onMouseLeave: () => {},
-  customPaging: (i) => <button type="button">{i + 1}</button>,
-  appendDots: (dots) => <ul style={{ display: 'block' }}>{dots}</ul>,
-  dotsClass: ''
-};
-
-Dots.propTypes = {
-  slideCount: PropTypes.number,
-  dotsScroll: PropTypes.number,
-  slidesToShow: PropTypes.number,
-  infinite: PropTypes.bool,
-  currentSlide: PropTypes.number,
-  clickHandler: PropTypes.func,
-  onMouseEnter: PropTypes.func,
-  onMouseOver: PropTypes.func,
-  onMouseLeave: PropTypes.func,
-  customPaging: PropTypes.func,
-  appendDots: PropTypes.func,
-  dotsClass: PropTypes.string
-};
+Dots.defaultProps = dotsDefaultProps;
+Dots.propTypes = dotsPropTypes;
 
 export default Dots;
