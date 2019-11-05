@@ -57,7 +57,9 @@ const defaultProps = {
   gutter: 0, //
   fullWidth: false, //
   arrowsBlock: true, //
-  autoplayScroll: 1 //
+  autoplayScroll: 1, //
+  onResize: () => {},
+  onSwipe: () => {}
 };
 
 const propTypes = {
@@ -123,7 +125,9 @@ const propTypes = {
   gutter: PropTypes.number,
   fullWidth: PropTypes.bool,
   arrowsBlock: PropTypes.bool,
-  autoplayScroll: PropTypes.number
+  autoplayScroll: PropTypes.number,
+  onResize: PropTypes.func,
+  onSwipe: PropTypes.func
 };
 
 export { defaultProps, propTypes, autoplayProps };

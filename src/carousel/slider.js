@@ -7,6 +7,7 @@ import CircularArray from './array';
 import { defaultProps, propTypes } from './types';
 import { PrevArrow, NextArrow } from './arrows';
 import Dots from './dots';
+import { keyHandler, getSwipeDirection } from './utils';
 import './style.css';
 
 const extractObject = (spec, keys) => {
@@ -28,6 +29,7 @@ class Slider extends Component {
       settings: defaultProps,
       activeIndex: 0
     };
+    this.touchObject = {};
     this.newChildren = [];
     this.offset = 0;
     this.target = 0;
@@ -59,6 +61,7 @@ class Slider extends Component {
     this.handleAutoplayPause = this.handleAutoplayPause.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.handleResizeHeight = this.handleResizeHeight.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.scroll = this.scroll.bind(this);
     this.setRef = this.setRef.bind(this);
     this.slideInit = this.slideInit.bind(this);
@@ -92,10 +95,11 @@ class Slider extends Component {
    * Handle Throttle Resize
    * @param {Event} e
    */
-  handleResize = () => {
+  handleResize = (e) => {
     this.slideInit();
     this.connectObserver();
     const { settings } = this.state;
+    const { onResize } = settings;
     if (settings.fullWidth) {
       const { width } = this.state;
       this.dim = width * 2 + settings.gutter;
@@ -104,6 +108,7 @@ class Slider extends Component {
     } else {
       this.scroll('resize');
     }
+    onResize(e);
   };
 
   /**
@@ -191,7 +196,7 @@ class Slider extends Component {
 
   signupListener = () => {
     const { settings, SliderRef } = this.state;
-    const { swipe } = settings;
+    const { swipe, accessibility } = settings;
     if (swipe) {
       SliderRef.addEventListener('touchstart', this.handleCarouselTap);
       SliderRef.addEventListener('touchmove', this.handleCarouselDrag);
@@ -201,6 +206,11 @@ class Slider extends Component {
       SliderRef.removeEventListener('touchmove', this.handleCarouselDrag);
       SliderRef.removeEventListener('touchend', this.handleCarouselRelease);
     }
+    if (accessibility) {
+      SliderRef.addEventListener('keydown', this.handleKeyDown);
+    } else {
+      SliderRef.removeEventListener('keydown', this.handleKeyDown);
+    }
     SliderRef.addEventListener('mousedown', this.handleCarouselTap);
     SliderRef.addEventListener('mousemove', this.handleCarouselDrag);
     SliderRef.addEventListener('mouseup', this.handleCarouselRelease);
@@ -209,11 +219,14 @@ class Slider extends Component {
 
   removeListener = () => {
     const { settings, SliderRef } = this.state;
-    const { swipe } = settings;
+    const { swipe, accessibility } = settings;
     if (swipe) {
       SliderRef.removeEventListener('touchstart', this.handleCarouselTap);
       SliderRef.removeEventListener('touchmove', this.handleCarouselDrag);
       SliderRef.removeEventListener('touchend', this.handleCarouselRelease);
+    }
+    if (accessibility) {
+      SliderRef.removeEventListener('keydown', this.handleKeyDown);
     }
     SliderRef.removeEventListener('mousedown', this.handleCarouselTap);
     SliderRef.removeEventListener('mousemove', this.handleCarouselDrag);
@@ -317,6 +330,21 @@ class Slider extends Component {
     }
   };
 
+  handleKeyDown = (e) => {
+    const {
+      settings: {
+        rtl,
+        accessibility
+      }
+    } = this.state;
+    const dir = keyHandler(e, accessibility, rtl);
+    if (dir === 'previous') {
+      this.slickPrev();
+    } else if (dir === 'next') {
+      this.slickNext();
+    }
+  };
+
   /**
    * Handle carousel click
    */
@@ -353,6 +381,10 @@ class Slider extends Component {
     this.verticalDragged = false;
     this.reference = this.xpos(e);
     this.referenceY = this.ypos(e);
+    this.touchObject = Object.assign(this.touchObject, {
+      startX: this.reference,
+      startY: this.referenceY
+    });
     this.velocity = 0;
     this.amplitude = 0;
     this.frame = this.offset;
@@ -405,7 +437,12 @@ class Slider extends Component {
     } else {
       return;
     }
-
+    const { onSwipe } = this.props;
+    const direction = getSwipeDirection(Object.assign(this.touchObject, {
+      endX: this.xpos(e),
+      endY: this.ypos(e)
+    }));
+    onSwipe(direction);
     clearInterval(this.ticker);
     this.target = this.offset;
     if (this.velocity > 10 || this.velocity < -10) {
