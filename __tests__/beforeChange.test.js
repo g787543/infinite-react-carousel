@@ -29,8 +29,7 @@ describe('beforeChange', () => {
               .textContent
           ).toEqual('slide2');
           expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 1 });
-        },
-        200
+        }
       );
 
       await wrapperInstance.testForScroll(() => {

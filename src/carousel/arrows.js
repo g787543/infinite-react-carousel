@@ -3,7 +3,6 @@ import classnames from 'classnames';
 import { arrowsDefaultProps as defaultProps, arrowsPropTypes as propTypes } from './types';
 
 const Arrow = ({
-  arrows,
   arrowsScroll,
   // currentSlide,
   clickHandler,
@@ -14,16 +13,13 @@ const Arrow = ({
   arrowsBlock,
 }) => {
   const ClickHandler = (options, e) => {
-    if (e) {
-      e.preventDefault();
-    }
+    e.preventDefault();
     clickHandler(options, e);
   };
   const classes = {
     'carousel-arrow': true,
     block: arrowsBlock,
   };
-  let handler = null;
   const arrowOptions = {
     arrowsScroll
   };
@@ -32,13 +28,11 @@ const Arrow = ({
       'carousel-prev': true
     });
     Object.assign(arrowOptions, { message: 'previous' });
-    handler = ClickHandler.bind(this, arrowOptions);
-  } else if (type === 'next') {
+  } else {
     Object.assign(classes, {
       'carousel-next': true
     });
     Object.assign(arrowOptions, { message: 'next' });
-    handler = ClickHandler.bind(this, arrowOptions);
   }
 
   const arrowProps = {
@@ -46,32 +40,30 @@ const Arrow = ({
     'data-role': 'none',
     className: classnames(classes),
     // style: { display: 'block' },
-    onClick: handler
+    onClick: (e) => ClickHandler(arrowOptions, e)
   };
   // const customProps = {
   //   currentSlide,
   //   slideCount,
   // };
   let customArrow = null;
-  if (arrows) {
-    if (prevArrow && type === 'prev') {
-      customArrow = React.cloneElement(prevArrow, {
-        ...arrowProps
-        // ...customProps,
-      });
-    } else if (nextArrow && type === 'next') {
-      customArrow = React.cloneElement(nextArrow, {
-        ...arrowProps
-        // ...customProps,
-      });
-    } else {
-      customArrow = (
-        <button {...arrowProps} key={type === 'prev' ? '0' : '1'} type="button">
-          {' '}
-          {type === 'prev' ? 'Previous' : 'Next'}
-        </button>
-      );
-    }
+  if (prevArrow && type === 'prev') {
+    customArrow = React.cloneElement(prevArrow, {
+      ...arrowProps
+      // ...customProps,
+    });
+  } else if (nextArrow && type === 'next') {
+    customArrow = React.cloneElement(nextArrow, {
+      ...arrowProps
+      // ...customProps,
+    });
+  } else {
+    customArrow = (
+      <button {...arrowProps} key={type === 'prev' ? '0' : '1'} type="button">
+        {' '}
+        {type === 'prev' ? 'Previous' : 'Next'}
+      </button>
+    );
   }
   return customArrow;
 };

@@ -82,9 +82,9 @@ class SliderWithBeforeChange extends Component {
     });
   }
 
-  testForScroll = async (befroeScroll, afterScroll, time = 200) => {
+  testForScroll = async (befroeScroll, afterScroll, time) => {
     befroeScroll();
-    await delay(time);
+    await delay(time ? time : 200);
     afterScroll();
   }
 

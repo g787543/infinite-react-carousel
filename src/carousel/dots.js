@@ -5,11 +5,7 @@ import {
   dotsPropTypes
 } from './types';
 
-const getDotCount = (spec) => {
-  let dots;
-  if (spec.infinite) dots = Math.ceil(spec.slideCount / spec.dotsScroll);
-  return dots;
-};
+const getDotCount = (spec) => Math.ceil(spec.slideCount / spec.dotsScroll);
 
 const Dots = ({
   slideCount,
