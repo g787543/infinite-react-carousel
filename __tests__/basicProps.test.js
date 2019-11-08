@@ -193,10 +193,32 @@ describe('Slider - [Basic]', () => {
       ).toBe('0 50px');
     });
   });
-  it('[Props]centerPadding', async () => {
-    await wrapperInstance.testForScroll(() => {
+  describe('[Props]centerPadding', () => {
+    it('centerPadding is string', () => {
+      wrapper.setProps({ centerPadding: '75px' }).update();
+      expect(
+        wrapper
+          .find('.carousel-initialized')
+          .props()
+          .style
+          .padding
+      ).toBe('0 75px');
+    });
+    it('centerPadding is not a prescribed format', () => {
+      try {
+        wrapper.setProps({ centerPadding: { test: 100 } }).update();
+      } catch (error) {
+        expect(
+          wrapper
+            .find('.carousel-initialized')
+            .props()
+            .style
+            .padding
+        ).toBe('0 50px');
+      }
+    });
+    it('centerPadding is number', () => {
       wrapper.setProps({ centerPadding: 100 }).update();
-    }, () => {
       expect(
         wrapper
           .find('.carousel-initialized')
