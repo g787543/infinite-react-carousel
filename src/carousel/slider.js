@@ -47,10 +47,10 @@ class Slider extends Component {
     this.target = 0;
     this.items = null;
     this.dim = 1;
-    this.xform = 'transform';
+    this.xform = '';
     this.resizeObserver = null;
     this.autoplayTimer = null;
-    ['webkit', 'Moz', 'O', 'ms'].every((prefix) => {
+    ['', 'webkit', 'Moz', 'O', 'ms'].every((prefix) => {
       const e = `${prefix}Transform`;
       if (typeof document.body.style[e] !== 'undefined') {
         this.xform = e;
@@ -144,7 +144,6 @@ class Slider extends Component {
       ) {
         const row = [];
         for (let k = j; k < j + settings.slidesPerRow; k += 1) {
-          if (k >= children.length) break;
           row.push(
             React.cloneElement(children[k], {
               key: 100 * i + 10 * j + k,
@@ -323,16 +322,14 @@ class Slider extends Component {
     // Start actual scroll
     let i;
     let el;
-    let alignment;
+    let alignment = 'translateX(0px)';
 
     this.offset = typeof x === 'number' ? x : this.offset;
     this.center = Math.floor((this.offset + this.dim / 2) / this.dim);
     const delta = this.offset - this.center * this.dim;
     const dir = delta < 0 ? 1 : -1;
     const tween = (-dir * delta * 2) / this.dim;
-    if (settings.fullWidth) {
-      alignment = 'translateX(0)';
-    } else if (centerMode) {
+    if (centerMode) {
       if (slidesToShow % 2 === 0) {
         alignment = `translateX(${width * (slidesToShow / 2)}px)`;
       } else {
@@ -514,7 +511,8 @@ class Slider extends Component {
         [padding] = centerPadding.match(/\d+/g);
       } else if (typeof centerPadding === 'number') {
         padding = centerPadding;
-      } else if (process.env.NODE_ENV !== 'production') {
+      } else {
+        padding = 50;
         console.warn('centerPadding have to be number or string like 50px');
       }
       let { offsetWidth } = SliderRef;
@@ -535,9 +533,9 @@ class Slider extends Component {
               this.slickSet(initialSlide);
               this.initialSet = true;
             }
-          } else if (
-            typeof initialSlide !== 'number' && process.env.NODE_ENV !== 'production'
-          ) {
+          } else {
+            this.slickSet(0);
+            this.initialSet = false;
             console.warn('initialSlide must be a number');
           }
         }
@@ -647,7 +645,7 @@ class Slider extends Component {
    * @param {Number} n
    */
   slickNext = (n) => {
-    if (this.scrollType.type === 'arrow') {
+    if (this.scrollType.type === 'arrows') {
       this.doubleTrigger = true;
     }
     if (typeof n === 'number') {
@@ -663,7 +661,7 @@ class Slider extends Component {
    * @param {Number} n
    */
   slickPrev = (n) => {
-    if (this.scrollType.type === 'arrow') {
+    if (this.scrollType.type === 'arrows') {
       this.doubleTrigger = true;
     }
     if (typeof n === 'number') {
@@ -684,7 +682,6 @@ class Slider extends Component {
   render() {
     const { height, settings, activeIndex } = this.state;
     const spec = { ...settings, ...this.prop };
-    if (!settings) return null;
     const { centerPadding, centerMode } = settings;
     const padding = typeof centerPadding === 'string' ? centerPadding : `${centerPadding}px`;
     /*  arrow  */
