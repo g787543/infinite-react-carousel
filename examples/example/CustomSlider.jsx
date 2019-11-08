@@ -244,6 +244,20 @@ class CustomSlider extends Component {
         },
         onChange: () => this.sliderRef.slickPlay()
       }]
+    }, {
+      name: 'Wheel',
+      component: [{
+        name: 'wheel',
+        component: 'switch'
+      }, {
+        name: 'wheelScroll',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 6
+        }
+      }]
     }];
     this.component = {
       slider: CustomSlide,
