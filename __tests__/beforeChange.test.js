@@ -286,9 +286,7 @@ describe('beforeChange', () => {
   });
   describe('[AutoPlay]', () => {
     const wrapper = mount(<SliderWithBeforeChange />);
-    wrapper.setProps({
-      autoplay: true
-    }).update();
+    wrapper.setProps({ autoplay: true }).update();
     it('should slide 1 item at once', async () => {
       expect(
         wrapper
@@ -308,7 +306,6 @@ describe('beforeChange', () => {
       ).toEqual('slide5');
       expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 4 });
     });
-
     it('should slide 2 item at once', async () => {
       wrapper.setProps({ autoplayScroll: 2 }).update();
       expect(
@@ -329,7 +326,6 @@ describe('beforeChange', () => {
       ).toEqual('slide1');
       expect(wrapper.state()).toEqual({ currentSlide: 4, nextSlide: 0 });
     });
-
     it('should slide 3 item at once', async () => {
       wrapper.setProps({ autoplayScroll: 3 }).update();
       expect(
@@ -352,9 +348,9 @@ describe('beforeChange', () => {
     });
   });
   describe('[Wheel]', () => {
+    const wrapper = mount(<SliderWithBeforeChange />);
+    wrapper.setProps({ wheel: true }).update();
     it('should slide 1 item at once', async () => {
-      const wrapper = mount(<SliderWithBeforeChange />);
-      wrapper.setProps({ wheel: true }).update();
       expect(
         wrapper
           .find('.carousel-track')
@@ -385,8 +381,7 @@ describe('beforeChange', () => {
       expect(wrapper.state()).toEqual({ currentSlide: 1, nextSlide: 0 });
     });
     it('should slide 2 item at once', async () => {
-      const wrapper = mount(<SliderWithBeforeChange />);
-      wrapper.setProps({ wheel: true, wheelScroll: 2 }).update();
+      wrapper.setProps({ wheelScroll: 2 }).update();
       expect(
         wrapper
           .find('.carousel-track')
@@ -394,7 +389,7 @@ describe('beforeChange', () => {
           .querySelector('.carousel-item.active')
           .textContent
       ).toEqual('slide1');
-      expect(wrapper.state()).toEqual({ currentSlide: null, nextSlide: null });
+      expect(wrapper.state()).toEqual({ currentSlide: 1, nextSlide: 0 });
       sendWheelEvent(0, 100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
       await delay(2000);
       expect(
@@ -417,8 +412,7 @@ describe('beforeChange', () => {
       expect(wrapper.state()).toEqual({ currentSlide: 2, nextSlide: 0 });
     });
     it('should slide 3 item at once', async () => {
-      const wrapper = mount(<SliderWithBeforeChange />);
-      wrapper.setProps({ wheel: true, wheelScroll: 3 }).update();
+      wrapper.setProps({ wheelScroll: 3 }).update();
       expect(
         wrapper
           .find('.carousel-track')
@@ -426,7 +420,7 @@ describe('beforeChange', () => {
           .querySelector('.carousel-item.active')
           .textContent
       ).toEqual('slide1');
-      expect(wrapper.state()).toEqual({ currentSlide: null, nextSlide: null });
+      expect(wrapper.state()).toEqual({ currentSlide: 2, nextSlide: 0 });
       sendWheelEvent(0, 100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
       await delay(2000);
       expect(
@@ -438,6 +432,27 @@ describe('beforeChange', () => {
       ).toEqual('slide4');
       expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 3 });
       sendWheelEvent(0, -100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
+      await delay(2000);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 0 });
+    });
+    it('close wheel will unsign eventlistener', async () => {
+      wrapper.setProps({ wheel: false }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 0 });
+      sendWheelEvent(0, 100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
       await delay(2000);
       expect(
         wrapper
