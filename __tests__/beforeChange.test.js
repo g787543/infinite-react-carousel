@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { SliderWithBeforeChange } from './testComponent';
-import { delay } from './test-helper';
+import { delay, sendWheelEvent } from './test-helper';
 import { defaultProps } from '../src/carousel/types';
 
 describe('beforeChange', () => {
@@ -351,7 +351,104 @@ describe('beforeChange', () => {
       expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 3 });
     });
   });
-
+  describe('[Wheel]', () => {
+    it('should slide 1 item at once', async () => {
+      const wrapper = mount(<SliderWithBeforeChange />);
+      wrapper.setProps({ wheel: true }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: null, nextSlide: null });
+      sendWheelEvent(0, 100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
+      await delay(1500);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide2');
+      expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 1 });
+      sendWheelEvent(0, -100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
+      await delay(1500);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: 1, nextSlide: 0 });
+    });
+    it('should slide 2 item at once', async () => {
+      const wrapper = mount(<SliderWithBeforeChange />);
+      wrapper.setProps({ wheel: true, wheelScroll: 2 }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: null, nextSlide: null });
+      sendWheelEvent(0, 100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
+      await delay(2000);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide3');
+      expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 2 });
+      sendWheelEvent(0, -100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
+      await delay(2000);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: 2, nextSlide: 0 });
+    });
+    it('should slide 3 item at once', async () => {
+      const wrapper = mount(<SliderWithBeforeChange />);
+      wrapper.setProps({ wheel: true, wheelScroll: 3 }).update();
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: null, nextSlide: null });
+      sendWheelEvent(0, 100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
+      await delay(2000);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide4');
+      expect(wrapper.state()).toEqual({ currentSlide: 0, nextSlide: 3 });
+      sendWheelEvent(0, -100, wrapper.find('.carousel-track').getDOMNode(), 'wheel');
+      await delay(2000);
+      expect(
+        wrapper
+          .find('.carousel-track')
+          .getDOMNode()
+          .querySelector('.carousel-item.active')
+          .textContent
+      ).toEqual('slide1');
+      expect(wrapper.state()).toEqual({ currentSlide: 3, nextSlide: 0 });
+    });
+  });
   describe('[Swipe]', () => {
     // TODO
   });
