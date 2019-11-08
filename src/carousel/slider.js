@@ -368,7 +368,7 @@ class Slider extends Component {
       !this.beforeChangeTrigger
       && beforeChange
       && typeof beforeChange === 'function'
-      && (type !== 'start' && type !== 'end')
+      && (type !== 'start' && type !== 'end' && type !== 'init')
     ) {
       this.beforeChangeTrigger = true;
       switch (scrollType) {
@@ -650,7 +650,7 @@ class Slider extends Component {
     if (this.scrollType.type === 'arrow') {
       this.doubleTrigger = true;
     }
-    if (typeof n === 'number' && n) {
+    if (typeof n === 'number') {
       this.cycleTo(n);
     } else {
       const { activeIndex } = this.state;
@@ -666,7 +666,7 @@ class Slider extends Component {
     if (this.scrollType.type === 'arrow') {
       this.doubleTrigger = true;
     }
-    if (typeof n === 'number' && n) {
+    if (typeof n === 'number') {
       this.cycleTo(n);
     } else {
       const { activeIndex } = this.state;
