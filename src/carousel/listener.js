@@ -191,14 +191,14 @@ export function handleWheel(e) {
     settings: { wheelScroll },
     activeIndex
   } = this.state;
-  const { wheelDelta } = e;
-  if (wheelDelta > 0) {
+  const { deltaY } = e;
+  if (deltaY > 0) {
     this.scrollType = {
       type: 'wheel',
       direction: 'next'
     };
     this.slickNext(activeIndex + wheelScroll);
-  } else if (wheelDelta < 0) {
+  } else if (deltaY < 0) {
     this.scrollType = {
       type: 'wheel',
       direction: 'prev'
