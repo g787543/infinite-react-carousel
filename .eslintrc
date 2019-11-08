@@ -16,7 +16,8 @@
     "react/jsx-fragments": [true, "syntax"],
     "indent": [
       2,
-      2
+      2,
+      { "SwitchCase": 1 }
     ]
   }
 }
