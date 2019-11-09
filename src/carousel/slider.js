@@ -7,7 +7,19 @@ import CircularArray from './array';
 import { defaultProps, propTypes } from './types';
 import { PrevArrow, NextArrow } from './arrows';
 import Dots from './dots';
-import { keyHandler, getSwipeDirection } from './utils';
+import {
+  signupListener,
+  removeListener,
+  handleCarouselTap,
+  handleAutoplayPause,
+  handleCarouselDrag,
+  handleCarouselRelease,
+  handleClick,
+  handleKeyDown,
+  handleResize,
+  handleResizeHeight,
+  handleWheel
+} from './listener';
 import './style.css';
 
 const extractObject = (spec, keys) => {
@@ -35,10 +47,10 @@ class Slider extends Component {
     this.target = 0;
     this.items = null;
     this.dim = 1;
-    this.xform = 'transform';
+    this.xform = '';
     this.resizeObserver = null;
     this.autoplayTimer = null;
-    ['webkit', 'Moz', 'O', 'ms'].every((prefix) => {
+    ['', 'webkit', 'Moz', 'O', 'ms'].every((prefix) => {
       const e = `${prefix}Transform`;
       if (typeof document.body.style[e] !== 'undefined') {
         this.xform = e;
@@ -50,18 +62,11 @@ class Slider extends Component {
     this.doubleTrigger = false;
     this.initialSet = false;
     this.beforeChangeTrigger = false;
+    this.scrollEnd = false;
     this.autoplayTimer = null;
-    this.arrowClick = null;
-    this.scrollType = null;
+    this.scrollType = {};
     this.scrollOptions = {};
     /* functionBind */
-    this.handleCarouselTap = this.handleCarouselTap.bind(this);
-    this.handleCarouselDrag = this.handleCarouselDrag.bind(this);
-    this.handleCarouselRelease = this.handleCarouselRelease.bind(this);
-    this.handleAutoplayPause = this.handleAutoplayPause.bind(this);
-    this.handleResize = this.handleResize.bind(this);
-    this.handleResizeHeight = this.handleResizeHeight.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.scroll = this.scroll.bind(this);
     this.setRef = this.setRef.bind(this);
     this.slideInit = this.slideInit.bind(this);
@@ -70,6 +75,18 @@ class Slider extends Component {
     this.slickSet = this.slickSet.bind(this);
     this.cycleTo = this.cycleTo.bind(this);
     this.autoPlay = this.autoPlay.bind(this);
+
+    this.handleCarouselTap = handleCarouselTap.bind(this);
+    this.signupListener = signupListener.bind(this);
+    this.removeListener = removeListener.bind(this);
+    this.handleCarouselDrag = handleCarouselDrag.bind(this);
+    this.handleCarouselRelease = handleCarouselRelease.bind(this);
+    this.handleAutoplayPause = handleAutoplayPause.bind(this);
+    this.handleResize = handleResize.bind(this);
+    this.handleResizeHeight = handleResizeHeight.bind(this);
+    this.handleKeyDown = handleKeyDown.bind(this);
+    this.handleClick = handleClick.bind(this);
+    this.handleWheel = handleWheel.bind(this);
   }
 
   componentDidMount() {
@@ -94,27 +111,6 @@ class Slider extends Component {
       if (onReInit && typeof onReInit === 'function') onReInit(this);
     }
   }
-
-  /**
-   * Handle Throttle Resize
-   * @param {Event} e
-   */
-  handleResize = (e) => {
-    this.slideInit();
-    this.connectObserver();
-    const { settings, activeIndex } = this.state;
-    const { onResize } = settings;
-    if (settings.fullWidth) {
-      const { width } = this.state;
-      this.dim = width * 2 + settings.gutter;
-      this.offset = this.center * 2 * width;
-      this.target = this.offset;
-    } else {
-      this.scroll('resize');
-      this.slickSet(activeIndex);
-    }
-    onResize(e);
-  };
 
   /**
    * settings init
@@ -149,7 +145,6 @@ class Slider extends Component {
       ) {
         const row = [];
         for (let k = j; k < j + settings.slidesPerRow; k += 1) {
-          if (k >= children.length) break;
           row.push(
             React.cloneElement(children[k], {
               key: 100 * i + 10 * j + k,
@@ -179,46 +174,6 @@ class Slider extends Component {
     }
   };
 
-  signupListener = () => {
-    const { settings, SliderRef } = this.state;
-    const { swipe, accessibility } = settings;
-    if (swipe) {
-      SliderRef.addEventListener('touchstart', this.handleCarouselTap);
-      SliderRef.addEventListener('touchmove', this.handleCarouselDrag);
-      SliderRef.addEventListener('touchend', this.handleCarouselRelease);
-    } else {
-      SliderRef.removeEventListener('touchstart', this.handleCarouselTap);
-      SliderRef.removeEventListener('touchmove', this.handleCarouselDrag);
-      SliderRef.removeEventListener('touchend', this.handleCarouselRelease);
-    }
-    if (accessibility) {
-      SliderRef.addEventListener('keydown', this.handleKeyDown);
-    } else {
-      SliderRef.removeEventListener('keydown', this.handleKeyDown);
-    }
-    SliderRef.addEventListener('mousedown', this.handleCarouselTap);
-    SliderRef.addEventListener('mousemove', this.handleCarouselDrag);
-    SliderRef.addEventListener('mouseup', this.handleCarouselRelease);
-    SliderRef.addEventListener('mouseleave', this.handleCarouselRelease);
-  }
-
-  removeListener = () => {
-    const { settings, SliderRef } = this.state;
-    const { swipe, accessibility } = settings;
-    if (swipe) {
-      SliderRef.removeEventListener('touchstart', this.handleCarouselTap);
-      SliderRef.removeEventListener('touchmove', this.handleCarouselDrag);
-      SliderRef.removeEventListener('touchend', this.handleCarouselRelease);
-    }
-    if (accessibility) {
-      SliderRef.removeEventListener('keydown', this.handleKeyDown);
-    }
-    SliderRef.removeEventListener('mousedown', this.handleCarouselTap);
-    SliderRef.removeEventListener('mousemove', this.handleCarouselDrag);
-    SliderRef.removeEventListener('mouseup', this.handleCarouselRelease);
-    SliderRef.removeEventListener('mouseleave', this.handleCarouselRelease);
-  }
-
   /**
    * Get slider reference
    */
@@ -229,10 +184,10 @@ class Slider extends Component {
     const { settings } = this.state;
     const { slidesToShow } = settings;
     if (slidesToShow < slides.length) {
-      this.signupListener();
+      this.signupListener(this.state);
       this.autoPlay();
     } else {
-      this.removeListener();
+      this.removeListener(this.state);
     }
     element.addEventListener('click', this.handleClick);
   });
@@ -248,12 +203,14 @@ class Slider extends Component {
       }
     } = this.state;
     if (autoplay && autoplaySpeed > 0 && !this.autoplayTimer) {
-      this.scrollType = 'autoplay';
+      this.scrollType = {
+        type: 'autoplay'
+      };
       this.autoplayTimer = setInterval(() => {
         const { autoplayScroll } = this.props;
         const { activeIndex } = this.state;
         this.beforeChangeTrigger = false;
-        this.slickNext(activeIndex + autoplayScroll, this.scrollType);
+        this.slickNext(activeIndex + autoplayScroll);
       }, autoplaySpeed);
       if (pauseOnHover) {
         SliderRef.addEventListener('mouseover', this.handleAutoplayPause);
@@ -315,158 +272,6 @@ class Slider extends Component {
     }
   };
 
-  handleKeyDown = (e) => {
-    const {
-      settings: {
-        rtl,
-        accessibility
-      }
-    } = this.state;
-    const dir = keyHandler(e, accessibility, rtl);
-    if (dir === 'previous') {
-      this.slickPrev();
-    } else if (dir === 'next') {
-      this.slickNext();
-    }
-  };
-
-  /**
-   * Handle carousel click
-   */
-  handleClick = () => {
-    this.disconnectObserver();
-  };
-
-  /**
-   * Handle autoplay hover to pause
-   * @param {Object} options
-   * @param {Number} options.autoplaySpeed
-   */
-  handleAutoplayPause = () => {
-    const { SliderRef } = this.state;
-    if (this.autoplayTimer) {
-      clearInterval(this.autoplayTimer);
-      this.autoplayTimer = null;
-      SliderRef.removeEventListener('mouseover', this.handleAutoplayPause);
-      SliderRef.addEventListener('mouseleave', this.autoPlay);
-    }
-  };
-
-  /**
-   * Handle Carousel Tap
-   * @param {Event} e
-   */
-  handleCarouselTap = (e) => {
-    // Fixes firefox draggable image bug
-    if (e.type === 'mousedown' && e.target.tagName === 'IMG') {
-      e.preventDefault();
-    }
-    this.pressed = true;
-    this.dragged = false;
-    this.verticalDragged = false;
-    this.reference = this.xpos(e);
-    this.referenceY = this.ypos(e);
-    this.touchObject = Object.assign(this.touchObject, {
-      startX: this.reference,
-      startY: this.referenceY
-    });
-    this.velocity = 0;
-    this.amplitude = 0;
-    this.frame = this.offset;
-    this.timestamp = Date.now();
-    clearInterval(this.ticker);
-    this.ticker = setInterval(this.track, 100);
-  };
-
-  /**
-   * Handle Carousel Drag
-   * @param {Event} e
-   */
-  handleCarouselDrag = (e) => {
-    if (this.pressed) {
-      const x = this.xpos(e);
-      const y = this.ypos(e);
-      const delta = this.reference - x;
-      const deltaY = Math.abs(this.referenceY - y);
-      if (deltaY < 30 && !this.verticalDragged) {
-        // If vertical scrolling don't allow dragging.
-        if (delta > 2 || delta < -2) {
-          this.dragged = true;
-          this.reference = x;
-          this.scroll('drag', this.offset + delta);
-        }
-      } else if (this.dragged) {
-        // If dragging don't allow vertical scroll.
-        e.preventDefault();
-        e.stopPropagation();
-      } else {
-        // Vertical scrolling.
-        this.verticalDragged = true;
-      }
-    }
-
-    if (this.dragged) {
-      // If dragging don't allow vertical scroll.
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  /**
-   * Handle Carousel Release
-   * @param {Event} e
-   */
-  handleCarouselRelease = (e) => {
-    if (this.pressed) {
-      this.pressed = false;
-    } else {
-      return;
-    }
-    const { onSwipe } = this.props;
-    const direction = getSwipeDirection(Object.assign(this.touchObject, {
-      endX: this.xpos(e),
-      endY: this.ypos(e)
-    }));
-    onSwipe(direction);
-    clearInterval(this.ticker);
-    this.target = this.offset;
-    if (this.velocity > 10 || this.velocity < -10) {
-      this.amplitude = 0.9 * this.velocity;
-      this.target = this.offset + this.amplitude;
-    }
-    this.target = Math.round(this.target / this.dim) * this.dim;
-
-    // No wrap of items.
-    if (this.noWrap) {
-      if (this.target >= this.dim * (this.items.length - 1)) {
-        this.target = this.dim * (this.items.length - 1);
-      } else if (this.target < 0) {
-        this.target = 0;
-      }
-    }
-    this.amplitude = this.target - this.offset;
-    this.timestamp = Date.now();
-    this.scrollType = 'scroll';
-    requestAnimationFrame(this.autoScroll);
-
-    if (this.dragged) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  /**
-   * Handle window resize will change items Height
-   */
-  handleResizeHeight = (mutations) => {
-    const { height } = this.state;
-    const mutation = mutations[mutations.length - 1];
-    const { offsetHeight } = mutation.target;
-    if (height !== offsetHeight) {
-      this.setState({ height: offsetHeight });
-    }
-  };
-
   /**
    * Tracks scrolling information
    */
@@ -518,16 +323,14 @@ class Slider extends Component {
     // Start actual scroll
     let i;
     let el;
-    let alignment;
+    let alignment = 'translateX(0px)';
 
     this.offset = typeof x === 'number' ? x : this.offset;
     this.center = Math.floor((this.offset + this.dim / 2) / this.dim);
     const delta = this.offset - this.center * this.dim;
     const dir = delta < 0 ? 1 : -1;
     const tween = (-dir * delta * 2) / this.dim;
-    if (settings.fullWidth) {
-      alignment = 'translateX(0)';
-    } else if (centerMode) {
+    if (centerMode) {
       if (slidesToShow % 2 === 0) {
         alignment = `translateX(${width * (slidesToShow / 2)}px)`;
       } else {
@@ -537,23 +340,14 @@ class Slider extends Component {
       alignment = 'translateX(0px)';
     }
 
+    const { type: scrollType, direction } = this.scrollType;
     // Track scrolling state
     if (
       !SliderRef.classList.contains('scrolling')
-      && !this.arrowClick
+      && scrollType !== 'arrows'
       && (type !== 'init' && type !== 'resize')) {
       this.swiping = true;
       SliderRef.classList.add('scrolling');
-    }
-    if (this.scrollingTimeout != null) {
-      clearTimeout(this.scrollingTimeout);
-    }
-    if (type === 'start') {
-      this.scrollingTimeout = setTimeout(() => {
-        if (afterChange && typeof afterChange === 'function' && type === 'end') {
-          afterChange(this.wrap(this.center));
-        }
-      }, settings.duration);
     }
     // center
     // Don't show wrapped items.
@@ -562,28 +356,50 @@ class Slider extends Component {
       !this.beforeChangeTrigger
       && beforeChange
       && typeof beforeChange === 'function'
-      && (type !== 'start' && type !== 'end')
+      && (type !== 'start' && type !== 'end' && type !== 'init')
     ) {
       this.beforeChangeTrigger = true;
-      if (this.scrollType === 'scroll') {
-        beforeChange(index);
-      } else if (this.scrollType === 'arrows') {
-        const slides = settings.arrowsScroll;
-        const newIndex = this.items.getIndex(this.arrowClick === 'prev' ? index - slides : index + slides);
-        beforeChange(index, newIndex);
-      } else if (this.scrollType === 'dots') {
-        beforeChange(index, this.scrollOptions.index * this.scrollOptions.dotsScroll);
-      } else if (this.scrollType === 'autoplay') {
-        const slides = settings.autoplayScroll;
-        const newIndex = this.items.getIndex(index + slides);
-        beforeChange(index, newIndex);
+      switch (scrollType) {
+        case 'scroll': {
+          beforeChange(index);
+          break;
+        }
+        case 'arrows': {
+          const slides = settings.arrowsScroll;
+          const newIndex = this.items.getIndex(direction === 'prev' ? index - slides : index + slides);
+          beforeChange(index, newIndex);
+          break;
+        }
+        case 'dots': {
+          beforeChange(index, this.scrollOptions.index * this.scrollOptions.dotsScroll);
+          break;
+        }
+        case 'autoplay': {
+          const slides = settings.autoplayScroll;
+          const newIndex = this.items.getIndex(index + slides);
+          beforeChange(index, newIndex);
+          break;
+        }
+        case 'wheel': {
+          const slides = settings.wheelScroll;
+          const newIndex = this.items.getIndex(direction === 'prev' ? index - slides : index + slides);
+          beforeChange(index, newIndex);
+          break;
+        }
+        default: break;
       }
     }
+    if (type !== 'end' && this.scrollEnd) this.scrollEnd = false;
     if (type === 'end') {
+      if (afterChange && typeof afterChange === 'function' && !this.scrollEnd) {
+        afterChange(this.wrap(this.center));
+      }
+      this.scrollEnd = true;
       SliderRef.classList.remove('scrolling');
       this.beforeChangeTrigger = false;
-      this.arrowClick = null;
       this.swiping = false;
+    } else if (this.scrollEnd) {
+      this.scrollEnd(true);
     }
     if (!this.noWrap || (this.center >= 0 && this.center < this.items.length)) {
       el = this.items.get(index);
@@ -693,7 +509,8 @@ class Slider extends Component {
         [padding] = centerPadding.match(/\d+/g);
       } else if (typeof centerPadding === 'number') {
         padding = centerPadding;
-      } else if (process.env.NODE_ENV !== 'production') {
+      } else {
+        padding = 50;
         console.warn('centerPadding have to be number or string like 50px');
       }
       let { offsetWidth } = SliderRef;
@@ -714,9 +531,9 @@ class Slider extends Component {
               this.slickSet(initialSlide);
               this.initialSet = true;
             }
-          } else if (
-            typeof initialSlide !== 'number' && process.env.NODE_ENV !== 'production'
-          ) {
+          } else {
+            this.slickSet(0);
+            this.initialSet = false;
             console.warn('initialSlide must be a number');
           }
         }
@@ -824,16 +641,12 @@ class Slider extends Component {
   /**
    * Cycle to next item
    * @param {Number} n
-   * @param {string} type
    */
-  slickNext = (n, type = 'arrow') => {
-    if (this.arrowClick) {
+  slickNext = (n) => {
+    if (this.scrollType.type === 'arrows') {
       this.doubleTrigger = true;
     }
-    if (type === 'arrow') {
-      this.arrowClick = 'next';
-    }
-    if (typeof n === 'number' && n) {
+    if (typeof n === 'number') {
       this.cycleTo(n);
     } else {
       const { activeIndex } = this.state;
@@ -844,16 +657,12 @@ class Slider extends Component {
   /**
    * Cycle to previous item
    * @param {Number} n
-   * * @param {string} type
    */
-  slickPrev = (n, type = 'arrow') => {
-    if (this.arrowClick) {
+  slickPrev = (n) => {
+    if (this.scrollType.type === 'arrows') {
       this.doubleTrigger = true;
     }
-    if (type === 'arrow') {
-      this.arrowClick = 'prev';
-    }
-    if (typeof n === 'number' && n) {
+    if (typeof n === 'number') {
       this.cycleTo(n);
     } else {
       const { activeIndex } = this.state;
@@ -871,7 +680,6 @@ class Slider extends Component {
   render() {
     const { height, settings, activeIndex } = this.state;
     const spec = { ...settings, ...this.prop };
-    if (!settings) return null;
     const { centerPadding, centerMode } = settings;
     const padding = typeof centerPadding === 'string' ? centerPadding : `${centerPadding}px`;
     /*  arrow  */
@@ -894,7 +702,10 @@ class Slider extends Component {
           {...arrowProps}
           clickHandler={(options) => {
             this.beforeChangeTrigger = false;
-            this.scrollType = 'arrows';
+            this.scrollType = {
+              type: 'arrows',
+              direction: 'prev'
+            };
             this.scrollOptions = options;
             this.slickPrev(activeIndex - options.arrowsScroll);
           }}
@@ -905,7 +716,10 @@ class Slider extends Component {
           {...arrowProps}
           clickHandler={(options) => {
             this.beforeChangeTrigger = false;
-            this.scrollType = 'arrows';
+            this.scrollType = {
+              type: 'arrows',
+              direction: 'next'
+            };
             this.scrollOptions = options;
             this.slickNext(activeIndex + options.arrowsScroll);
           }}
@@ -933,7 +747,9 @@ class Slider extends Component {
           slideCount: this.items.length,
           clickHandler: (options) => {
             this.beforeChangeTrigger = false;
-            this.scrollType = 'dots';
+            this.scrollType = {
+              type: 'dots'
+            };
             this.scrollOptions = options;
             this.slickSet(options.index * options.dotsScroll);
           },

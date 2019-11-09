@@ -54,7 +54,9 @@ const defaultProps = {
   arrowsBlock: true, //
   autoplayScroll: 1, //
   onResize: () => {}, //
-  onSwipe: () => {} //
+  onSwipe: () => {}, //
+  wheel: false,
+  wheelScroll: 1,
 };
 
 const propTypes = {

@@ -70,15 +70,27 @@ class SliderWithBeforeChange extends Component {
     super(props);
     this.state = {
       currentSlide: null,
-      nextSlide: null
+      nextSlide: null,
+      endSlide: null
     };
     this.innerSlider = null;
   }
+
+  getBeforeState = () => ({
+    currentSlide: this.state.currentSlide,
+    nextSlide: this.state.nextSlide
+  });
 
   beforeChange = (currentSlide, nextSlide) => {
     this.setState({
       currentSlide,
       nextSlide
+    });
+  }
+
+  afterChange = (endSlide) => {
+    this.setState({
+      endSlide
     });
   }
 
@@ -98,6 +110,7 @@ class SliderWithBeforeChange extends Component {
         }}
         {...this.props}
         beforeChange={this.beforeChange}
+        afterChange={this.afterChange}
       >
         <div>slide1</div>
         <div>slide2</div>
