@@ -98,7 +98,8 @@
   },
   "jest": {
     "testMatch": [
-      "<rootDir>/__tests__/*.test.{js,jsx,mjs}"
+      "<rootDir>/__tests__/*.test.{js,jsx,mjs}",
+      "<rootDir>/__tests__/*/*.test.{js,jsx,mjs}"
     ],
     "setupFiles": [
       "./__tests__/test-setup.js"
