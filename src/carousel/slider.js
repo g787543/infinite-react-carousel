@@ -62,6 +62,7 @@ class Slider extends Component {
     this.doubleTrigger = false;
     this.initialSet = false;
     this.beforeChangeTrigger = false;
+    this.scrollEnd = false;
     this.autoplayTimer = null;
     this.scrollType = {};
     this.scrollOptions = {};
@@ -348,16 +349,6 @@ class Slider extends Component {
       this.swiping = true;
       SliderRef.classList.add('scrolling');
     }
-    if (this.scrollingTimeout != null) {
-      clearTimeout(this.scrollingTimeout);
-    }
-    if (type === 'start') {
-      this.scrollingTimeout = setTimeout(() => {
-        if (afterChange && typeof afterChange === 'function' && type === 'end') {
-          afterChange(this.wrap(this.center));
-        }
-      }, settings.duration);
-    }
     // center
     // Don't show wrapped items.
     const index = this.wrap(this.center);
@@ -398,10 +389,17 @@ class Slider extends Component {
         default: break;
       }
     }
+    if (type !== 'end' && this.scrollEnd) this.scrollEnd = false;
     if (type === 'end') {
+      if (afterChange && typeof afterChange === 'function' && !this.scrollEnd) {
+        afterChange(this.wrap(this.center));
+      }
+      this.scrollEnd = true;
       SliderRef.classList.remove('scrolling');
       this.beforeChangeTrigger = false;
       this.swiping = false;
+    } else if (this.scrollEnd) {
+      this.scrollEnd(true);
     }
     if (!this.noWrap || (this.center >= 0 && this.center < this.items.length)) {
       el = this.items.get(index);
