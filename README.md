@@ -80,6 +80,8 @@ const SimpleSlider = () => (
 | onReszie | detect carousel resize | ```(e) => {}``` | Function |
 | onSwipe | Callback after slide changes by swiping | ```(direction) => {}``` | Function |
 | accessibility | Enable tabbing and arrow key navigation | true | Boolean |
+| wheel | Enable mouse wheel to slide item | false | Boolean |
+| wheelScroll | How many slides to scroll when wheel trigger | 1 | Number |
 
 ### Methods
 
