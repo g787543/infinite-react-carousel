@@ -145,16 +145,18 @@ class Slider extends Component {
       ) {
         const row = [];
         for (let k = j; k < j + settings.slidesPerRow; k += 1) {
-          row.push(
-            React.cloneElement(children[k], {
-              key: 100 * i + 10 * j + k,
-              tabIndex: -1,
-              style: {
-                width: `${100 / settings.slidesPerRow}%`,
-                display: 'inline-block'
-              }
-            })
-          );
+          if (k < children.length) {
+            row.push(
+              React.cloneElement(children[k], {
+                key: 100 * i + 10 * j + k,
+                tabIndex: -1,
+                style: {
+                  width: `${100 / settings.slidesPerRow}%`,
+                  display: 'inline-block'
+                }
+              })
+            );
+          }
         }
         newSlide.push(<div className="carousel-row" key={10 * i + j}>{row}</div>);
       }
