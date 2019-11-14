@@ -43,14 +43,16 @@ class Slider extends Component {
     };
     this.touchObject = {};
     this.newChildren = [];
+    this.virtualList = [];
     this.offset = 0;
     this.target = 0;
     this.items = null;
+    this.virtualItem = null;
     this.dim = 1;
     this.xform = '';
     this.resizeObserver = null;
     this.autoplayTimer = null;
-    ['', 'webkit', 'Moz', 'O', 'ms'].every((prefix) => {
+    ['', 'Webkit', 'Moz', 'O', 'ms'].every((prefix) => {
       const e = `${prefix}Transform`;
       if (typeof document.body.style[e] !== 'undefined') {
         this.xform = e;
@@ -163,6 +165,7 @@ class Slider extends Component {
       const { width } = this.state;
       this.newChildren.push(
         <div
+          data-carouselkey={i}
           key={i}
           className="carousel-item"
           style={{ width: `${width}px` }}
@@ -170,6 +173,10 @@ class Slider extends Component {
           {newSlide}
         </div>
       );
+    }
+    this.virtualList = this.newChildren;
+    if (settings.virtualList && this.items) {
+      this.virtualList = this.createVirtualList();
     }
     if (!isEqual(get(this.state, 'settings'), settings)) {
       this.setState({ settings });
@@ -181,7 +188,11 @@ class Slider extends Component {
    */
   setRef = (element) => this.setState({ SliderRef: element }, () => {
     const slides = element.querySelectorAll('.carousel-item');
-    this.items = new CircularArray(slides);
+    if (!this.items) {
+      this.items = new CircularArray(slides);
+    } else if (this.items.length <= slides.length) {
+      this.items = new CircularArray(slides);
+    }
     this.slideInit();
     const { settings } = this.state;
     const { slidesToShow } = settings;
@@ -320,7 +331,8 @@ class Slider extends Component {
       centerMode,
       beforeChange,
       afterChange,
-      slidesToShow
+      slidesToShow,
+      virtualList
     } = settings;
     // Start actual scroll
     let i;
@@ -433,6 +445,35 @@ class Slider extends Component {
           this.updateItemStyle(el, transformString);
         }
       }
+    } else if (virtualList) {
+      this.virtualItem = this.virtualItem || new CircularArray(SliderRef.querySelectorAll('.carousel-item'), this.items);
+      for (i = 1; i <= slidesToShow; i += 1) {
+        const keyIndex = this.virtualItem.getKeyIndex(this.wrap(this.center + i));
+        el = this.virtualItem.get(keyIndex);
+        const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
+        this.updateItemStyle(el, transformString);
+      }
+      for (i = 0; i < Math.ceil((this.virtualItem.length - slidesToShow) / 2); i += 1) {
+        // right side
+        if (!this.noWrap || this.center + slidesToShow + i < this.virtualItem.length) {
+          const keyIndex = this.virtualItem.getKeyIndex(this.wrap(this.center + slidesToShow + i));
+          el = this.virtualItem.get(keyIndex);
+          const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
+          console.log('right', keyIndex, el.innerText, transformString);
+          this.updateItemStyle(el, transformString);
+        }
+      }
+      for (i = 1; i <= Math.ceil((this.virtualItem.length - slidesToShow) / 2); i += 1) {
+        // left side
+        if (!this.noWrap || this.center - i >= 0) {
+          const keyIndex = this.virtualItem.getKeyIndex(this.wrap(this.center - i));
+          el = this.virtualItem.get(keyIndex);
+
+          const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+          console.log('left', keyIndex, el.innerText, transformString);
+          this.updateItemStyle(el, transformString);
+        }
+      }
     } else {
       for (i = 1; i <= slidesToShow; i += 1) {
         el = this.items.get(this.wrap(this.center + i));
@@ -457,7 +498,21 @@ class Slider extends Component {
 
     // center
     // Don't show wrapped items.
-    if (!this.noWrap || (this.center >= 0 && this.center < this.items.length)) {
+    if (virtualList) {
+      if ((!this.noWrap || (this.center >= 0 && this.center < this.virtualItem.length))) {
+        const keyIndex = this.virtualItem.getKeyIndex(this.center);
+        el = this.virtualItem.get(keyIndex);
+        if (!el.classList.contains('active')) {
+          each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
+          el.classList.add('active');
+          const activeIndex = this.wrap(this.center);
+          this.setState({ activeIndex }, () => { this.virtualItem = null; });
+        }
+        const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween}px)`;
+        console.log('end', keyIndex, el.innerText, transformString);
+        this.updateItemStyle(el, transformString);
+      }
+    } else if (!this.noWrap || (this.center >= 0 && this.center < this.items.length)) {
       el = this.items.get(this.wrap(this.center));
       if (!el.classList.contains('active')) {
         each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
@@ -550,7 +605,7 @@ class Slider extends Component {
       const index = this.wrap(this.center);
       const elem = this.items.get(index);
       const { offsetHeight } = elem;
-      if (height !== offsetHeight) {
+      if (height !== offsetHeight && offsetHeight > 0) {
         this.setState({
           height: offsetHeight
         });
@@ -679,6 +734,68 @@ class Slider extends Component {
    */
   slickSet = (n, callback) => this.cycleTo(n, callback);
 
+  createVirtualList = () => {
+    const {
+      settings: {
+        slidesToShow
+      },
+      activeIndex
+    } = this.state;
+    if (this.virtualList.length > (((slidesToShow + 2) * 2) + 1)) {
+      const result = [];
+      const getIndex = [];
+      let newActiveIndex = activeIndex;
+      const { type, direction } = this.scrollType;
+      switch (type) {
+        case 'scroll': {
+          if (direction === 'left') newActiveIndex += 1;
+          else newActiveIndex -= 1;
+          break;
+        }
+        case 'arrows': {
+          if (direction === 'next') newActiveIndex += 1;
+          else newActiveIndex -= 1;
+          break;
+        }
+        case 'dots': {
+          if (direction === 'right') newActiveIndex += 1;
+          else newActiveIndex -= 1;
+          break;
+        }
+        case 'wheel': {
+          if (direction === 'next') newActiveIndex += 1;
+          else newActiveIndex -= 1;
+          break;
+        }
+        case 'autoplay': {
+          newActiveIndex += 1;
+          break;
+        }
+        default:
+          break;
+      }
+      for (let i = 0; i < slidesToShow + 2; i += 1) {
+        if (i === 0) {
+          const index = this.items.getIndex(newActiveIndex);
+          getIndex.push(index);
+        } else {
+          const rightIndex = this.items.getIndex(newActiveIndex + i);
+          const leftIndex = this.items.getIndex(newActiveIndex - i);
+          getIndex.push(rightIndex);
+          getIndex.unshift(leftIndex);
+        }
+      }
+      getIndex.sort((a, b) => a - b);
+      for (let i = 0; i < getIndex.length; i += 1) {
+        const childrenIndex = getIndex[i];
+        const children = this.newChildren[childrenIndex];
+        result.push(children);
+      }
+      return result;
+    }
+    return this.virtualList;
+  }
+
   render() {
     const { height, settings, activeIndex } = this.state;
     const spec = { ...settings, ...this.prop };
@@ -749,8 +866,21 @@ class Slider extends Component {
           slideCount: this.items.length,
           clickHandler: (options) => {
             this.beforeChangeTrigger = false;
+            let right = 0;
+            let left = 0;
+            let direction = null;
+            if (activeIndex > options.index) {
+              right = this.newChildren.length - activeIndex + options.index;
+              left = activeIndex - options.index;
+              direction = right < left ? 'right' : 'left';
+            } else {
+              right = options.index - activeIndex;
+              left = this.newChildren.length - options.index + activeIndex;
+              direction = right <= left ? 'right' : 'left';
+            }
             this.scrollType = {
-              type: 'dots'
+              type: 'dots',
+              direction
             };
             this.scrollOptions = options;
             this.slickSet(options.index * options.dotsScroll);
@@ -780,7 +910,7 @@ class Slider extends Component {
         >
           {!settings.unslick && judge ? prevArrow : ''}
           <div style={{ height: `${height}px` }} className="carousel-track">
-            {this.newChildren}
+            {this.virtualList}
           </div>
           {!settings.unslick && judge ? nextArrow : ''}
         </div>
