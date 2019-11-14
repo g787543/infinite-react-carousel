@@ -118,7 +118,7 @@ class Slider extends Component {
    * settings init
    */
   init = () => {
-    let { settings } = this.state;
+    let { settings, width } = this.state;
     settings = { ...defaultProps, ...this.props };
     // force showing one slide and scrolling by one if the fade mode is on
     if (settings.fade) {
@@ -133,6 +133,10 @@ class Slider extends Component {
     }
     let { children } = this.props;
     children = React.Children.toArray(children).filter((child) => (typeof child === 'string' ? !!child.trim() : !!child));
+    const newWith = this.widthInit();
+    if (width !== newWith) {
+      width = newWith;
+    }
     this.newChildren = [];
     for (
       let i = 0;
@@ -162,7 +166,6 @@ class Slider extends Component {
         }
         newSlide.push(<div className="carousel-row" key={10 * i + j}>{row}</div>);
       }
-      const { width } = this.state;
       this.newChildren.push(
         <div
           data-carouselkey={i}
@@ -187,6 +190,7 @@ class Slider extends Component {
    * Get slider reference
    */
   setRef = (element) => this.setState({ SliderRef: element }, () => {
+    console.log('trigger setRef');
     const slides = element.querySelectorAll('.carousel-item');
     if (!this.items) {
       this.items = new CircularArray(slides);
@@ -365,7 +369,6 @@ class Slider extends Component {
     } else {
       alignment = 'translateX(0px)';
     }
-
     const { type: scrollType, direction } = this.scrollType;
     // Track scrolling state
     if (
@@ -520,18 +523,13 @@ class Slider extends Component {
     newEl.style.display = '';
   };
 
-  /**
-   * Carousel first initional
-   */
-  slideInit = () => {
-    const { settings } = this.state;
+  widthInit = () => {
+    const { settings, SliderRef } = this.state;
     const {
       centerMode,
       centerPadding,
-      slidesToShow,
-      initialSlide
+      slidesToShow
     } = settings;
-    const { SliderRef } = this.state;
     if (SliderRef) {
       let padding = 0;
       if (typeof centerPadding === 'string') {
@@ -550,6 +548,18 @@ class Slider extends Component {
         ? offsetWidth - padding * 2
         : offsetWidth;
       const width = sliderWidth / slidesToShow;
+      return width;
+    }
+    return 0;
+  }
+
+  /**
+   * Carousel first initional
+   */
+  slideInit = () => {
+    const { SliderRef, settings: { initialSlide } } = this.state;
+    if (SliderRef) {
+      const width = this.widthInit();
       this.setState({ width }, () => {
         this.dim = width * 2;
         // this.settings.gutter = padding;
