@@ -168,7 +168,7 @@ class Slider extends Component {
           data-carouselkey={i}
           key={i}
           className="carousel-item"
-          style={{ width: `${width}px` }}
+          style={{ width: `${width}px`, display: 'none' }}
         >
           {newSlide}
         </div>
@@ -320,6 +320,18 @@ class Slider extends Component {
     }
   };
 
+  getItem = (scrollItem, index) => {
+    const { settings: { virtualList } } = this.state;
+    let el;
+    if (virtualList) {
+      const keyIndex = scrollItem.getKeyIndex(index);
+      el = scrollItem.get(keyIndex);
+    } else {
+      el = scrollItem.get(index);
+    }
+    return el;
+  }
+
   /**
    * Scroll to target
    * @param {string} type
@@ -415,9 +427,11 @@ class Slider extends Component {
     } else if (this.scrollEnd) {
       this.scrollEnd(true);
     }
-    if (!this.noWrap || (this.center >= 0 && this.center < this.items.length)) {
-      el = this.items.get(index);
 
+    this.virtualItem = this.virtualItem || new CircularArray(SliderRef.querySelectorAll('.carousel-item'), this.items);
+    const scrollItem = virtualList ? this.virtualItem : this.items;
+    if (!this.noWrap || (this.center >= 0 && this.center < this.items.length)) {
+      el = this.getItem(scrollItem, index);
       // Add active class to center item.
       if (el.classList.contains('active')) {
         each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
@@ -427,12 +441,12 @@ class Slider extends Component {
       this.updateItemStyle(el, transformString);
     }
     if (centerMode) {
-      const half = Math.floor(this.items.length / 2);
+      const half = Math.floor(scrollItem.length / 2);
       for (i = 1; i <= half; i += 1) {
         // right side
         // Don't show wrapped items.
-        if (!this.noWrap || this.center + i < this.items.length) {
-          el = this.items.get(this.wrap(this.center + i));
+        if (!this.noWrap || this.center + i < scrollItem.length) {
+          el = this.getItem(scrollItem, this.wrap(this.center + i));
           const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
           this.updateItemStyle(el, transformString);
         }
@@ -440,56 +454,27 @@ class Slider extends Component {
         // left side
         // Don't show wrapped items.
         if (!this.noWrap || this.center - i >= 0) {
-          el = this.items.get(this.wrap(this.center - i));
+          el = this.getItem(scrollItem, this.wrap(this.center - i));
           const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
-          this.updateItemStyle(el, transformString);
-        }
-      }
-    } else if (virtualList) {
-      this.virtualItem = this.virtualItem || new CircularArray(SliderRef.querySelectorAll('.carousel-item'), this.items);
-      for (i = 1; i <= slidesToShow; i += 1) {
-        const keyIndex = this.virtualItem.getKeyIndex(this.wrap(this.center + i));
-        el = this.virtualItem.get(keyIndex);
-        const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
-        this.updateItemStyle(el, transformString);
-      }
-      for (i = 0; i < Math.ceil((this.virtualItem.length - slidesToShow) / 2); i += 1) {
-        // right side
-        if (!this.noWrap || this.center + slidesToShow + i < this.virtualItem.length) {
-          const keyIndex = this.virtualItem.getKeyIndex(this.wrap(this.center + slidesToShow + i));
-          el = this.virtualItem.get(keyIndex);
-          const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
-          console.log('right', keyIndex, el.innerText, transformString);
-          this.updateItemStyle(el, transformString);
-        }
-      }
-      for (i = 1; i <= Math.ceil((this.virtualItem.length - slidesToShow) / 2); i += 1) {
-        // left side
-        if (!this.noWrap || this.center - i >= 0) {
-          const keyIndex = this.virtualItem.getKeyIndex(this.wrap(this.center - i));
-          el = this.virtualItem.get(keyIndex);
-
-          const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
-          console.log('left', keyIndex, el.innerText, transformString);
           this.updateItemStyle(el, transformString);
         }
       }
     } else {
       for (i = 1; i <= slidesToShow; i += 1) {
-        el = this.items.get(this.wrap(this.center + i));
+        el = this.getItem(scrollItem, this.wrap(this.center + i));
         const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
         this.updateItemStyle(el, transformString);
       }
       for (i = 1; i <= Math.ceil((this.items.length - slidesToShow) / 2); i += 1) {
         // right side
-        if (!this.noWrap || this.center + slidesToShow + i < this.items.length) {
-          el = this.items.get(this.wrap(this.center + slidesToShow + i));
+        if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
+          el = this.getItem(scrollItem, this.wrap(this.center + slidesToShow + i));
           const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
           this.updateItemStyle(el, transformString);
         }
         // left side
         if (!this.noWrap || this.center - i >= 0) {
-          el = this.items.get(this.wrap(this.center - i));
+          el = this.getItem(scrollItem, this.wrap(this.center - i));
           const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
           this.updateItemStyle(el, transformString);
         }
@@ -498,27 +483,13 @@ class Slider extends Component {
 
     // center
     // Don't show wrapped items.
-    if (virtualList) {
-      if ((!this.noWrap || (this.center >= 0 && this.center < this.virtualItem.length))) {
-        const keyIndex = this.virtualItem.getKeyIndex(this.center);
-        el = this.virtualItem.get(keyIndex);
-        if (!el.classList.contains('active')) {
-          each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
-          el.classList.add('active');
-          const activeIndex = this.wrap(this.center);
-          this.setState({ activeIndex }, () => { this.virtualItem = null; });
-        }
-        const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween}px)`;
-        console.log('end', keyIndex, el.innerText, transformString);
-        this.updateItemStyle(el, transformString);
-      }
-    } else if (!this.noWrap || (this.center >= 0 && this.center < this.items.length)) {
-      el = this.items.get(this.wrap(this.center));
+    if ((!this.noWrap || (this.center >= 0 && this.center < scrollItem.length))) {
+      el = this.getItem(scrollItem, this.center);
       if (!el.classList.contains('active')) {
         each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
         el.classList.add('active');
         const activeIndex = this.wrap(this.center);
-        this.setState({ activeIndex });
+        this.setState({ activeIndex }, () => { this.virtualItem = null; });
       }
       const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween}px)`;
       this.updateItemStyle(el, transformString);
@@ -546,6 +517,7 @@ class Slider extends Component {
     const newEl = el;
     newEl.style[this.xform] = transform;
     newEl.style.zIndex = 1;
+    newEl.style.display = '';
   };
 
   /**
