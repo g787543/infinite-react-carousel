@@ -258,6 +258,12 @@ class CustomSlider extends Component {
           max: 6
         }
       }]
+    }, {
+      name: 'VirtualList',
+      component: [{
+        name: 'virtualList',
+        component: 'switch'
+      }]
     }];
     this.component = {
       slider: CustomSlide,
@@ -386,7 +392,10 @@ class CustomSlider extends Component {
           </Collapse>
         </Col>
         <Col span={15} offset={1}>
-          <Carousel {...this.state} ref={(ele) => { this.sliderRef = ele; }}>
+          <Carousel
+            {...this.state}
+            ref={(ele) => { this.sliderRef = ele; window.sliderRef = ele; }}
+          >
             {
               map(boxCount, ((value, index) => (
                 <div key={`${new Date().getTime() * index}`}>

@@ -11,7 +11,10 @@ const SimpleSlider = () => {
   return (
     <div>
       <h2> Single Item</h2>
-      <Carousel {...settings}>
+      <Carousel
+        {...settings}
+        ref={(ele) => { window.SlimpleSlider = ele; }}
+      >
         <div>
           <h3>1</h3>
         </div>
@@ -29,6 +32,15 @@ const SimpleSlider = () => {
         </div>
         <div>
           <h3>6</h3>
+        </div>
+        <div>
+          <h3>7</h3>
+        </div>
+        <div>
+          <h3>8</h3>
+        </div>
+        <div>
+          <h3>9</h3>
         </div>
       </Carousel>
     </div>
