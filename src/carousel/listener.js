@@ -122,7 +122,9 @@ export function handleResizeHeight(mutations) {
   const mutation = mutations[mutations.length - 1];
   const { offsetHeight } = mutation.target;
   if (height !== offsetHeight && offsetHeight > 0) {
-    this.setState({ height: offsetHeight });
+    this.setState({ height: offsetHeight }, () => {
+      this.resizeHeight = true;
+    });
   }
 }
 
