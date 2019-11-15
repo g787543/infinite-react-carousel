@@ -70,6 +70,7 @@ class Slider extends Component {
     this.scrollOptions = {};
     this.rerender = false;
     this.resizeHeight = false;
+    this.endIndex = 0;
     /* functionBind */
     this.scroll = this.scroll.bind(this);
     this.setRef = this.setRef.bind(this);
@@ -106,6 +107,10 @@ class Slider extends Component {
     const { settings: { slidesPerRow: originPerRow, rows: originRows } } = this.state;
     if (slidesPerRow !== originPerRow || rows !== originRows) {
       this.resizeHeight = false;
+    }
+    if (!isEqual(nextProps, this.props) && this.endIndex) {
+      console.log(nextProps, this.props);
+      this.endIndex = 0;
     }
     return isEqual(nextProps, this.props) || isEqual(nextState, this.state);
   }
@@ -249,8 +254,12 @@ class Slider extends Component {
       };
       this.autoplayTimer = setInterval(() => {
         const { autoplayScroll } = this.props;
-        const { activeIndex } = this.state;
+        const { activeIndex, settings: { virtualList } } = this.state;
         this.beforeChangeTrigger = false;
+        this.endIndex = 0;
+        if (virtualList) {
+          this.endIndex = autoplayScroll;
+        }
         this.slickNext(activeIndex + autoplayScroll);
       }, autoplaySpeed);
       if (pauseOnHover) {
@@ -765,7 +774,7 @@ class Slider extends Component {
       },
       activeIndex
     } = this.state;
-    if (this.virtualList.length > (((slidesToShow + 2) * 2) + 1)) {
+    if (this.virtualList.length > (((slidesToShow + overScan) * 2) + 1)) {
       const result = [];
       const getIndex = [];
       let newActiveIndex = activeIndex;
@@ -798,7 +807,8 @@ class Slider extends Component {
         default:
           break;
       }
-      for (let i = 0; i < slidesToShow + overScan; i += 1) {
+      let i = 0;
+      for (; i < slidesToShow + overScan; i += 1) {
         if (i === 0) {
           const index = this.items.getIndex(newActiveIndex);
           getIndex.push(index);
@@ -809,8 +819,37 @@ class Slider extends Component {
           getIndex.unshift(leftIndex);
         }
       }
+      if (this.endIndex) {
+        for (let j = 0; j < this.endIndex; j += 1) {
+          const rightIndex = this.items.getIndex(newActiveIndex + i + j);
+          const leftIndex = this.items.getIndex(newActiveIndex - i - j);
+          switch (type) {
+            case 'arrows': {
+              if (direction === 'next') getIndex.push(rightIndex);
+              else getIndex.unshift(leftIndex);
+              break;
+            }
+            case 'dots': {
+              if (direction === 'right') getIndex.push(rightIndex);
+              else getIndex.unshift(leftIndex);
+              break;
+            }
+            case 'wheel': {
+              if (direction === 'next') getIndex.push(rightIndex);
+              else getIndex.unshift(leftIndex);
+              break;
+            }
+            case 'autoplay': {
+              getIndex.push(rightIndex);
+              break;
+            }
+            default:
+              break;
+          }
+        }
+      }
       getIndex.sort((a, b) => a - b);
-      for (let i = 0; i < getIndex.length; i += 1) {
+      for (i = 0; i < getIndex.length; i += 1) {
         const childrenIndex = getIndex[i];
         const children = this.newChildren[childrenIndex];
         result.push(children);
@@ -844,12 +883,17 @@ class Slider extends Component {
         <PrevArrow
           {...arrowProps}
           clickHandler={(options) => {
+            this.endIndex = 0;
             this.beforeChangeTrigger = false;
             this.scrollType = {
               type: 'arrows',
               direction: 'prev'
             };
             this.scrollOptions = options;
+            const { settings: { virtualList } } = this.state;
+            if (virtualList) {
+              this.endIndex = Math.abs(options.arrowsScroll);
+            }
             this.slickPrev(activeIndex - options.arrowsScroll);
           }}
         />
@@ -858,12 +902,17 @@ class Slider extends Component {
         <NextArrow
           {...arrowProps}
           clickHandler={(options) => {
+            this.endIndex = 0;
             this.beforeChangeTrigger = false;
             this.scrollType = {
               type: 'arrows',
               direction: 'next'
             };
             this.scrollOptions = options;
+            const { settings: { virtualList } } = this.state;
+            if (virtualList) {
+              this.endIndex = Math.abs(options.arrowsScroll);
+            }
             this.slickNext(activeIndex + options.arrowsScroll);
           }}
         />
@@ -889,6 +938,7 @@ class Slider extends Component {
           activeIndex,
           slideCount: this.items.length,
           clickHandler: (options) => {
+            this.endIndex = 0;
             this.beforeChangeTrigger = false;
             let right = 0;
             let left = 0;
@@ -907,6 +957,10 @@ class Slider extends Component {
               direction
             };
             this.scrollOptions = options;
+            const { settings: { virtualList } } = this.state;
+            if (virtualList) {
+              this.endIndex = Math.abs(options.index * options.dotsScroll - activeIndex);
+            }
             this.slickSet(options.index * options.dotsScroll);
           },
           onMouseEnter: pauseOnDotsHover ? this.onDotsLeave : null,

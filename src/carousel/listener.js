@@ -189,11 +189,15 @@ export function handleResize(e) {
 export function handleWheel(e) {
   e.stopPropagation();
   e.preventDefault();
+  this.endIndex = 0;
   const {
-    settings: { wheelScroll },
+    settings: { wheelScroll, virtualList },
     activeIndex
   } = this.state;
   const { deltaY } = e;
+  if (virtualList) {
+    this.endIndex = wheelScroll;
+  }
   if (deltaY > 0) {
     this.scrollType = {
       type: 'wheel',
