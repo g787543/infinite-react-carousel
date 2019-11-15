@@ -263,6 +263,14 @@ class CustomSlider extends Component {
       component: [{
         name: 'virtualList',
         component: 'switch'
+      }, {
+        name: 'overScan',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 5,
+        }
       }]
     }];
     this.component = {

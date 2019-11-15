@@ -760,7 +760,8 @@ class Slider extends Component {
   createVirtualList = () => {
     const {
       settings: {
-        slidesToShow
+        slidesToShow,
+        overScan
       },
       activeIndex
     } = this.state;
@@ -797,7 +798,7 @@ class Slider extends Component {
         default:
           break;
       }
-      for (let i = 0; i < slidesToShow + 2; i += 1) {
+      for (let i = 0; i < slidesToShow + overScan; i += 1) {
         if (i === 0) {
           const index = this.items.getIndex(newActiveIndex);
           getIndex.push(index);

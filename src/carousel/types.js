@@ -58,6 +58,7 @@ const defaultProps = {
   wheel: false,
   wheelScroll: 1,
   virtualList: false,
+  overScan: 2
 };
 
 const propTypes = {
@@ -121,7 +122,8 @@ const propTypes = {
   autoplayScroll: PropTypes.number,
   onResize: PropTypes.func,
   onSwipe: PropTypes.func,
-  virtualList: PropTypes.bool
+  virtualList: PropTypes.bool,
+  overScan: PropTypes.number
 };
 
 const dotsDefaultProps = {
