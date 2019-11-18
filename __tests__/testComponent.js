@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { Component } from 'react';
+import map from 'lodash/map';
 import Carousel from '../src';
 import { delay } from './test-helper';
 
@@ -60,6 +61,66 @@ class SliderWithScroll extends Component {
         <div>
           <h3>slide6</h3>
         </div>
+      </Carousel>
+    );
+  }
+}
+
+class SliderWithVirtualList extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentSlide: null,
+      nextSlide: null,
+      endSlide: null,
+    }
+    this.data = new Array(1000);
+    this.innerSlider = null;
+  }
+
+  getBeforeState = () => ({
+    currentSlide: this.state.currentSlide,
+    nextSlide: this.state.nextSlide
+  });
+
+  beforeChange = (currentSlide, nextSlide) => {
+    this.setState({
+      currentSlide,
+      nextSlide
+    });
+  }
+
+  afterChange = (endSlide) => {
+    this.setState({
+      endSlide
+    });
+  }
+
+
+  testForScroll = async (befroeScroll, afterScroll, time = 200) => {
+    befroeScroll();
+    await delay(time);
+    afterScroll();
+  }
+
+  render() {
+    const { data } = this.state;
+    return (
+      <Carousel
+        ref={(ele) => {
+          if (ele) {
+            this.innerSlider = ele;
+          }
+        }}
+        {...this.props}
+        beforeChange={this.beforeChange}
+        afterChange={this.afterChange}
+      >
+        {map(this.data,(item, index) => (
+          <div key={index}>
+            <h3>slide{index + 1}</h3>
+          </div>
+        ))}
       </Carousel>
     );
   }
@@ -126,5 +187,6 @@ class SliderWithBeforeChange extends Component {
 export {
   CustomArrow,
   SliderWithScroll,
-  SliderWithBeforeChange
+  SliderWithBeforeChange,
+  SliderWithVirtualList
 };

@@ -39,7 +39,7 @@ describe('[AutoPlay]', () => {
         .textContent
     ).toEqual('slide2');
     expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 0, nextSlide: 1 });
-    await delay(defaultProps.autoplaySpeed + 300);
+    await delay(defaultProps.autoplaySpeed + 1500);
     expect(
       wrapper
         .find('.carousel-track')
@@ -60,7 +60,7 @@ describe('[AutoPlay]', () => {
     ).toEqual('slide4');
     expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 1, nextSlide: 3 });
     // TODO: delay time have problem
-    await delay(defaultProps.autoplaySpeed + 1900);
+    await delay(defaultProps.autoplaySpeed + 1500);
     expect(
       wrapper
         .find('.carousel-track')
