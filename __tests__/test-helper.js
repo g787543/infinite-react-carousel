@@ -45,3 +45,19 @@ export function sendWheelEvent(x, y, element, eventType) {
   });
   element.dispatchEvent(touchEvent);
 }
+
+export function sendMouseEvent(x, y, element, eventType) {
+  const touchObj = {
+    identifier: Date.now(),
+    target: element,
+    clientX: x,
+    clientY: y
+  };
+  const touchEvent = new MouseEvent(eventType, {
+    cancelable: true,
+    bubbles: true,
+    ...touchObj,
+    shiftKey: true,
+  });
+  element.dispatchEvent(touchEvent);
+}
