@@ -50,6 +50,7 @@ describe('[Swipe]', () => {
           .textContent
       ).toEqual('slide1');
       expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 0, nextSlide: undefined });
-    }, 1500);
-  }); 
+      expect(wrapper.state().endSlide).toEqual(0);
+    }, 3000);
+  });
 });
