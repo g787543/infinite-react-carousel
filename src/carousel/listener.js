@@ -78,6 +78,7 @@ export function handleCarouselRelease(e) {
   } else {
     return;
   }
+  this.beforeChangeTrigger = false;
   const { onSwipe } = this.props;
   const direction = getSwipeDirection(Object.assign(this.touchObject, {
     endX: this.xpos(e),

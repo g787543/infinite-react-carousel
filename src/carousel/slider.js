@@ -114,10 +114,11 @@ class Slider extends Component {
 
   componentDidUpdate(prevProps) {
     const { SliderRef } = this.state;
-    if (!isEqual(this.props, prevProps)) {
+    const newProps = { ...this.props, children: [] };
+    const newPrevProps = { ...prevProps, children: [] };
+    if (!isEqual(newProps, newPrevProps)) {
       const { onReInit } = this.props;
       this.init();
-      this.slideInit();
       this.setRef(SliderRef);
       if (onReInit && typeof onReInit === 'function') onReInit(this);
     }
@@ -474,88 +475,85 @@ class Slider extends Component {
 
     this.virtualItem = this.virtualItem || new CircularArray(SliderRef.querySelectorAll('.carousel-item'), this.items);
     const scrollItem = virtualList ? this.virtualItem : this.items;
-    try {
-      if (!this.noWrap || (this.center >= 0 && this.center < scrollItem.length)) {
-        el = this.getItem(scrollItem, index);
-        if (el) {
-          // Add active class to center item.
-          if (el.classList.contains('active')) {
-            each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
-            el.classList.add('active');
-          }
-          const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween * i}px)`;
-          this.updateItemStyle(el, transformString);
+    if (!this.noWrap || (this.center >= 0 && this.center < scrollItem.length)) {
+      el = this.getItem(scrollItem, index);
+      if (el) {
+        // Add active class to center item.
+        if (el.classList.contains('active')) {
+          each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
+          el.classList.add('active');
         }
+        const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween * i}px)`;
+        this.updateItemStyle(el, transformString);
       }
-      if (centerMode) {
-        const half = Math.floor(scrollItem.length / 2);
-        for (i = 1; i <= half; i += 1) {
-          // right side
-          // Don't show wrapped items.
-          if (!this.noWrap || this.center + i < scrollItem.length) {
-            el = this.getItem(scrollItem, this.wrap(this.center + i));
-            if (el) {
-              const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
-              this.updateItemStyle(el, transformString);
-            }
-          }
-
-          // left side
-          // Don't show wrapped items.
-          if (!this.noWrap || this.center - i >= 0) {
-            el = this.getItem(scrollItem, this.wrap(this.center - i));
-            if (el) {
-              const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
-              this.updateItemStyle(el, transformString);
-            }
-          }
-        }
-      } else {
-        for (i = 1; i <= slidesToShow; i += 1) {
+    }
+    if (centerMode) {
+      const half = Math.floor(scrollItem.length / 2);
+      for (i = 1; i <= half; i += 1) {
+        // right side
+        // Don't show wrapped items.
+        if (!this.noWrap || this.center + i < scrollItem.length) {
           el = this.getItem(scrollItem, this.wrap(this.center + i));
           if (el) {
             const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
             this.updateItemStyle(el, transformString);
           }
         }
-        for (i = 1; i <= Math.ceil((scrollItem.length - slidesToShow) / 2); i += 1) {
-          // right side
-          if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
-            el = this.getItem(scrollItem, this.wrap(this.center + slidesToShow + i));
-            if (el) {
-              const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
-              this.updateItemStyle(el, transformString);
-            }
-          }
-          // left side
-          if (!this.noWrap || this.center - i >= 0) {
-            el = this.getItem(scrollItem, this.wrap(this.center - i));
-            if (el) {
-              const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
-              this.updateItemStyle(el, transformString);
-            }
+
+        // left side
+        // Don't show wrapped items.
+        if (!this.noWrap || this.center - i >= 0) {
+          el = this.getItem(scrollItem, this.wrap(this.center - i));
+          if (el) {
+            const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+            this.updateItemStyle(el, transformString);
           }
         }
       }
-
-      // center
-      // Don't show wrapped items.
-      if ((!this.noWrap || (this.center < this.items.length))) {
-        el = this.getItem(scrollItem, this.center);
+    } else {
+      for (i = 1; i <= slidesToShow; i += 1) {
+        el = this.getItem(scrollItem, this.wrap(this.center + i));
         if (el) {
-          if (!el.classList.contains('active')) {
-            each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
-            el.classList.add('active');
-            const newActiveIndex = this.wrap(this.center);
-            this.setState({ activeIndex: newActiveIndex }, () => { this.virtualItem = null; });
-          }
-          const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween}px)`;
+          const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
           this.updateItemStyle(el, transformString);
         }
       }
-    } catch (error) {
-      console.error(error);
-      this.forceUpdate();
+      for (i = 1; i <= Math.ceil((scrollItem.length - slidesToShow) / 2); i += 1) {
+        // right side
+        if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
+          el = this.getItem(scrollItem, this.wrap(this.center + slidesToShow + i));
+          if (el) {
+            const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
+            this.updateItemStyle(el, transformString);
+          }
+        }
+        // left side
+        if (!this.noWrap || this.center - i >= 0) {
+          el = this.getItem(scrollItem, this.wrap(this.center - i));
+          if (el) {
+            const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+            this.updateItemStyle(el, transformString);
+          }
+        }
+      }
+    }
+
+    // center
+    // Don't show wrapped items.
+    if ((!this.noWrap || (this.center < this.items.length))) {
+      el = this.getItem(scrollItem, this.center);
+      if (el) {
+        if (!el.classList.contains('active')) {
+          each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
+          el.classList.add('active');
+          const newActiveIndex = this.wrap(this.center);
+          if (this.beforeChangeTrigger) {
+            this.setState({ activeIndex: newActiveIndex }, () => { this.virtualItem = null; });
+          }
+        }
+        const transformString = `${alignment} translateX(${-delta / 2}px) translateX(${dir * settings.shift * tween}px)`;
+        this.updateItemStyle(el, transformString);
+      }
     }
     this.adaptHeight();
 
@@ -823,13 +821,13 @@ class Slider extends Component {
           getIndex.unshift(leftIndex);
         }
       }
-      if (this.endIndex >= 0) {
+      if (this.endIndex >= 0 && typeof this.endIndex === 'number') {
         let buffer = 0;
         if (
           activeIndex + this.endIndex < this.newChildren.length + this.scrollDistance
-          && activeIndex + this.endIndex > this.newChildren.length - this.scrollDistance
-          && (activeIndex > this.newChildren.length - this.scrollDistance
-          || this.endIndex > this.newChildren.length - this.scrollDistance)
+          && activeIndex + this.endIndex >= this.newChildren.length - this.scrollDistance
+          && (activeIndex >= this.newChildren.length - this.scrollDistance
+          || this.endIndex >= this.newChildren.length - this.scrollDistance)
         ) {
           if (this.endIndex + activeIndex < this.newChildren.length) {
             if (this.endIndex < activeIndex) {
