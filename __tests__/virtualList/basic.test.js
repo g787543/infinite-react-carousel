@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { SliderWithVirtualList } from './testComponent';
-import { sendMouseEvent, sendWheelEvent } from './test-helper';
+import { SliderWithVirtualList } from '../testComponent';
+import { sendMouseEvent, sendWheelEvent } from '../test-helper';
 
 describe('[VirtualList]', () => {
   describe('virtualList is false', () => {
