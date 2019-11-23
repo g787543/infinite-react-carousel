@@ -210,7 +210,7 @@ describe('[Dots]', () => {
     2000);
     await wrapperInstance.testForScroll(() => {
       wrapper.find('.carousel-dots .carousel-dot-3 button').simulate('click');
-    }, () => {
+    }, async () => {
       expect(
         wrapper
           .find('.carousel-track')
@@ -219,6 +219,7 @@ describe('[Dots]', () => {
           .textContent
       ).toEqual('slide21');
       expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 30, nextSlide: 20 });
+      await delay(1000);
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
