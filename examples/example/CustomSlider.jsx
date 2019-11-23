@@ -161,6 +161,9 @@ class CustomSlider extends Component {
           min: 0,
           max: 10
         }
+      }, {
+        name: 'accessibility',
+        component: 'switch'
       }]
     }, {
       name: 'Arrows',
@@ -256,6 +259,20 @@ class CustomSlider extends Component {
           step: 1,
           min: 1,
           max: 6
+        }
+      }]
+    }, {
+      name: 'VirtualList',
+      component: [{
+        name: 'virtualList',
+        component: 'switch'
+      }, {
+        name: 'overScan',
+        component: {
+          name: 'slider',
+          step: 1,
+          min: 1,
+          max: 5,
         }
       }]
     }];
@@ -386,7 +403,10 @@ class CustomSlider extends Component {
           </Collapse>
         </Col>
         <Col span={15} offset={1}>
-          <Carousel {...this.state} ref={(ele) => { this.sliderRef = ele; }}>
+          <Carousel
+            {...this.state}
+            ref={(ele) => { this.sliderRef = ele; window.sliderRef = ele; }}
+          >
             {
               map(boxCount, ((value, index) => (
                 <div key={`${new Date().getTime() * index}`}>

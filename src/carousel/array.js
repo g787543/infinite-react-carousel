@@ -1,21 +1,34 @@
 class CircularArray {
   array = [];
 
+  key = [];
+
+  origin = null;
+
   get length() {
     return this.array.length;
   }
 
-  constructor(n) {
+  constructor(n, origin = null) {
     this.array = [];
     if (typeof n === 'number') {
       this.array = new Array(n);
     } else if (typeof n === 'object' && Array.isArray(n)) {
       this.array = n;
-    } else if (typeof n === 'object' && n.length > 0) {
+    } else if (typeof n === 'object' && n.length > 0 && n instanceof NodeList) {
       n.forEach((e) => this.array.push(e));
+      this.key = this.array.map((item) => {
+        const {
+          dataset: {
+            carouselkey
+          }
+        } = item;
+        return carouselkey;
+      });
     } else {
       throw new Error('can not create array');
     }
+    this.origin = origin;
   }
 
   toString = (array) => {
@@ -42,6 +55,12 @@ class CircularArray {
     }
     return result;
   };
+
+  getKeyIndex = (i) => {
+    const originItem = this.origin.get(i);
+    const { dataset: { carouselkey } } = originItem;
+    return this.key.indexOf(carouselkey);
+  }
 
   getIndex = (i) => {
     let result;

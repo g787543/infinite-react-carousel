@@ -57,6 +57,8 @@ const defaultProps = {
   onSwipe: () => {}, //
   wheel: false,
   wheelScroll: 1,
+  virtualList: false,
+  overScan: 2
 };
 
 const propTypes = {
@@ -119,7 +121,9 @@ const propTypes = {
   arrowsBlock: PropTypes.bool,
   autoplayScroll: PropTypes.number,
   onResize: PropTypes.func,
-  onSwipe: PropTypes.func
+  onSwipe: PropTypes.func,
+  virtualList: PropTypes.bool,
+  overScan: PropTypes.number
 };
 
 const dotsDefaultProps = {
@@ -182,7 +186,7 @@ const arrowsDefaultProps = {
   type: 'prev',
   arrowsBlock: true,
   prevArrow: null,
-  nextArrow: null
+  nextArrow: null,
 };
 
 export {

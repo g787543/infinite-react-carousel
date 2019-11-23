@@ -1,14 +1,19 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { SliderWithBeforeChange } from '../testComponent';
-import { sendTouchEvent } from '../test-helper';
+import { SliderWithVirtualList } from '../testComponent';
+import { sendTouchEvent, sendMouseEvent } from '../test-helper';
 
 describe('[Swipe]', () => {
-  const wrapper = mount(<SliderWithBeforeChange />);
+  const wrapper = mount(<SliderWithVirtualList />);
   const wrapperInstance = wrapper.instance();
+  wrapper.setProps({ virtualList: true }).update();
   it('should slide item', async () => {
     expect(wrapper.state()).toEqual({ currentSlide: null, nextSlide: null, endSlide: null });
     await wrapperInstance.testForScroll(() => {
+      expect(wrapper
+        .find('.carousel-track')
+        .getDOMNode()
+        .querySelectorAll('.carousel-item').length).toEqual(1000);
       expect(
         wrapper
           .find('.carousel-track')
@@ -27,8 +32,11 @@ describe('[Swipe]', () => {
           .querySelector('.carousel-item.active')
           .textContent
       ).toEqual('slide2');
+      expect(wrapper
+        .find('.carousel-track')
+        .getDOMNode()
+        .querySelectorAll('.carousel-item').length).toEqual(5);
       expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 1, nextSlide: undefined });
-      expect(wrapper.state().endSlide).toEqual(1);
     }, 1500);
     await wrapperInstance.testForScroll(() => {
       expect(
@@ -38,9 +46,9 @@ describe('[Swipe]', () => {
           .querySelector('.carousel-item.active')
           .textContent
       ).toEqual('slide2');
-      sendTouchEvent(100, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchstart', 'start');
-      sendTouchEvent(1200, 10, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchmove');
-      sendTouchEvent(1200, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'touchend');
+      sendMouseEvent(100, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'mousedown', 'start');
+      sendMouseEvent(1200, 10, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'mousemove');
+      sendMouseEvent(1200, 0, wrapperInstance.innerSlider.innerSlider.state.SliderRef, 'mouseup');
     }, () => {
       expect(
         wrapper
@@ -49,6 +57,10 @@ describe('[Swipe]', () => {
           .querySelector('.carousel-item.active')
           .textContent
       ).toEqual('slide1');
+      expect(wrapper
+        .find('.carousel-track')
+        .getDOMNode()
+        .querySelectorAll('.carousel-item').length).toEqual(5);
       expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 0, nextSlide: undefined });
       expect(wrapper.state().endSlide).toEqual(0);
     }, 3000);

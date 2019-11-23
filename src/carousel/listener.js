@@ -78,6 +78,7 @@ export function handleCarouselRelease(e) {
   } else {
     return;
   }
+  this.beforeChangeTrigger = false;
   const { onSwipe } = this.props;
   const direction = getSwipeDirection(Object.assign(this.touchObject, {
     endX: this.xpos(e),
@@ -121,8 +122,10 @@ export function handleResizeHeight(mutations) {
   const { height } = this.state;
   const mutation = mutations[mutations.length - 1];
   const { offsetHeight } = mutation.target;
-  if (height !== offsetHeight) {
-    this.setState({ height: offsetHeight });
+  if (height !== offsetHeight && offsetHeight > 0) {
+    this.setState({ height: offsetHeight }, () => {
+      this.resizeHeight = true;
+    });
   }
 }
 
@@ -187,6 +190,7 @@ export function handleResize(e) {
 export function handleWheel(e) {
   e.stopPropagation();
   e.preventDefault();
+  this.beforeChangeTrigger = false;
   const {
     settings: { wheelScroll },
     activeIndex
