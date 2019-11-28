@@ -3,6 +3,7 @@ import each from 'lodash/each';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import classNames from 'classnames';
+import ResizeObserver from 'resize-observer-polyfill';
 import CircularArray from './array';
 import { defaultProps, propTypes } from './types';
 import { PrevArrow, NextArrow } from './arrows';
