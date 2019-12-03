@@ -1,4 +1,3 @@
-import 'babel-polyfill';
 import Carousel from './carousel';
 import Slider from './carousel/slider';
 
