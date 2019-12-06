@@ -476,7 +476,18 @@ class Slider extends Component {
 
     this.virtualItem = this.virtualItem || new CircularArray(SliderRef.querySelectorAll('.carousel-item'), this.items);
     const scrollItem = virtualList ? this.virtualItem : this.items;
-    if (!this.noWrap || (this.center >= 0 && this.center < scrollItem.length)) {
+    if (scrollItem.length <= slidesToShow) {
+      el = this.getItem(scrollItem, 0);
+      if (el) {
+        // Add active class to center item.
+        if (el.classList.contains('active')) {
+          each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
+          el.classList.add('active');
+        }
+        const transformString = `${alignment} translateX(0px)`;
+        this.updateItemStyle(el, transformString);
+      }
+    } else if (!this.noWrap || (this.center >= 0 && this.center < scrollItem.length)) {
       el = this.getItem(scrollItem, index);
       if (el) {
         // Add active class to center item.
@@ -511,15 +522,25 @@ class Slider extends Component {
           }
         }
       }
+    } else if (scrollItem.length <= slidesToShow) {
+      for (i = 1; i < scrollItem.length; i += 1) {
+        el = this.getItem(scrollItem, i);
+        if (el) {
+          const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
+          this.updateItemStyle(el, transformString);
+        }
+      }
     } else {
-      for (i = 1; i <= slidesToShow; i += 1) {
+      for (i = 1; i < slidesToShow; i += 1) {
         el = this.getItem(scrollItem, this.wrap(this.center + i));
         if (el) {
           const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
           this.updateItemStyle(el, transformString);
         }
       }
-      for (i = 1; i <= Math.ceil((scrollItem.length - slidesToShow) / 2); i += 1) {
+
+      const half = Math.ceil((scrollItem.length - slidesToShow) / 2);
+      for (i = 0; i < half; i += 1) {
         // right side
         if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
           el = this.getItem(scrollItem, this.wrap(this.center + slidesToShow + i));
@@ -529,10 +550,10 @@ class Slider extends Component {
           }
         }
         // left side
-        if (!this.noWrap || this.center - i >= 0) {
-          el = this.getItem(scrollItem, this.wrap(this.center - i));
+        if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
+          el = this.getItem(scrollItem, this.wrap(this.center - i - 1));
           if (el) {
-            const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+            const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * (i + 1) - delta) / 2}px)`;
             this.updateItemStyle(el, transformString);
           }
         }
@@ -541,7 +562,7 @@ class Slider extends Component {
 
     // center
     // Don't show wrapped items.
-    if ((!this.noWrap || (this.center < this.items.length))) {
+    if ((!this.noWrap || (this.center < this.items.length)) && slidesToShow < scrollItem.length) {
       el = this.getItem(scrollItem, this.center);
       if (el) {
         if (!el.classList.contains('active')) {
