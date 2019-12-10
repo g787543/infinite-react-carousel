@@ -30,8 +30,9 @@ const extractObject = (spec, keys) => {
   });
   return newObject;
 };
-
 class Slider extends Component {
+  isMounted = true;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -97,6 +98,7 @@ class Slider extends Component {
   }
 
   componentDidMount() {
+    this.isMounted = true;
     window.addEventListener('resize', this.handleResize);
     this.init();
     const { onInit } = this.props;
@@ -123,6 +125,11 @@ class Slider extends Component {
       this.setRef(SliderRef);
       if (onReInit && typeof onReInit === 'function') onReInit(this);
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+    this.isMounted = false;
   }
 
   /**
@@ -208,7 +215,7 @@ class Slider extends Component {
         }
       });
     }
-    if (!isEqual(get(this.state, 'settings'), settings)) {
+    if (!isEqual(get(this.state, 'settings'), settings) && this.isMounted) {
       this.setState({ settings });
     }
   };
@@ -286,7 +293,7 @@ class Slider extends Component {
     if (settings.autoplay) {
       this.handleAutoplayPause();
       this.autoPlay();
-    } else {
+    } else if (this.isMounted) {
       this.setState({
         settings: {
           ...settings,
@@ -569,7 +576,7 @@ class Slider extends Component {
           each(SliderRef.querySelectorAll('.carousel-item'), (ele) => ele.classList.remove('active'));
           el.classList.add('active');
           const newActiveIndex = this.wrap(this.center);
-          if (this.beforeChangeTrigger) {
+          if (this.beforeChangeTrigger && this.isMounted) {
             this.setState({ activeIndex: newActiveIndex }, () => { this.virtualItem = null; });
           }
         }
@@ -638,7 +645,7 @@ class Slider extends Component {
    */
   slideInit = () => {
     const { SliderRef, settings: { initialSlide } } = this.state;
-    if (SliderRef) {
+    if (SliderRef && this.isMounted) {
       const width = this.widthInit();
       this.setState({ width }, () => {
         this.dim = width * 2;
@@ -667,7 +674,7 @@ class Slider extends Component {
       const index = this.wrap(this.center);
       const elem = this.items.get(index);
       const { offsetHeight } = elem;
-      if (height !== offsetHeight && offsetHeight > 0) {
+      if (height !== offsetHeight && offsetHeight > 0 && this.isMounted) {
         this.setState({
           height: offsetHeight
         });
@@ -1009,7 +1016,7 @@ class Slider extends Component {
         <div
           ref={(e) => {
             const { SliderRef } = this.state;
-            if (!SliderRef) {
+            if (!SliderRef && this.isMounted) {
               this.setRef(e);
             }
           }}
