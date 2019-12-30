@@ -205,7 +205,12 @@ class Slider extends Component {
       this.newChildren = newChildren;
       this.virtualList = newChildren;
     }
-    if (settings.virtualList && this.items.length === this.newChildren.length && !this.rerender) {
+    if (
+      settings.virtualList
+      && this.items
+      && this.items.length === this.newChildren.length
+      && !this.rerender
+    ) {
       if (this.endIndex === activeIndex) {
         this.endIndex = null;
       }
