@@ -79,6 +79,8 @@ export function handleCarouselRelease(e) {
     return;
   }
   this.beforeChangeTrigger = false;
+  const { onSwipe } = this.props;
+  onSwipe(this.scrollType.direction);
   clearInterval(this.ticker);
   this.target = this.offset;
   if (this.velocity > 10 || this.velocity < -10) {
