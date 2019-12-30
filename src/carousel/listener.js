@@ -37,8 +37,8 @@ export function handleCarouselDrag(e) {
     const delta = this.reference - x;
     const deltaY = Math.abs(this.referenceY - y);
     const direction = getSwipeDirection(Object.assign(this.touchObject, {
-      endX: this.xpos(e),
-      endY: this.ypos(e)
+      endX: x,
+      endY: y
     }));
     this.scrollType = {
       type: 'scroll',
@@ -79,12 +79,6 @@ export function handleCarouselRelease(e) {
     return;
   }
   this.beforeChangeTrigger = false;
-  const { onSwipe } = this.props;
-  const direction = getSwipeDirection(Object.assign(this.touchObject, {
-    endX: this.xpos(e),
-    endY: this.ypos(e)
-  }));
-  onSwipe(direction);
   clearInterval(this.ticker);
   this.target = this.offset;
   if (this.velocity > 10 || this.velocity < -10) {
@@ -103,10 +97,6 @@ export function handleCarouselRelease(e) {
   }
   this.amplitude = this.target - this.offset;
   this.timestamp = Date.now();
-  this.scrollType = {
-    type: 'scroll',
-    direction
-  };
   requestAnimationFrame(this.autoScroll);
 
   if (this.dragged) {
