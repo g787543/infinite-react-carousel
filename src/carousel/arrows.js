@@ -58,12 +58,12 @@ const Arrow = ({
   // };
   let customArrow = null;
   if (prevArrow && type === 'prev') {
-    customArrow = React.cloneElement(<div>{prevArrow}</div>, {
+    customArrow = React.cloneElement(prevArrow, {
       ...arrowProps
       // ...customProps,
     });
   } else if (nextArrow && type === 'next') {
-    customArrow = React.cloneElement(<div>{nextArrow}</div>, {
+    customArrow = React.cloneElement(nextArrow, {
       ...arrowProps
       // ...customProps,
     });
