@@ -27,11 +27,21 @@ const Arrow = ({
     Object.assign(classes, {
       'carousel-prev': true
     });
+    if (prevArrow) {
+      Object.assign(classes, {
+        custom: true
+      });
+    }
     Object.assign(arrowOptions, { message: 'previous' });
   } else {
     Object.assign(classes, {
       'carousel-next': true
     });
+    if (nextArrow) {
+      Object.assign(classes, {
+        custom: true
+      });
+    }
     Object.assign(arrowOptions, { message: 'next' });
   }
 
@@ -48,12 +58,12 @@ const Arrow = ({
   // };
   let customArrow = null;
   if (prevArrow && type === 'prev') {
-    customArrow = React.cloneElement(prevArrow, {
+    customArrow = React.cloneElement(<div>{prevArrow}</div>, {
       ...arrowProps
       // ...customProps,
     });
   } else if (nextArrow && type === 'next') {
-    customArrow = React.cloneElement(nextArrow, {
+    customArrow = React.cloneElement(<div>{nextArrow}</div>, {
       ...arrowProps
       // ...customProps,
     });
