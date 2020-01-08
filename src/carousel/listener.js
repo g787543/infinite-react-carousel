@@ -165,7 +165,7 @@ export function handleKeyDown(e) {
 export function handleResize(e) {
   this.slideInit();
   this.connectObserver();
-  const { settings, activeIndex } = this.state;
+  const { settings } = this.state;
   const { onResize } = settings;
   if (settings.fullWidth) {
     const { width } = this.state;
@@ -174,7 +174,6 @@ export function handleResize(e) {
     this.target = this.offset;
   } else {
     this.scroll('resize');
-    this.slickSet(activeIndex);
   }
   onResize(e);
 }
