@@ -27,11 +27,21 @@ const Arrow = ({
     Object.assign(classes, {
       'carousel-prev': true
     });
+    if (prevArrow) {
+      Object.assign(classes, {
+        custom: true
+      });
+    }
     Object.assign(arrowOptions, { message: 'previous' });
   } else {
     Object.assign(classes, {
       'carousel-next': true
     });
+    if (nextArrow) {
+      Object.assign(classes, {
+        custom: true
+      });
+    }
     Object.assign(arrowOptions, { message: 'next' });
   }
 
