@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import throttle from 'lodash/throttle';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
@@ -90,8 +91,8 @@ class Slider extends Component {
     this.handleCarouselDrag = handleCarouselDrag.bind(this);
     this.handleCarouselRelease = handleCarouselRelease.bind(this);
     this.handleAutoplayPause = handleAutoplayPause.bind(this);
-    this.handleResize = handleResize.bind(this);
-    this.handleResizeHeight = handleResizeHeight.bind(this);
+    this.handleResize = throttle(handleResize.bind(this), 1000, { leading: true });
+    this.handleResizeHeight = throttle(handleResizeHeight.bind(this), 500);
     this.handleKeyDown = handleKeyDown.bind(this);
     this.handleClick = handleClick.bind(this);
     this.handleWheel = handleWheel.bind(this);
