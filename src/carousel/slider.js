@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import throttle from 'lodash/throttle';
+import debounce from 'lodash/debounce';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
@@ -91,8 +91,8 @@ class Slider extends Component {
     this.handleCarouselDrag = handleCarouselDrag.bind(this);
     this.handleCarouselRelease = handleCarouselRelease.bind(this);
     this.handleAutoplayPause = handleAutoplayPause.bind(this);
-    this.handleResize = throttle(handleResize.bind(this), 1000, { leading: true });
-    this.handleResizeHeight = throttle(handleResizeHeight.bind(this), 500);
+    this.handleResize = debounce(handleResize.bind(this), 1000);
+    this.handleResizeHeight = debounce(handleResizeHeight.bind(this), 500);
     this.handleKeyDown = handleKeyDown.bind(this);
     this.handleClick = handleClick.bind(this);
     this.handleWheel = handleWheel.bind(this);
@@ -151,6 +151,12 @@ class Slider extends Component {
         );
       }
       settings.slidesToShow = 1;
+    }
+    if (settings.virtualList) {
+      if (settings.centerMode && settings.overScan < 1) {
+        console.warn('overScan shoud be greater or equal to 1 when you are useing virtualList and centerMode');
+        settings.overScan = 1;
+      }
     }
     let { children } = this.props;
     children = React.Children.toArray(children).filter((child) => (typeof child === 'string' ? !!child.trim() : !!child));
@@ -808,15 +814,17 @@ class Slider extends Component {
     const {
       settings: {
         slidesToShow,
-        overScan
+        overScan,
+        centerMode
       },
       activeIndex
     } = this.state;
     if (this.virtualList.length > (((slidesToShow + overScan) * 2) + 1)) {
       const result = [];
-      const getIndex = [];
+      let getIndex = [];
       let newActiveIndex = activeIndex;
-      const { type, direction } = this.scrollType;
+      const { type } = this.scrollType;
+      let { direction } = this.scrollType;
       switch (type) {
         case 'scroll': {
           if (direction === 'left') newActiveIndex += 1;
@@ -840,50 +848,89 @@ class Slider extends Component {
         }
         case 'autoplay': {
           newActiveIndex += 1;
+          direction = 'right';
           break;
         }
         default:
           break;
       }
       let i = 0;
-      for (; i < slidesToShow + overScan; i += 1) {
-        if (i === 0) {
-          const index = this.items.getIndex(newActiveIndex);
-          getIndex.push(index);
+      if (centerMode) {
+        if (slidesToShow % 2 > 0) {
+          const originLength = Math.ceil(slidesToShow / 2) + 1;
+          for (i = 0; i < originLength; i += 1) {
+            if (i === 0) {
+              const index = this.items.getIndex(newActiveIndex);
+              getIndex.push(index);
+            } else {
+              const rightIndex = this.items.getIndex(newActiveIndex + i);
+              const leftIndex = this.items.getIndex(newActiveIndex - i);
+              getIndex.push(rightIndex);
+              getIndex.unshift(leftIndex);
+            }
+          }
+          for (i = 0; i < overScan - 1; i += 1) {
+            const rightIndex = this.items.getIndex(newActiveIndex + (originLength + i));
+            const leftIndex = this.items.getIndex(newActiveIndex - (originLength + i));
+            getIndex.push(rightIndex);
+            getIndex.unshift(leftIndex);
+          }
         } else {
-          const rightIndex = this.items.getIndex(newActiveIndex + i);
-          const leftIndex = this.items.getIndex(newActiveIndex - i);
+          const originLength = Math.ceil(slidesToShow / 2) + 1;
+          for (i = 0; i < originLength; i += 1) {
+            if (i === 0) {
+              const index = this.items.getIndex(newActiveIndex);
+              const leftIndex = this.items.getIndex(newActiveIndex - 1);
+              getIndex.push(leftIndex);
+              getIndex.push(index);
+            } else {
+              const rightIndex = this.items.getIndex(newActiveIndex + i);
+              const leftIndex = this.items.getIndex(newActiveIndex - (i + 1));
+              getIndex.push(rightIndex);
+              getIndex.unshift(leftIndex);
+            }
+          }
+          for (i = 0; i < overScan - 1; i += 1) {
+            const rightIndex = this.items.getIndex(newActiveIndex + (originLength + i));
+            const leftIndex = this.items.getIndex(newActiveIndex - (originLength + i + 1));
+            getIndex.push(rightIndex);
+            getIndex.unshift(leftIndex);
+          }
+        }
+      } else {
+        for (; i < slidesToShow; i += 1) {
+          if (i === 0) {
+            const index = this.items.getIndex(newActiveIndex);
+            getIndex.push(index);
+          } else {
+            const rightIndex = this.items.getIndex(newActiveIndex + i);
+            getIndex.push(rightIndex);
+          }
+        }
+        for (i = 0; i < overScan; i += 1) {
+          const rightIndex = this.items.getIndex(newActiveIndex + slidesToShow + i);
+          const leftIndex = this.items.getIndex(newActiveIndex - (i + 1));
           getIndex.push(rightIndex);
           getIndex.unshift(leftIndex);
         }
       }
       if (this.endIndex >= 0 && typeof this.endIndex === 'number') {
         let buffer = 0;
-        if (
-          activeIndex + this.endIndex < this.newChildren.length + this.scrollDistance
-          && activeIndex + this.endIndex >= this.newChildren.length - this.scrollDistance
-          && (activeIndex >= this.newChildren.length - this.scrollDistance
-          || this.endIndex >= this.newChildren.length - this.scrollDistance)
-        ) {
-          if (this.endIndex + activeIndex < this.newChildren.length) {
-            if (this.endIndex < activeIndex) {
-              buffer = this.newChildren.length - activeIndex + this.endIndex;
-            } else {
-              buffer = this.newChildren.length - this.endIndex + activeIndex;
-            }
-          } else if (this.endIndex < activeIndex) {
-            buffer = (this.newChildren.length + this.scrollDistance) - activeIndex + this.endIndex;
+        if (activeIndex > this.endIndex) {
+          if (direction === 'next' || direction === 'right') {
+            buffer = this.newChildren.length + this.endIndex - activeIndex;
           } else {
-            buffer = (this.newChildren.length + this.scrollDistance) - this.endIndex + activeIndex;
+            buffer = activeIndex - this.endIndex;
           }
+        } else if (direction === 'next' || direction === 'right') {
+          buffer = this.endIndex - activeIndex;
         } else {
-          buffer = this.endIndex < activeIndex
-            ? activeIndex - this.endIndex
-            : this.endIndex - activeIndex;
+          buffer = this.newChildren.length + activeIndex - this.endIndex;
         }
-        for (let j = 0; j < buffer; j += 1) {
-          const rightIndex = this.items.getIndex(newActiveIndex + i + j);
-          const leftIndex = this.items.getIndex(newActiveIndex - i - j);
+        for (let j = 1; j < buffer; j += 1) {
+          const passIndex = slidesToShow + overScan;
+          const rightIndex = this.items.getIndex(newActiveIndex + passIndex + j);
+          const leftIndex = this.items.getIndex(newActiveIndex - passIndex - j);
           switch (type) {
             case 'arrows': {
               if (direction === 'next') getIndex.push(rightIndex);
@@ -909,7 +956,7 @@ class Slider extends Component {
           }
         }
       }
-      getIndex.sort((a, b) => a - b);
+      getIndex = [...new Set(getIndex)].sort((a, b) => a - b);
       for (i = 0; i < getIndex.length; i += 1) {
         const childrenIndex = getIndex[i];
         const children = this.newChildren[childrenIndex];
@@ -993,13 +1040,14 @@ class Slider extends Component {
             let right = 0;
             let left = 0;
             let direction = null;
-            if (activeIndex > options.index) {
-              right = this.newChildren.length - activeIndex + options.index;
+            const newIndex = options.index * options.dotsScroll;
+            if (activeIndex > newIndex) {
+              right = this.newChildren.length - activeIndex + newIndex;
               left = activeIndex - options.index;
               direction = right < left ? 'right' : 'left';
-            } else {
-              right = options.index - activeIndex;
-              left = this.newChildren.length - options.index + activeIndex;
+            } else if (activeIndex < newIndex) {
+              right = newIndex - activeIndex;
+              left = this.newChildren.length - newIndex + activeIndex;
               direction = right <= left ? 'right' : 'left';
             }
             this.scrollType = {
@@ -1007,7 +1055,7 @@ class Slider extends Component {
               direction
             };
             this.scrollOptions = options;
-            this.slickSet(options.index * options.dotsScroll);
+            this.slickSet(newIndex);
           },
           onMouseEnter: pauseOnDotsHover ? this.onDotsLeave : null,
           onMouseOver: pauseOnDotsHover ? this.onDotsOver : null,
