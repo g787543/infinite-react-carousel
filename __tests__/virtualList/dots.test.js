@@ -191,7 +191,7 @@ describe('[Dots]', () => {
     },
     2000);
     await wrapperInstance.testForScroll(() => {
-      wrapper.find('.carousel-dots .carousel-dot-4 button').simulate('click');
+      wrapper.find('.carousel-dots .carousel-dot-3 button').simulate('click');
     }, () => {
       expect(
         wrapper
@@ -199,17 +199,17 @@ describe('[Dots]', () => {
           .getDOMNode()
           .querySelector('.carousel-item.active')
           .textContent
-      ).toEqual('slide31');
-      expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 10, nextSlide: 30 });
+      ).toEqual('slide21');
+      expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 10, nextSlide: 20 });
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
         .querySelectorAll('.carousel-item').length).toEqual(5);
-      expect(wrapper.state().endSlide).toEqual(30);
+      expect(wrapper.state().endSlide).toEqual(20);
     },
     2000);
     await wrapperInstance.testForScroll(() => {
-      wrapper.find('.carousel-dots .carousel-dot-3 button').simulate('click');
+      wrapper.find('.carousel-dots .carousel-dot-2 button').simulate('click');
     }, async () => {
       expect(
         wrapper
@@ -217,14 +217,14 @@ describe('[Dots]', () => {
           .getDOMNode()
           .querySelector('.carousel-item.active')
           .textContent
-      ).toEqual('slide21');
-      expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 30, nextSlide: 20 });
+      ).toEqual('slide11');
+      expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 20, nextSlide: 10 });
       await delay(1000);
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
         .querySelectorAll('.carousel-item').length).toEqual(5);
-      expect(wrapper.state().endSlide).toEqual(20);
+      expect(wrapper.state().endSlide).toEqual(10);
     },
     2000);
   }, 10000);

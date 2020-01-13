@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { SliderWithVirtualList } from '../testComponent';
+import { delay } from '../test-helper';
 
 describe('[VirtualList]', () => {
   describe('virtualList is true', () => {
@@ -42,14 +43,14 @@ describe('[VirtualList]', () => {
         expect(wrapper
           .find('.carousel-track')
           .getDOMNode()
-          .querySelectorAll('.carousel-item').length).toEqual(9);
+          .querySelectorAll('.carousel-item').length).toEqual(7);
       }, 2000);
       await wrapperInstance.testForScroll(() => {
         wrapper.find('.carousel-next').simulate('click');
         expect(wrapper
           .find('.carousel-track')
           .getDOMNode()
-          .querySelectorAll('.carousel-item').length).toEqual(9);
+          .querySelectorAll('.carousel-item').length).toEqual(7);
       }, () => {
         expect(
           wrapper
@@ -62,7 +63,7 @@ describe('[VirtualList]', () => {
         expect(wrapper
           .find('.carousel-track')
           .getDOMNode()
-          .querySelectorAll('.carousel-item').length).toEqual(9);
+          .querySelectorAll('.carousel-item').length).toEqual(7);
       }, 2000);
     });
     it('set overScan to 3', async () => {
@@ -93,8 +94,34 @@ describe('[VirtualList]', () => {
         expect(wrapper
           .find('.carousel-track')
           .getDOMNode()
-          .querySelectorAll('.carousel-item').length).toEqual(11);
+          .querySelectorAll('.carousel-item').length).toEqual(9);
       }, 2000);
+    });
+    it('set centerMode is true', async () => {
+      wrapper.setProps({ centerMode: true }).update();
+      expect(wrapper
+        .find('.carousel-track')
+        .getDOMNode()
+        .querySelectorAll('.carousel-item').length).toEqual(9);
+      wrapper.setProps({ slidesToShow: 4 }).update();
+      wrapper.find('.carousel-next').simulate('click');
+      await delay(2000);
+      expect(wrapper
+        .find('.carousel-track')
+        .getDOMNode()
+        .querySelectorAll('.carousel-item').length).toEqual(10);
+      wrapper.setProps({ centerMode: false, slidesToShow: 5 }).update();
+      wrapper.find('.carousel-next').simulate('click');
+      await delay(2000);
+      expect(wrapper
+        .find('.carousel-track')
+        .getDOMNode()
+        .querySelectorAll('.carousel-item').length).toEqual(11);
+      try {
+        wrapper.setProps({ overScan: 0 }).update();
+      } catch (error) {
+        expect(error.message).toEqual('overScan shoud be greater or equal to 1 when you are useing virtualList and centerMode');
+      }
     });
   });
 });

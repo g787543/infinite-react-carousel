@@ -34,7 +34,7 @@ describe('[Arrows]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
     });
     await delay(1500);
     expect(wrapper.state().endSlide).toEqual(1);
@@ -52,7 +52,7 @@ describe('[Arrows]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
     }, 400);
     await wrapperInstance.testForScroll(() => {
       wrapper.find('.carousel-arrow.carousel-prev').simulate('click');
@@ -68,7 +68,7 @@ describe('[Arrows]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
     }, 600);
   });
   it('should slide 2 items', async () => {
@@ -100,7 +100,7 @@ describe('[Arrows]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
     }, 800);
     await delay(1500);
     expect(wrapper.state().endSlide).toEqual(3);
@@ -118,7 +118,7 @@ describe('[Arrows]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
     }, 1200);
   });
   it('should slide 3 items', async () => {
@@ -150,7 +150,7 @@ describe('[Arrows]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
     }, 1400);
     await delay(1500);
     expect(wrapper.state().endSlide).toEqual(4);
@@ -196,7 +196,7 @@ describe('[Arrows]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
     }, 1800);
     await delay(1500);
     expect(wrapper.state().endSlide).toEqual(11);

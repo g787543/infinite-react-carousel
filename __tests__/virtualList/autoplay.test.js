@@ -33,7 +33,7 @@ describe('[AutoPlay]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
       expect(wrapperInstance.getBeforeState()).toEqual({ currentSlide: 0, nextSlide: 1 });
       await delay(1500);
       expect(wrapper.state().endSlide).toEqual(1);
@@ -66,7 +66,7 @@ describe('[AutoPlay]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
       await delay(1500);
       expect(wrapper.state().endSlide).toEqual(3);
     }, defaultProps.autoplaySpeed + 200);
@@ -98,7 +98,7 @@ describe('[AutoPlay]', () => {
       expect(wrapper
         .find('.carousel-track')
         .getDOMNode()
-        .querySelectorAll('.carousel-item').length).toEqual(6);
+        .querySelectorAll('.carousel-item').length).toEqual(5);
       await delay(1500);
       expect(wrapper.state().endSlide).toEqual(6);
     }, defaultProps.autoplaySpeed + 200);
@@ -133,6 +133,6 @@ describe('[AutoPlay]', () => {
         .querySelectorAll('.carousel-item').length).toEqual(5);
       await delay(1500);
       expect(wrapper.state().endSlide).toEqual(16);
-    }, defaultProps.autoplaySpeed + 200);
+    }, defaultProps.autoplaySpeed + 600);
   });
 });
