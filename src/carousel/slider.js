@@ -982,7 +982,8 @@ class Slider extends Component {
       'slidesToShow',
       'prevArrow',
       'nextArrow',
-      'arrowsBlock'
+      'arrowsBlock',
+      'infinite',
     ]);
     let prevArrow;
     let nextArrow;
@@ -990,6 +991,7 @@ class Slider extends Component {
       prevArrow = (
         <PrevArrow
           {...arrowProps}
+          show={settings.infinite || activeIndex > 0}
           clickHandler={(options) => {
             this.beforeChangeTrigger = false;
             this.scrollType = {
@@ -1004,6 +1006,7 @@ class Slider extends Component {
       nextArrow = (
         <NextArrow
           {...arrowProps}
+          show={settings.infinite || activeIndex < this.newChildren.length - 1}
           clickHandler={(options) => {
             this.beforeChangeTrigger = false;
             this.scrollType = {

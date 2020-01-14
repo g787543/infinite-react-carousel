@@ -11,6 +11,7 @@ const Arrow = ({
   prevArrow,
   nextArrow,
   arrowsBlock,
+  show,
 }) => {
   const ClickHandler = (options, e) => {
     e.preventDefault();
@@ -67,6 +68,8 @@ const Arrow = ({
       ...arrowProps
       // ...customProps,
     });
+  } else if (!show) {
+    customArrow = null;
   } else {
     customArrow = (
       <button {...arrowProps} key={type === 'prev' ? '0' : '1'} type="button">
