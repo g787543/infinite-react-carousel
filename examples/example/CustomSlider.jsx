@@ -164,6 +164,9 @@ class CustomSlider extends Component {
       }, {
         name: 'accessibility',
         component: 'switch'
+      }, {
+        name: 'infinite',
+        component: 'switch',
       }]
     }, {
       name: 'Arrows',
