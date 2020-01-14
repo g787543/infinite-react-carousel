@@ -44,6 +44,7 @@ class Slider extends Component {
       settings: defaultProps,
       activeIndex: 0
     };
+    this.noWrap = false;
     this.touchObject = {};
     this.newChildren = [];
     this.virtualList = [];
@@ -158,6 +159,7 @@ class Slider extends Component {
         settings.overScan = 1;
       }
     }
+    this.noWrap = !settings.infinite;
     let { children } = this.props;
     children = React.Children.toArray(children).filter((child) => (typeof child === 'string' ? !!child.trim() : !!child));
     const newWith = this.widthInit();
@@ -409,7 +411,7 @@ class Slider extends Component {
       beforeChange,
       afterChange,
       slidesToShow,
-      virtualList
+      virtualList,
     } = settings;
     // Start actual scroll
     let i;
@@ -779,12 +781,17 @@ class Slider extends Component {
     if (this.scrollType.type === 'arrows') {
       this.doubleTrigger = true;
     }
+    const { activeIndex } = this.state;
+    let newIndex = activeIndex + 1;
     if (typeof n === 'number') {
-      this.cycleTo(n);
-    } else {
-      const { activeIndex } = this.state;
-      this.cycleTo(activeIndex + 1);
+      newIndex = n;
     }
+    if (newIndex >= this.items.length || newIndex < 0) {
+      if (this.noWrap) {
+        return;
+      }
+    }
+    this.cycleTo(newIndex);
   };
 
   /**
@@ -795,12 +802,17 @@ class Slider extends Component {
     if (this.scrollType.type === 'arrows') {
       this.doubleTrigger = true;
     }
+    const { activeIndex } = this.state;
+    let newIndex = activeIndex - 1;
     if (typeof n === 'number') {
-      this.cycleTo(n);
-    } else {
-      const { activeIndex } = this.state;
-      this.cycleTo(activeIndex - 1);
+      newIndex = n;
     }
+    if (newIndex >= this.items.length || newIndex < 0) {
+      if (this.noWrap) {
+        return;
+      }
+    }
+    this.cycleTo(newIndex);
   };
 
   /**
