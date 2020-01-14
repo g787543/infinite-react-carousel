@@ -58,7 +58,8 @@ const defaultProps = {
   wheel: false,
   wheelScroll: 1,
   virtualList: false,
-  overScan: 2
+  overScan: 2,
+  infinite: false,
 };
 
 const propTypes = {
@@ -123,7 +124,8 @@ const propTypes = {
   onResize: PropTypes.func,
   onSwipe: PropTypes.func,
   virtualList: PropTypes.bool,
-  overScan: PropTypes.number
+  overScan: PropTypes.number,
+  infinite: PropTypes.bool,
 };
 
 const dotsDefaultProps = {
@@ -153,7 +155,7 @@ const dotsPropTypes = {
   onMouseLeave: PropTypes.func,
   customPaging: PropTypes.func,
   appendDots: PropTypes.func,
-  dotsClass: PropTypes.string
+  dotsClass: PropTypes.string,
 };
 
 const arrowsPropTypes = {
