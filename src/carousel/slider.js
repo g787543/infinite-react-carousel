@@ -522,25 +522,44 @@ class Slider extends Component {
       }
     }
     if (centerMode) {
-      const half = Math.floor(scrollItem.length / 2);
-      for (i = 1; i <= half; i += 1) {
-        // right side
-        // Don't show wrapped items.
-        if (!this.noWrap || this.center + i < scrollItem.length) {
+      if (this.noWrap) {
+        for (i = 1; i < scrollItem.length - this.center; i += 1) {
+          // right side
           el = this.getItem(scrollItem, this.wrap(this.center + i));
           if (el) {
             const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
             this.updateItemStyle(el, transformString);
           }
         }
-
-        // left side
-        // Don't show wrapped items.
-        if (!this.noWrap || this.center - i >= 0) {
+        for (i = this.center; i > 0; i -= 1) {
+          // left side
           el = this.getItem(scrollItem, this.wrap(this.center - i));
           if (el) {
             const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
             this.updateItemStyle(el, transformString);
+          }
+        }
+      } else {
+        const half = Math.floor(scrollItem.length / 2);
+        for (i = 1; i <= half; i += 1) {
+          // right side
+          // Don't show wrapped items.
+          if (!this.noWrap || this.center + i < scrollItem.length) {
+            el = this.getItem(scrollItem, this.wrap(this.center + i));
+            if (el) {
+              const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
+              this.updateItemStyle(el, transformString);
+            }
+          }
+
+          // left side
+          // Don't show wrapped items.
+          if (!this.noWrap || this.center - i >= 0) {
+            el = this.getItem(scrollItem, this.wrap(this.center - i));
+            if (el) {
+              const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+              this.updateItemStyle(el, transformString);
+            }
           }
         }
       }
@@ -560,23 +579,41 @@ class Slider extends Component {
           this.updateItemStyle(el, transformString);
         }
       }
-
-      const half = Math.ceil((scrollItem.length - slidesToShow) / 2);
-      for (i = 0; i < half; i += 1) {
-        // right side
-        if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
-          el = this.getItem(scrollItem, this.wrap(this.center + slidesToShow + i));
+      if (this.noWrap) {
+        for (i = 1; i < scrollItem.length - this.center; i += 1) {
+          // right side
+          el = this.getItem(scrollItem, this.wrap(this.center + i));
           if (el) {
-            const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
+            const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
             this.updateItemStyle(el, transformString);
           }
         }
-        // left side
-        if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
-          el = this.getItem(scrollItem, this.wrap(this.center - i - 1));
+        for (i = this.center; i > 0; i -= 1) {
+          // left side
+          el = this.getItem(scrollItem, this.wrap(this.center - i));
           if (el) {
-            const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * (i + 1) - delta) / 2}px)`;
+            const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
             this.updateItemStyle(el, transformString);
+          }
+        }
+      } else {
+        const half = Math.ceil((scrollItem.length - slidesToShow) / 2);
+        for (i = 0; i < half; i += 1) {
+          // right side
+          if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
+            el = this.getItem(scrollItem, this.wrap(this.center + slidesToShow + i));
+            if (el) {
+              const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
+              this.updateItemStyle(el, transformString);
+            }
+          }
+          // left side
+          if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
+            el = this.getItem(scrollItem, this.wrap(this.center - i - 1));
+            if (el) {
+              const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * (i + 1) - delta) / 2}px)`;
+              this.updateItemStyle(el, transformString);
+            }
           }
         }
       }
@@ -584,7 +621,11 @@ class Slider extends Component {
 
     // center
     // Don't show wrapped items.
-    if ((!this.noWrap || (this.center < this.items.length)) && slidesToShow < scrollItem.length) {
+    if (
+      this.center < this.items.length
+      && slidesToShow < scrollItem.length
+      && ((this.center >= 0 && this.center < this.items.length && this.noWrap) || !this.noWrap)
+    ) {
       el = this.getItem(scrollItem, this.center);
       if (el) {
         if (!el.classList.contains('active')) {
@@ -781,12 +822,12 @@ class Slider extends Component {
     if (this.scrollType.type === 'arrows') {
       this.doubleTrigger = true;
     }
-    const { activeIndex } = this.state;
+    const { activeIndex, settings: { slidesToShow } } = this.state;
     let newIndex = activeIndex + 1;
     if (typeof n === 'number') {
       newIndex = n;
     }
-    if (newIndex >= this.items.length || newIndex < 0) {
+    if (newIndex + slidesToShow > this.items.length || newIndex < 0) {
       if (this.noWrap) {
         return;
       }
@@ -1018,7 +1059,7 @@ class Slider extends Component {
       nextArrow = (
         <NextArrow
           {...arrowProps}
-          show={settings.infinite || activeIndex < this.newChildren.length - 1}
+          show={settings.infinite || activeIndex + settings.slidesToShow < this.newChildren.length}
           clickHandler={(options) => {
             this.beforeChangeTrigger = false;
             this.scrollType = {
