@@ -59,7 +59,7 @@ const defaultProps = {
   wheelScroll: 1,
   virtualList: false,
   overScan: 2,
-  infinite: false,
+  infinite: true,
 };
 
 const propTypes = {

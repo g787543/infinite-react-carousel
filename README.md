@@ -84,6 +84,7 @@ const SimpleSlider = () => (
 | wheelScroll | How many slides to scroll when wheel trigger | 1 | Number |
 | virtualList |  | false | Boolean |
 | overScan | Number of items to render before/after the visible slice of the carousel | 2 | Number |
+| infinite | Infinitely wrap around contents | true | Boolean |
 
 ### Methods
 
