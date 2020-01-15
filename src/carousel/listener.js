@@ -202,6 +202,10 @@ export function handleWheel(e) {
   }
 }
 
+export function handleVisibilityChange() {
+  this.changeWindow = document.visibilityState === 'visible';
+}
+
 export function signupListener() {
   const { settings, SliderRef } = this.state;
   const { swipe, accessibility, wheel } = settings;
@@ -232,7 +236,12 @@ export function signupListener() {
 
 export function removeListener() {
   const { settings, SliderRef } = this.state;
-  const { swipe, accessibility, wheel } = settings;
+  const {
+    swipe,
+    accessibility,
+    wheel,
+    autoplay
+  } = settings;
   if (swipe) {
     SliderRef.removeEventListener('touchstart', this.handleCarouselTap);
     SliderRef.removeEventListener('touchmove', this.handleCarouselDrag);
@@ -243,6 +252,9 @@ export function removeListener() {
   }
   if (wheel) {
     SliderRef.removeEventListener('wheel', this.handleWheel);
+  }
+  if (autoplay) {
+    window.removeEventListener('visibilitychange', this.handleVisibilityChange);
   }
   SliderRef.removeEventListener('mousedown', this.handleCarouselTap);
   SliderRef.removeEventListener('mousemove', this.handleCarouselDrag);
