@@ -509,7 +509,7 @@ class Slider extends Component {
         const transformString = `${alignment} translateX(0px)`;
         this.updateItemStyle(el, transformString);
       }
-    } else if (!this.noWrap || (this.center >= 0 && this.center < scrollItem.length)) {
+    } else if (!this.noWrap || (index >= 0 && index < scrollItem.length)) {
       el = this.getItem(scrollItem, index);
       if (el) {
         // Add active class to center item.
@@ -521,49 +521,7 @@ class Slider extends Component {
         this.updateItemStyle(el, transformString);
       }
     }
-    if (centerMode) {
-      if (this.noWrap) {
-        for (i = 1; i < scrollItem.length - this.center; i += 1) {
-          // right side
-          el = this.getItem(scrollItem, this.wrap(this.center + i));
-          if (el) {
-            const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
-            this.updateItemStyle(el, transformString);
-          }
-        }
-        for (i = this.center; i > 0; i -= 1) {
-          // left side
-          el = this.getItem(scrollItem, this.wrap(this.center - i));
-          if (el) {
-            const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
-            this.updateItemStyle(el, transformString);
-          }
-        }
-      } else {
-        const half = Math.floor(scrollItem.length / 2);
-        for (i = 1; i <= half; i += 1) {
-          // right side
-          // Don't show wrapped items.
-          if (!this.noWrap || this.center + i < scrollItem.length) {
-            el = this.getItem(scrollItem, this.wrap(this.center + i));
-            if (el) {
-              const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
-              this.updateItemStyle(el, transformString);
-            }
-          }
-
-          // left side
-          // Don't show wrapped items.
-          if (!this.noWrap || this.center - i >= 0) {
-            el = this.getItem(scrollItem, this.wrap(this.center - i));
-            if (el) {
-              const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
-              this.updateItemStyle(el, transformString);
-            }
-          }
-        }
-      }
-    } else if (scrollItem.length <= slidesToShow) {
+    if (scrollItem.length <= slidesToShow) {
       for (i = 1; i < scrollItem.length; i += 1) {
         el = this.getItem(scrollItem, i);
         if (el) {
@@ -572,49 +530,34 @@ class Slider extends Component {
         }
       }
     } else {
-      for (i = 1; i < slidesToShow; i += 1) {
-        el = this.getItem(scrollItem, this.wrap(this.center + i));
-        if (el) {
-          const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
-          this.updateItemStyle(el, transformString);
-        }
-      }
-      if (this.noWrap) {
-        for (i = 1; i < scrollItem.length - this.center; i += 1) {
-          // right side
+      let half = Math.floor(scrollItem.length / 2);
+      if (!centerMode) {
+        half = Math.ceil((scrollItem.length - slidesToShow) / 2);
+        for (i = 1; i < slidesToShow; i += 1) {
           el = this.getItem(scrollItem, this.wrap(this.center + i));
           if (el) {
             const transformString = `${alignment} translateX(${settings.shift + (this.dim * i - delta) / 2}px)`;
             this.updateItemStyle(el, transformString);
           }
         }
-        for (i = this.center; i > 0; i -= 1) {
-          // left side
-          el = this.getItem(scrollItem, this.wrap(this.center - i));
-          if (el) {
-            const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
-            this.updateItemStyle(el, transformString);
-          }
+      }
+      for (i = 1; i <= half; i += 1) {
+        // right side
+        let shiftIndex = 0;
+        if (!centerMode) {
+          shiftIndex = slidesToShow - 1;
         }
-      } else {
-        const half = Math.ceil((scrollItem.length - slidesToShow) / 2);
-        for (i = 0; i < half; i += 1) {
-          // right side
-          if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
-            el = this.getItem(scrollItem, this.wrap(this.center + slidesToShow + i));
-            if (el) {
-              const transformString = `${alignment} translateX(${settings.shift + (this.dim * (slidesToShow + i) - delta) / 2}px)`;
-              this.updateItemStyle(el, transformString);
-            }
-          }
-          // left side
-          if (!this.noWrap || this.center + slidesToShow + i < scrollItem.length) {
-            el = this.getItem(scrollItem, this.wrap(this.center - i - 1));
-            if (el) {
-              const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * (i + 1) - delta) / 2}px)`;
-              this.updateItemStyle(el, transformString);
-            }
-          }
+        el = this.getItem(scrollItem, this.wrap(this.center + i + shiftIndex));
+        if (el) {
+          const transformString = `${alignment} translateX(${settings.shift + (this.dim * (i + shiftIndex) - delta) / 2}px)`;
+          this.updateItemStyle(el, transformString);
+        }
+
+        // left side
+        el = this.getItem(scrollItem, this.wrap(this.center - i));
+        if (el) {
+          const transformString = `${alignment} translateX(${-settings.shift + (-this.dim * i - delta) / 2}px)`;
+          this.updateItemStyle(el, transformString);
         }
       }
     }
@@ -622,9 +565,9 @@ class Slider extends Component {
     // center
     // Don't show wrapped items.
     if (
-      this.center < this.items.length
+      index < this.items.length
       && slidesToShow < scrollItem.length
-      && ((this.center >= 0 && this.center < this.items.length && this.noWrap) || !this.noWrap)
+      && ((index >= 0 && index < this.items.length && this.noWrap) || !this.noWrap)
     ) {
       el = this.getItem(scrollItem, this.center);
       if (el) {
