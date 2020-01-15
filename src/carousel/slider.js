@@ -20,7 +20,8 @@ import {
   handleKeyDown,
   handleResize,
   handleResizeHeight,
-  handleWheel
+  handleWheel,
+  handleVisibilityChange,
 } from './listener';
 import './style.css';
 
@@ -75,6 +76,7 @@ class Slider extends Component {
     this.rerender = false;
     this.resizeHeight = false;
     this.endIndex = null;
+    this.changeWindow = false;
     /* functionBind */
     this.scroll = this.scroll.bind(this);
     this.setRef = this.setRef.bind(this);
@@ -93,6 +95,7 @@ class Slider extends Component {
     this.handleAutoplayPause = handleAutoplayPause.bind(this);
     this.handleResize = throttle(handleResize.bind(this), 1000, { leading: true });
     this.handleResizeHeight = throttle(handleResizeHeight.bind(this), 500);
+    this.handleVisibilityChange = handleVisibilityChange.bind(this);
     this.handleKeyDown = handleKeyDown.bind(this);
     this.handleClick = handleClick.bind(this);
     this.handleWheel = handleWheel.bind(this);
@@ -274,6 +277,7 @@ class Slider extends Component {
         this.beforeChangeTrigger = false;
         this.slickNext(activeIndex + autoplayScroll);
       }, autoplaySpeed);
+      window.addEventListener('visibilitychange', this.handleVisibilityChange);
       if (pauseOnHover) {
         SliderRef.addEventListener('mouseover', this.handleAutoplayPause);
         SliderRef.removeEventListener('mouseleave', this.autoPlay);
@@ -366,6 +370,9 @@ class Slider extends Component {
       } else if (delta > 2 || delta < -2) {
         this.scroll(type === 'start' ? type : 'auto', this.target - delta);
         requestAnimationFrame(this.autoScroll);
+      } else if (this.changeWindow) {
+        this.changeWindow = false;
+        this.scroll('auto', this.target);
       } else {
         this.scroll('end', this.target);
       }
