@@ -1,4 +1,4 @@
-import { getSwipeDirection, keyHandler } from './utils';
+import { getSwipeDirection, keyHandler, judgeDirection } from './utils';
 
 /**
  * Handle Carousel Tap
@@ -40,24 +40,34 @@ export function handleCarouselDrag(e) {
       endX: x,
       endY: y
     }));
-    this.scrollType = {
-      type: 'scroll',
-      direction
-    };
-    if (deltaY < 30 && !this.verticalDragged) {
-      // If vertical scrolling don't allow dragging.
-      if (delta > 2 || delta < -2) {
-        this.dragged = true;
-        this.reference = x;
-        this.scroll('drag', this.offset + delta);
+    const { settings: { infinite, slidesToShow }, activeIndex } = this.state;
+    if (infinite
+      || (!infinite
+        && ((activeIndex > 0 && activeIndex < (this.newChildren.length - slidesToShow)) || (
+          (activeIndex === 0 && direction === 'left')
+          || (activeIndex === (this.newChildren.length - slidesToShow) && direction === 'right')
+        ))
+      )
+    ) {
+      this.scrollType = {
+        type: 'scroll',
+        direction: judgeDirection(direction)
+      };
+      if (deltaY < 30 && !this.verticalDragged) {
+        // If vertical scrolling don't allow dragging.
+        if (delta > 2 || delta < -2) {
+          this.dragged = true;
+          this.reference = x;
+          this.scroll('drag', this.offset + delta);
+        }
+      } else if (this.dragged) {
+        // If dragging don't allow vertical scroll.
+        e.preventDefault();
+        e.stopPropagation();
+      } else {
+        // Vertical scrolling.
+        this.verticalDragged = true;
       }
-    } else if (this.dragged) {
-      // If dragging don't allow vertical scroll.
-      e.preventDefault();
-      e.stopPropagation();
-    } else {
-      // Vertical scrolling.
-      this.verticalDragged = true;
     }
   }
 
