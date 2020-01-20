@@ -34,3 +34,15 @@ export const keyHandler = (e, accessibility, rtl) => {
   if (e.keyCode === 39) return rtl ? 'previous' : 'next';
   return '';
 };
+
+export const judgeDirection = (direction) => {
+  let result = '';
+  if (direction === 'right' || direction === 'down') {
+    result = 'prev';
+  } else if (direction === 'left' || direction === 'up') {
+    result = 'next';
+  } else {
+    result = direction;
+  }
+  return result;
+};
