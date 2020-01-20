@@ -821,35 +821,11 @@ class Slider extends Component {
       let newActiveIndex = activeIndex;
       const { type } = this.scrollType;
       let { direction } = this.scrollType;
-      switch (type) {
-        case 'scroll': {
-          if (direction === 'left') newActiveIndex += 1;
-          else newActiveIndex -= 1;
-          break;
-        }
-        case 'arrows': {
-          if (direction === 'next') newActiveIndex += 1;
-          else newActiveIndex -= 1;
-          break;
-        }
-        case 'dots': {
-          if (direction === 'right') newActiveIndex += 1;
-          else newActiveIndex -= 1;
-          break;
-        }
-        case 'wheel': {
-          if (direction === 'next') newActiveIndex += 1;
-          else newActiveIndex -= 1;
-          break;
-        }
-        case 'autoplay': {
-          newActiveIndex += 1;
-          direction = 'right';
-          break;
-        }
-        default:
-          break;
-      }
+      if (type === 'autoplay') {
+        newActiveIndex += 1;
+        direction = 'next';
+      } else if (direction === 'next') newActiveIndex += 1;
+      else newActiveIndex -= 1;
       let i = 0;
       if (centerMode) {
         if (slidesToShow % 2 > 0) {
@@ -913,12 +889,12 @@ class Slider extends Component {
       if (this.endIndex >= 0 && typeof this.endIndex === 'number') {
         let buffer = 0;
         if (activeIndex > this.endIndex) {
-          if (direction === 'next' || direction === 'right') {
+          if (direction === 'next') {
             buffer = this.newChildren.length + this.endIndex - activeIndex;
           } else {
             buffer = activeIndex - this.endIndex;
           }
-        } else if (direction === 'next' || direction === 'right') {
+        } else if (direction === 'next') {
           buffer = this.endIndex - activeIndex;
         } else {
           buffer = this.newChildren.length + activeIndex - this.endIndex;
@@ -927,29 +903,10 @@ class Slider extends Component {
           const passIndex = slidesToShow + overScan;
           const rightIndex = this.items.getIndex(newActiveIndex + passIndex + j);
           const leftIndex = this.items.getIndex(newActiveIndex - passIndex - j);
-          switch (type) {
-            case 'arrows': {
-              if (direction === 'next') getIndex.push(rightIndex);
-              else getIndex.unshift(leftIndex);
-              break;
-            }
-            case 'dots': {
-              if (direction === 'right') getIndex.push(rightIndex);
-              else getIndex.unshift(leftIndex);
-              break;
-            }
-            case 'wheel': {
-              if (direction === 'next') getIndex.push(rightIndex);
-              else getIndex.unshift(leftIndex);
-              break;
-            }
-            case 'autoplay': {
-              getIndex.push(rightIndex);
-              break;
-            }
-            default:
-              break;
-          }
+          if (type === 'autoplay') {
+            getIndex.push(rightIndex);
+          } else if (direction === 'next') getIndex.push(rightIndex);
+          else getIndex.unshift(leftIndex);
         }
       }
       getIndex = [...new Set(getIndex)].sort((a, b) => a - b);
@@ -1040,14 +997,20 @@ class Slider extends Component {
             let left = 0;
             let direction = null;
             const newIndex = options.index * options.dotsScroll;
-            if (activeIndex > newIndex) {
-              right = this.newChildren.length - activeIndex + newIndex;
-              left = activeIndex - options.index;
-              direction = right < left ? 'right' : 'left';
+            if (settings.infinite) {
+              if (activeIndex > newIndex) {
+                right = this.newChildren.length - activeIndex + newIndex;
+                left = activeIndex - options.index;
+                direction = right < left ? 'next' : 'prev';
+              } else if (activeIndex < newIndex) {
+                right = newIndex - activeIndex;
+                left = this.newChildren.length - newIndex + activeIndex;
+                direction = right <= left ? 'next' : 'prev';
+              }
+            } else if (activeIndex > newIndex) {
+              direction = 'prev';
             } else if (activeIndex < newIndex) {
-              right = newIndex - activeIndex;
-              left = this.newChildren.length - newIndex + activeIndex;
-              direction = right <= left ? 'right' : 'left';
+              direction = 'next';
             }
             this.scrollType = {
               type: 'dots',
