@@ -31,7 +31,7 @@ class Carousel extends Component {
 Carousel.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.element),
-    PropTypes.arrayOf(PropTypes.instanceOf(Element)),
+    PropTypes.arrayOf(PropTypes.instanceOf(typeof Element !== 'undefined' && Element)),
     PropTypes.func,
     PropTypes.oneOf([null])
   ]).isRequired
