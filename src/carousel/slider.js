@@ -59,7 +59,7 @@ class Slider extends Component {
     this.autoplayTimer = null;
     ['', 'Webkit', 'Moz', 'O', 'ms'].every((prefix) => {
       const e = `${prefix}Transform`;
-      if (typeof document.body.style[e] !== 'undefined') {
+      if (typeof document !== 'undefined' && typeof document.body.style[e] !== 'undefined') {
         this.xform = e;
         return false;
       }

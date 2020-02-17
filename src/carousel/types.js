@@ -90,7 +90,7 @@ const propTypes = {
   ]),
   lazyLoad: PropTypes.bool,
   nextArrow: PropTypes.oneOfType([
-    PropTypes.instanceOf(Element),
+    PropTypes.instanceOf(typeof Element !== 'undefined' && Element),
     PropTypes.element
   ]),
   onEdge: PropTypes.func,
@@ -101,7 +101,7 @@ const propTypes = {
   pauseOnFocus: PropTypes.bool,
   pauseOnHover: PropTypes.bool,
   prevArrow: PropTypes.oneOfType([
-    PropTypes.instanceOf(Element),
+    PropTypes.instanceOf(typeof Element !== 'undefined' && Element),
     PropTypes.element
   ]),
   responsive: PropTypes.array,
@@ -166,13 +166,13 @@ const arrowsPropTypes = {
   prevArrow: PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.element,
-    PropTypes.instanceOf(Element),
+    PropTypes.instanceOf(typeof Element !== 'undefined' && Element),
     PropTypes.oneOf([null])
   ]),
   nextArrow: PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.element,
-    PropTypes.instanceOf(Element),
+    PropTypes.instanceOf(typeof Element !== 'undefined' && Element),
     PropTypes.oneOf([null])
   ]),
   arrowsBlock: PropTypes.bool,

@@ -203,7 +203,7 @@ export function handleWheel(e) {
 }
 
 export function handleVisibilityChange() {
-  this.changeWindow = document.visibilityState === 'visible';
+  this.changeWindow = typeof document !== 'undefined' && document.visibilityState === 'visible';
 }
 
 export function signupListener() {
