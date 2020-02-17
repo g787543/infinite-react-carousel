@@ -16,7 +16,9 @@ class CircularArray {
     } else if (typeof n === 'object' && Array.isArray(n)) {
       this.array = n;
     } else if (typeof n === 'object' && n.length > 0 && n instanceof NodeList) {
-      n.forEach((e) => this.array.push(e));
+      for (let i = 0; i < n.length; i += 1) {
+        this.array.push(n[i]);
+      }
       this.key = this.array.map((item) => {
         const {
           dataset: {
