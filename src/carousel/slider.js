@@ -27,9 +27,10 @@ import './style.css';
 
 const extractObject = (spec, keys) => {
   const newObject = {};
-  keys.forEach((key) => {
+  for(let i = 0; i < keys.length; i += 1) {
+    const key = keys[i];
     newObject[key] = spec[key];
-  });
+  }
   return newObject;
 };
 class Slider extends Component {
