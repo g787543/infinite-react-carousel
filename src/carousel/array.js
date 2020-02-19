@@ -36,11 +36,12 @@ class CircularArray {
   toString = (array) => {
     const result = [];
     const newArray = array || this.array;
-    newArray.forEach((item) => {
+    for (let i = 0; i < newArray.length; i += 1) {
+      const item = newArray[i];
       if (typeof item === 'object' && item instanceof Array) result.push(`[${this.toString(item)}]`);
       else if (typeof item === 'object') result.push(JSON.stringify(item));
       else result.push(item.toString());
-    });
+    }
     return result.join(',');
   };
 
