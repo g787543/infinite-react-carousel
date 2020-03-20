@@ -1,3 +1,5 @@
+###  📣: I have been busy with work recently and I want to find someone to maintain this project together. If any one want to maintain please create new issue or send email, thanks a lot.
+
 # infinite-react-carousel
 
 [![npm](https://img.shields.io/npm/v/infinite-react-carousel.svg)](https://www.npmjs.com/package/infinite-react-carousel)
